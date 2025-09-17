@@ -1,0 +1,131 @@
+/* Tailwind base imports */
+@import "tailwindcss";
+
+/* Global theme variables */
+@layer base {
+  :root {
+    /* page */
+    --bg-color: #ffffff;
+    --text-color: #000000;
+
+    /* header */
+    --header-bg: #ffffff;
+    --header-text: #000000;
+
+    /* topbar */
+    --topbar-bg: #f3f4f6;
+    /* gray-100 */
+    --topbar-text: #111827;
+    /* gray-900 */
+
+    /* search */
+    --search-bg: #e5e7eb;
+    /* gray-200 */
+
+    /* icons */
+    --icon-bg: #e5e7eb;
+    /* gray-200 */
+    --icon-color: #111827;
+    /* gray-900 */
+    --cart-icon-color: #111827;
+    --icon-hover-bg: rgba(0, 0, 0, 0.08);
+    --icon-invert: 0;
+
+    /* accent */
+    --accent: #d4af37;
+    /* gold */
+    --accent-2: #f3d38c;
+    /* light gold */
+    --accent-text: #111827;
+    /* gray-900 */
+  }
+
+  .dark {
+    /* page */
+    --bg-color: #000000;
+    --text-color: #ffffff;
+
+    /* header */
+    --header-bg: #1d1d1d;
+    --header-text: #ffffff;
+
+    /* topbar */
+    --topbar-bg: #2c2c2c;
+    --topbar-text: #ffffff;
+
+    /* search */
+    --search-bg: #2c2c2c;
+
+    color-scheme: dark;
+  }
+}
+
+
+/* Utility for theming monochrome icons + custom fonts */
+@layer utilities {
+  .themed-icon {
+    filter: invert(var(--icon-invert));
+  }
+
+  .btn-accent {
+    background-image: linear-gradient(90deg, var(--accent), var(--accent-2));
+    color: var(--accent-text);
+  }
+
+  .btn-accent:hover {
+    filter: brightness(1.05);
+  }
+
+  .font-kufam {
+    font-family: 'Kufam', ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, 'Apple Color Emoji', 'Segoe UI Emoji';
+  }
+
+  .font-ginger {
+    font-family: 'Ginger', ui-serif, Georgia, Cambria, "Times New Roman", Times, serif;
+  }
+
+  .font-belleza {
+    font-family: 'Belleza', ui-serif, Georgia, Cambria, "Times New Roman", Times, serif;
+  }
+
+  .font-nunito {
+    font-family: 'Nunito Sans', ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, 'Apple Color Emoji', 'Segoe UI Emoji';
+  }
+
+  .font-unna {
+    font-family: 'Unna', ui-serif, Georgia, Cambria, "Times New Roman", Times, serif;
+  }
+
+}
+
+.custom-clock .react-clock__hour-hand__body::after {
+  content: "";
+  position: absolute;
+  top: -12px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 26px;
+  height: 26px;
+  background: orange;
+  border-radius: 50%;
+  z-index: 0;
+  /* so that number goes above if needed */
+}
+
+.custom-clock .react-clock__hour-hand__body {
+  background-color: #C79954 !important;
+}
+
+@import "leaflet/dist/leaflet.css";
+
+
+/* .rdrCalendarWrapper {
+  background-color: #fff !important; 
+  color: #111 !important;
+  border-radius: 0.5rem;
+  padding: 1rem;
+}
+.dark .rdrCalendarWrapper {
+  background-color: #1d1d1d !important; 
+  color: #fff !important;
+} */
