@@ -1,6 +1,8 @@
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useTheme } from "../../config/hooks/useTheme";
+import AOS from "aos";
+import "aos/dist/aos.css";
 
 // Example product images
 import Ring from "../../../assets/about/ring.svg";
@@ -21,6 +23,20 @@ const JewelleryEveryMoment = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const navigate = useNavigate();
   const { wishlist, addToWishlist, removeFromWishlist } = useWishlist();
+
+  useEffect(() => {
+    setTimeout(() => {
+      AOS.init({
+        offset: 200,
+        delay: 0,
+        duration: 2000,
+        easing: "ease",
+        once: false,
+        mirror: true,
+      });
+      AOS.refresh();
+    }, 100);
+  }, []);
 
   const itemsPerPage = 4;
   const products = [
@@ -101,11 +117,17 @@ const JewelleryEveryMoment = () => {
       {/* Product Grid */}
       <div className="flex flex-col gap-[20px] justify-center">
         <div className="grid xl:gap-[20px] xl:mx-24 md:mx-10 lg:mx-5 mx-4 gap-[15px] grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 justify-items-center">
-          {products.map((product) => {
+          {products.map((product, idx) => {
             const isInWishlist = wishlist.some((item) => item.id === product.id);
 
             return (
-              <div key={product.id} className="relative w-full max-w-[368px] h-auto flex flex-col shadow-md hover:shadow-lg transition-transform duration-300 overflow-hidden">
+              <div
+                key={product.id}
+                data-aos="fade-right"
+                data-aos-delay={(products.length - 1 - idx) * 200}
+                // data-aos-delay={idx * 200}
+                className="relative w-full max-w-[368px] h-auto flex flex-col shadow-md hover:shadow-lg transition-transform duration-300 overflow-hidden"
+              >
                 {product.tag && (
                   <span className="absolute top-[6px] left-[10px] bg-[#FFFFFF] text-black text-xs font-semibold px-[10px] py-[6px]">
                     {product.tag}

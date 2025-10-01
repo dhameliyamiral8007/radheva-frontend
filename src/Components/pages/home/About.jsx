@@ -1,4 +1,7 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { useLocation } from "react-router-dom";
+import AOS from "aos";
+import "aos/dist/aos.css";
 import { useTheme } from "../../config/hooks/useTheme";
 // Switched to SVG icons for better contrast and crisp rendering
 import Round from "../../../assets/about/round.svg";
@@ -32,6 +35,20 @@ import JwellaryEveryMoment from "./JewelleryEveryMoment"
 import likeFilled from "../../../assets/fillLike.svg";
 
 const About = () => {
+  const location = useLocation();
+  useEffect(() => {
+    setTimeout(() => {
+      AOS.init({
+        offset: 200,
+        delay: 0,
+        duration: 2000,
+        easing: "ease",
+        once: false, // allow repeat
+        mirror: true, // animate every time visible
+      });
+      AOS.refresh();
+    }, 100);
+  }, [location]);
   const { colors, theme } = useTheme();
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 4;
@@ -62,13 +79,7 @@ const About = () => {
     { id: 4, name: "BRACELETS", icon: Bracelets },
   ];
 
-  const information = [
-    { id: 1, title: "Gift Package", description: "We'll Choose The Perfect Gift Box For Your Present.", icon: gift, },
-    { id: 2, title: "Diamond Selection", description: "Our Consultants Will Help You To Choose The Right Size.", icon: diamond },
-    { id: 3, title: "Design Your Ring", description: "Individual Engraving To Perpetuate The Deepest Feelings.", icon: design },
-    { id: 4, title: "Certified Jewelry", description: "Certified Craftsmanship That Speaks For Itself.", icon: certified },
 
-  ]
   // Calculate total pages
   const totalPages = Math.ceil(diamondShapes.length / itemsPerPage);
 
@@ -114,7 +125,7 @@ const About = () => {
   };
   return (
     <div
-      className={`${colors.firstPart.background} ${colors.firstPart.text} w-full `}
+      className={`animate__animated animate__fadeInUp ${colors.firstPart.background} ${colors.firstPart.text} w-full `}
     >
       {/* SHOP BY DIAMOND */}
       <div className="text-center mb-12 py-5">
@@ -126,9 +137,10 @@ const About = () => {
       </div>
 
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 lg:grid-cols-5 xl:mx-24 lg:mx-5 md:mx-10 mx-4 xl:grid-cols-10 gap-6 justify-items-center">
-        {diamondShapes.map((shape) => (
+        {diamondShapes.map((shape, idx) => (
           <div
             key={shape.id}
+            data-aos={idx % 2 === 0 ? "fade-right" : "fade-left"}
             className="flex flex-col items-center w-[130px] gap-[20px] p-4 hover:scale-105 transition-transform duration-300"
           >
             <img
@@ -154,12 +166,14 @@ const About = () => {
       <div className="flex flex-col gap-[20px] justify-center">
         {/* Categories Section */}
         <div className="grid xl:gap-[20px] xl:mx-24 lg:mx-5 md:mx-10 mx-4 gap-[15px] grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 justify-items-center">
-          {categories.map((cat) => {
+          {categories.map((cat, idx) => {
             const isInWishlist = wishlist.some((item) => item.id === cat.id);
 
             return (
               <div
                 key={cat.id}
+                data-aos={idx % 2 === 0 ? "fade-up" : "fade-down"}
+                data-aos-delay={idx * 150}
                 className="relative group gap-[4px] flex flex-col shadow-md transition-transform duration-300 overflow-hidden rounded-xl"
               >
                 {/* Like & View buttons */}
