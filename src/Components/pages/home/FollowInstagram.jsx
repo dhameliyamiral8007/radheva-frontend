@@ -30,7 +30,7 @@ const FollowInstagram = () => {
     return (
         <div className={`${colors.secondPart.background} ${colors.secondPart.text} w-full`}>
             {/* Title */}
-            <div className="text-center">
+            <div className="text-center py-4 sm:py-5 px-4 sm:px-6 lg:px-8">
                 <h2 className="md:text-[38px] text-[22px] leading-[100%] tracking-[0px] font-belleza inline-flex flex-col items-center gap-[12px]">
                     FOLLOW US ON INSTAGRAM
                     <img

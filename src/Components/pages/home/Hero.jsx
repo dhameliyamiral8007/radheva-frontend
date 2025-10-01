@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
-import { fetchSliders } from "../../../redux/slices/sliderSlice";
+import { fetchSliders } from "../../redux/slice/sliderSlice";
 const Hero = () => {
 	const dispatch = useDispatch();
 	const { data: images, loading, error } = useSelector((state) => state.slider);

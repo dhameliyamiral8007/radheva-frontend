@@ -20,7 +20,7 @@ const index = () => {
             {/* <JewelleryEveryMoment /> */}
             <CuratedRadiance />
             <Advertise />
-            <HeritagePieces />
+            {/* <HeritagePieces /> */}
             <FollowInstagram />
             <div className={`${colors.firstPart.background} ${colors.firstPart.text} w-full`}>
                 <div className="text-center py-8" >
