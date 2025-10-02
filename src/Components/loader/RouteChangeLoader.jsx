@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import {  useLocation } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 import Loader from './Loader';
 
 const RouteChangeLoader = () => {
@@ -9,7 +9,7 @@ const RouteChangeLoader = () => {
   useEffect(() => {
     // Trigger on location change
     setLoading(true);
-    const t = setTimeout(() => setLoading(false), 300); // small grace time
+    const t = setTimeout(() => setLoading(false), 300);
     return () => clearTimeout(t);
   }, [location]);
 

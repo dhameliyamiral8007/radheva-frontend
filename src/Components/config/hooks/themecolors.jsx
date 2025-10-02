@@ -1,4 +1,4 @@
-import { aboutBlog } from "../data/blogs";
+// import { aboutBlog } from "../data/blogs";
 
 const themecolors = {
   light: {

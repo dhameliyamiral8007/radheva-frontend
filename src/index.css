@@ -118,7 +118,27 @@
 
 @import "leaflet/dist/leaflet.css";
 
+@keyframes smoothFloat {
+  0% {
+    transform: translateY(0px);
+  }
+  25% {
+    transform: translateY(8px);
+  }
+  50% {
+    transform: translateY(12px);
+  }
+  75% {
+    transform: translateY(-8px);
+  }
+  100% {
+    transform: translateY(0px);
+  }
+}
 
+.animate-float {
+  animation: smoothFloat 3s ease-in-out infinite;
+}
 /* .rdrCalendarWrapper {
   background-color: #fff !important; 
   color: #111 !important;

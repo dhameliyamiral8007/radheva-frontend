@@ -45,7 +45,7 @@ const ShopMenu = ({ theme, data, isMobile }) => {
     ) || [];
 
     if (validData.length === 0) {
-        return null; // Don't render if no valid data
+        return null; 
     }
 
     return (

@@ -1,41 +1,35 @@
-import React, { useState, useEffect } from "react";
-import { useLocation } from "react-router-dom";
-import AOS from "aos";
-import "aos/dist/aos.css";
-import { useTheme } from "../../config/hooks/useTheme";
-// Switched to SVG icons for better contrast and crisp rendering
-import Round from "../../../assets/about/round.svg";
-import Oval from "../../../assets/about/cylinder.svg";
-import Cushion from "../../../assets/about/hexagone.svg";
-import Emerald from "../../../assets/about/octagone.svg";
-import Pear from "../../../assets/about/cone.svg";
-import Heart from "../../../assets/about/heart.svg";
-import Radiant from "../../../assets/about/heptagone.svg";
-import Princess from "../../../assets/about/square.svg";
-import Marquise from "../../../assets/about/leaf.svg";
-import Asscher from "../../../assets/about/hexagon.svg";
+
 import Bracelets from "../../../assets/about/Bracelets.jpg";
 import Earrings from "../../../assets/about/Earring.jpg";
 import WeddingRings from "../../../assets/about/weeddingring.jpg";
-import Rectangle from "../../../assets/about/Rectangle.jpg";
 import underline from "../../../assets/about/underline.svg";
-import gift from "../../../assets/about/gift.svg";
-import diamond from "../../../assets/about/selectDiamond.svg"
-import design from "../../../assets/about/ringDesign.svg";
-import certified from "../../../assets/about/certified.svg";
-import leftArrow from "../../../assets/about/leftArrow.svg";
-import rightArrow from "../../../assets/about/rightArrow.svg";
+
 import InformationSection from "./InformationSection";
-import { useNavigate } from "react-router-dom";
 import like from "../../../assets/like.svg"
 import view from "../../../assets/view.svg"
 import { useCart } from "../../context/CartProvider";
 import { useWishlist } from "../../context/WishListProvider";
 import JwellaryEveryMoment from "./JewelleryEveryMoment"
 import likeFilled from "../../../assets/fillLike.svg";
+import React, { useState, useEffect } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import AOS from "aos";
+import "aos/dist/aos.css";
+import { useTheme } from "../../config/hooks/useTheme";
+import { fetchDiamonds } from "../../redux/slice/DiamondSlice";
+import Rectangle from "../../../assets/about/Rectangle.jpg";
 
 const About = () => {
   const location = useLocation();
+  const dispatch = useDispatch();
+  const { diamonds, loading, error } = useSelector((state) => state.diamonds);
+  const { colors, theme } = useTheme();
+  const navigate = useNavigate();
+  const { addToCart } = useCart();
+  const { wishlist, addToWishlist, removeFromWishlist } = useWishlist();
+
+  // AOS initialization
   useEffect(() => {
     setTimeout(() => {
       AOS.init({
@@ -43,52 +37,33 @@ const About = () => {
         delay: 0,
         duration: 2000,
         easing: "ease",
-        once: false, // allow repeat
-        mirror: true, // animate every time visible
+        once: false,
+        mirror: true,
       });
       AOS.refresh();
     }, 100);
   }, [location]);
-  const { colors, theme } = useTheme();
-  const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 4;
-  const navigate = useNavigate();
-  const { addToCart } = useCart();
-  const { wishlist, addToWishlist, removeFromWishlist } = useWishlist();
 
-  // Each shape now has its own width & height
-  const shapes = [
-    { id: 11, name: "Round", icon: Round, width: 80, height: 80 },
-    { id: 12, name: "Oval", icon: Oval, width: 80, height: 80 },
-    { id: 13, name: "Cushion", icon: Cushion, width: 80, height: 80 },
-    { id: 14, name: "Emerald", icon: Emerald, width: 80, height: 80 },
-    { id: 15, name: "Pear", icon: Pear, width: 80, height: 80 },
-    { id: 16, name: "Heart", icon: Heart, width: 80, height: 80 },
-    { id: 17, name: "Radiant", icon: Radiant, width: 80, height: 80 },
-    { id: 18, name: "Princess", icon: Princess, width: 80, height: 80 },
-    { id: 19, name: "Marquise", icon: Marquise, width: 80, height: 80 },
-    { id: 20, name: "Asscher", icon: Asscher, width: 80, height: 80 },
-  ];
+  // Fetch diamonds on component mount
+  useEffect(() => {
+    dispatch(fetchDiamonds());
+  }, [dispatch]);
 
-  // Use SVG-based icons for crisp rendering in both themes
-  const diamondShapes = shapes;
+  // Transform API data to match your component structure
+  const diamondShapes = diamonds.map((diamond) => ({
+    id: diamond._id,
+    name: diamond.diamondname,
+    icon: diamond.diamondImage,
+    width: 80,
+    height: 80,
+  }));
+
   const categories = [
     { id: 1, name: "ENGAGEMENT RINGS", icon: Rectangle },
     { id: 2, name: "WEDDING RINGS", icon: WeddingRings },
     { id: 3, name: "EARRINGS", icon: Earrings },
     { id: 4, name: "BRACELETS", icon: Bracelets },
   ];
-
-
-  // Calculate total pages
-  const totalPages = Math.ceil(diamondShapes.length / itemsPerPage);
-
-  // Change page
-  const paginate = (pageNumber) => {
-    if (pageNumber > 0 && pageNumber <= totalPages) {
-      setCurrentPage(pageNumber);
-    }
-  };
 
   const handleAddToWishlist = (item) => {
     const isInWishlist = wishlist.some((w) => w.id === item.id);
@@ -97,7 +72,7 @@ const About = () => {
       removeFromWishlist(item.id);
     } else {
       addToWishlist({
-        id: item.id, // will now be "cat-1" or "prod-1"
+        id: item.id,
         name: item.name,
         image: item.icon || item.img,
         price: item.price || 25000,
@@ -123,6 +98,33 @@ const About = () => {
       },
     });
   };
+
+  // Loading state
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center h-64">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900"></div>
+      </div>
+    );
+  }
+
+  // Error state
+  if (error) {
+    return (
+      <div className="flex justify-center items-center h-64">
+        <div className="text-red-500 text-center">
+          <p>Error loading diamonds: {error}</p>
+          <button
+            onClick={() => dispatch(fetchDiamonds())}
+            className="mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+          >
+            Retry
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div
       className={`animate__animated animate__fadeInUp ${colors.firstPart.background} ${colors.firstPart.text} w-full `}
@@ -131,11 +133,11 @@ const About = () => {
       <div className="text-center mb-12 py-5">
         <h2 className="text-[35px] font-belleza inline-block relative">
           Shop By Diamond
-          {/* Golden line with swirl */}
           <img src={underline} alt="underline" className="p-2 font-belleza" />
         </h2>
       </div>
 
+      {/* Diamond Shapes Grid */}
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 lg:grid-cols-5 xl:mx-24 lg:mx-5 md:mx-10 mx-4 xl:grid-cols-10 gap-6 justify-items-center">
         {diamondShapes.map((shape, idx) => (
           <div
@@ -147,8 +149,7 @@ const About = () => {
               src={shape.icon}
               alt={shape.name}
               style={{ width: `${shape.width}px`, height: `${shape.height}px` }}
-              className={` p-2 ${theme === "dark" ? "filter invert brightness-1800" : "filter brightness-1650"
-                }`}
+              className={`p-2 ${theme === "dark" ? "filter invert brightness-1800" : "filter brightness-1650"}`}
             />
             <span className="text-sm font-medium">{shape.name}</span>
           </div>
@@ -224,38 +225,9 @@ const About = () => {
           })}
         </div>
 
-
-        {/* Pagination Controls */}
-        <div className="flex justify-end items-center xl:mx-24 lg:mx-5 md:mx-10 mx-4">
-          <button
-            onClick={() => paginate(currentPage - 1)}
-            disabled={currentPage === 1}
-            className={`rounded-full ${currentPage === 1
-              ? "opacity-50 cursor-not-allowed"
-              : " dark:hover:bg-gray-700"
-              }`}
-          >
-            <img src={leftArrow} alt="leftArrow" className="w-[72px] h-[12px]" />
-          </button>
-          <button
-            onClick={() => paginate(currentPage + 1)}
-            disabled={currentPage === totalPages}
-            className={`rounded-full ${currentPage === totalPages
-              ? "opacity-50 cursor-not-allowed"
-              : "dark:hover:bg-gray-700"
-              }`}
-          >
-            <img src={rightArrow} alt="rightArrow" className="w-[72px] h-[12px]" />
-          </button>
-        </div>
         <InformationSection />
-        <JwellaryEveryMoment
-        // handleAddToCart={handleAddToCart}
-        // handleAddToWishlist={handleAddToWishlist}
-        // wishlist={wishlist}
-        />
+        <JwellaryEveryMoment />
       </div>
-
     </div>
   );
 };

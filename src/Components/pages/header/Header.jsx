@@ -401,7 +401,7 @@ const Header = () => {
   const navigate = useNavigate();
 
   const dispatch = useDispatch();
-  
+
   const [navigationData, setNavigationData] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -416,17 +416,17 @@ const Header = () => {
         const result = await dispatch(fetchNavigationMenu()).unwrap();
         // console.log("✅ Navigation data loaded:", result);
         setNavigationData(result);
-        
+
         // Process the data immediately
         if (result?.Data) {
           const navItems = result.Data.map((item) => item.navigationname);
           setMenuItems(navItems);
-          
+
           // Extract shop data
-          const shopData = result.Data.find(item => 
+          const shopData = result.Data.find(item =>
             item.navigationname && item.navigationname.toLowerCase() === "shop"
           );
-          
+
           if (shopData?.collections?.length > 0) {
             const transformedShopMenu = shopData.collections.map(collection => ({
               id: collection._id,
@@ -457,7 +457,7 @@ const Header = () => {
         setIsShopOpen(false);
       }
     };
-    
+
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
@@ -468,7 +468,7 @@ const Header = () => {
     //   shopMenuLength: shopMenu.length,
     //   shopMenuData: shopMenu 
     // });
-    
+
     if (shopMenu.length > 0) {
       setIsShopOpen(prev => !prev);
     } else {
@@ -482,13 +482,13 @@ const Header = () => {
     // Normalize the item name for comparison
     const normalizedItem = item.toLowerCase().trim();
     const isShop = normalizedItem === "shop";
-    
+
     // console.log(`📍 Navigation clicked: "${item}"`, { 
     //   isShop, 
     //   hasShopData: shopMenu.length > 0,
     //   normalizedItem 
     // });
-    
+
     if (isShop) {
       if (window.innerWidth >= 1024) {
         handleShopClick();
@@ -497,19 +497,19 @@ const Header = () => {
       }
       return;
     }
-    
+
     // Direct route mapping based on your App.jsx routes
     const routeMap = {
       'home': '/',
       'blogs': '/blogs',
-      'book appointment': '/book-apoinment', // Match your route spelling
-      'book appoinment': '/book-apoinment', // Handle both spellings
+      'book appointment': '/book-apoinment',
+      'book appoinment': '/book-apoinment',
       'solitaires': '/solitaires',
       'customize': '/customize'
     };
-    
+
     const route = routeMap[normalizedItem];
-    
+
     if (route) {
       // console.log(`🚀 Navigating to: ${route}`);
       setIsShopOpen(false);
@@ -555,7 +555,7 @@ const Header = () => {
               />
             </div>
           </div>
-          
+
           {/* Navigation + Icons */}
           <div className="flex items-center xl:gap-4 lg:gap-3 max-sm:ml-2 gap-4">
             {/* Navigation Menu */}
@@ -567,14 +567,13 @@ const Header = () => {
               <nav className="hidden lg:flex gap-5 ml-2">
                 {menuItems.map((item, idx) => {
                   const isShop = item.toLowerCase() === "shop";
-                  
+
                   return (
                     <button
                       key={`nav-${idx}-${item}`}
                       onClick={() => handleNavigationClick(item, idx)}
-                      className={`${colors.header.text} hover:text-yellow-400 font-medium cursor-pointer relative ${
-                        isShop && isShopOpen ? 'text-yellow-400' : ''
-                      }`}
+                      className={`${colors.header.text} hover:text-yellow-400 font-medium cursor-pointer relative ${isShop && isShopOpen ? 'text-yellow-400' : ''
+                        }`}
                     >
                       {item}
                       {isShop && isShopOpen && (
@@ -596,8 +595,8 @@ const Header = () => {
                 />
               </button>
 
-              <button 
-                className={`p-1 rounded-full hover:bg-opacity-20`} 
+              <button
+                className={`p-1 rounded-full hover:bg-opacity-20`}
                 onClick={() => navigate("/wishlist")}
               >
                 <img
@@ -661,12 +660,11 @@ const Header = () => {
             <ShopMenu theme={theme} data={shopMenu} isMobile={false} />
           </div>
         )}
-        
+
         {/* Debug info */}
         {isShopOpen && shopMenu.length === 0 && (
-          <div className={`absolute top-full left-0 right-0 z-40 p-4 text-center ${
-            theme === 'dark' ? 'bg-yellow-100 text-yellow-800' : 'bg-yellow-800 text-yellow-100'
-          }`}>
+          <div className={`absolute top-full left-0 right-0 z-40 p-4 text-center ${theme === 'dark' ? 'bg-yellow-100 text-yellow-800' : 'bg-yellow-800 text-yellow-100'
+            }`}>
             No shop categories available. Loaded {menuItems.length} menu items.
           </div>
         )}
@@ -674,13 +672,11 @@ const Header = () => {
 
       {/* Mobile menu panel */}
       <div
-        className={`lg:hidden absolute top-full left-0 right-0 z-40 ${
-          theme === "dark" ? "bg-white" : "bg-neutral-900"
-        } w-full shadow-md overflow-y-auto transition-all duration-300 ease-out ${
-          isMobileMenuOpen
+        className={`lg:hidden absolute top-full left-0 right-0 z-40 ${theme === "dark" ? "bg-white" : "bg-neutral-900"
+          } w-full shadow-md overflow-y-auto transition-all duration-300 ease-out ${isMobileMenuOpen
             ? "opacity-100 translate-y-0 max-h-[80vh]"
             : "opacity-0 -translate-y-2 max-h-0 pointer-events-none"
-        }`}
+          }`}
         aria-hidden={!isMobileMenuOpen}
       >
         <div className={`px-4 ${isMobileMenuOpen ? "py-3" : "py-0"} space-y-3`}>
@@ -691,11 +687,10 @@ const Header = () => {
             <img
               src={search}
               alt="search"
-              className={`h-5 w-5 mr-2 p-0 ${
-                theme === "dark"
-                  ? "filter invert brightness-1800"
-                  : "filter brightness-1650"
-              }`}
+              className={`h-5 w-5 mr-2 p-0 ${theme === "dark"
+                ? "filter invert brightness-1800"
+                : "filter brightness-1650"
+                }`}
             />
             <input
               type="text"
@@ -717,15 +712,13 @@ const Header = () => {
                   <div key={`m-${idx}`}>
                     <button
                       onClick={() => handleNavigationClick(item, idx)}
-                      className={`${colors.header.text} text-left py-2 w-full flex justify-between items-center ${
-                        isShop && isOpen ? 'text-yellow-400' : ''
-                      }`}
+                      className={`${colors.header.text} text-left py-2 w-full flex justify-between items-center ${isShop && isOpen ? 'text-yellow-400' : ''
+                        }`}
                     >
                       {item}
                       {isShop && (
-                        <span className={`transform transition-transform ${
-                          isOpen ? 'rotate-180' : ''
-                        }`}>▼</span>
+                        <span className={`transform transition-transform ${isOpen ? 'rotate-180' : ''
+                          }`}>▼</span>
                       )}
                     </button>
 
