@@ -523,7 +523,7 @@ const Header = () => {
   };
 
   return (
-    <div className="sticky top-0 z-50 w-full" ref={shopRef}>
+    <div className="sticky top-0 z-100 w-full" ref={shopRef}>
       <TopBar />
       <div
         className={`${colors?.header?.background} px-4 md:px-6 lg:px-8 duration-500 relative`}
