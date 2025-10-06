@@ -13,10 +13,11 @@ import {
   fetchProductsCollections,
   fetchProductsCollectionsItems,
 } from "../../redux/service/SolitairesRingService";
+import { Dropdown } from "../../dropdowns/Dropdown";
 
 const SolitairesRing = () => {
   const { colors, theme } = useTheme();
-  const [selectedSort, setSelectedSort] = useState("sort");
+  const [selectedSort, setSelectedSort] = useState();
   const [metalsForUsers, setMetalsForUsers] = useState([]);
   const [colorsForUsers, setColorsForUsers] = useState([]);
   const [sizesForUsers, setSizesForUsers] = useState([]);
@@ -84,14 +85,6 @@ const SolitairesRing = () => {
       setCollectionsItems(collectionItems);
     }
   }, []);
-
-  useMemo(async () => {
-    const filteredProducts = await fetchFilteredProducts(selectedFilters);
-
-    if (filteredProducts?.Data) {
-      setProducts(filteredProducts.Data);
-    }
-  }, [JSON.stringify(selectedFilters)]);
 
   const filterMap = [
     {
@@ -610,6 +603,50 @@ const SolitairesRing = () => {
     return rows;
   };
 
+  const options = [
+    {
+      label: "Latest",
+      value: "latest",
+      onClick: (value) => {
+        setSelectedSort(value);
+        setSelectedFilters((prev) => {
+          return { ...prev, sort: [value] };
+        });
+      },
+    },
+    {
+      label: "Price: High to Low",
+      value: "price_high_to_low",
+      onClick: (value) => {
+        setSelectedSort(value);
+        setSelectedFilters((prev) => {
+          return { ...prev, sort: [value] };
+        });
+      },
+    },
+    {
+      label: "Price: Low to High",
+      value: "price_low_to_high",
+      onClick: (value) => {
+        setSelectedSort(value);
+        setSelectedFilters((prev) => {
+          return { ...prev, sort: [value] };
+        });
+      },
+    },
+  ];
+
+  useMemo(async () => {
+    const filteredProducts = await fetchFilteredProducts({
+      ...selectedFilters,
+      ...(selectedSort ? { sort: [selectedSort] } : {}),
+    });
+
+    if (filteredProducts?.Data) {
+      setProducts(filteredProducts.Data);
+    }
+  }, [JSON.stringify(selectedFilters), selectedSort]);
+
   return (
     <div
       className={`${colors.firstPart.background} ${colors.firstPart.text} w-full`}
@@ -724,14 +761,17 @@ const SolitairesRing = () => {
             <div className="w-px h-6 bg-gray-400 mr-2"></div>
             <div
               className={`flex items-center space-x-2 cursor-pointer hover:opacity-80 transition-opacity ${
-                selectedSort === "sort"
+                selectedSort
                   ? "border-2 border-dashed border-purple-400 rounded px-2 py-1"
                   : ""
               }`}
-              onClick={() => setSelectedSort("sort")}
             >
               <MdSort className="text-gray-300 text-xl" />
-              <span className="text-gray-300 text-sm font-medium">Sort By</span>
+              <Dropdown
+                value={selectedSort}
+                label="Sort By"
+                options={options}
+              />
             </div>
           </div>
 
