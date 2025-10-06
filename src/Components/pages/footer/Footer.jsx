@@ -7,6 +7,9 @@ import {
 } from "react-icons/fa";
 import radheva from "../../../assets/Radhevalogo.svg";
 import { useTheme } from "../../config/hooks/useTheme";
+import { useDispatch, useSelector } from "react-redux";
+import { submitSubscription, clearSubscribeState } from "../../redux/slice/Subscribe";
+import { useEffect, useState } from "react";
 
 // Inline footer data so this component is fully self-contained
 const footerData = {
@@ -62,6 +65,26 @@ const footerData = {
 
 const Footer = () => {
   const { colors } = useTheme();
+  const dispatch = useDispatch();
+  const { loading, success, error, message } = useSelector((state) => state.subscribe || {});
+  const [email, setEmail] = useState("");
+
+  useEffect(() => {
+    if (success) {
+      setEmail("");
+    }
+    // Auto-clear only error after delay; success is cleared when modal closes
+    if (error) {
+      const t = setTimeout(() => dispatch(clearSubscribeState()), 2500);
+      return () => clearTimeout(t);
+    }
+  }, [success, error, dispatch]);
+
+  const onSubmit = (e) => {
+    e.preventDefault();
+    if (!email) return;
+    dispatch(submitSubscription(email));
+  };
   return (
     <div className={`${colors.footer.background} ${colors.footer.text}`}>
       {/* top */}
@@ -129,19 +152,28 @@ const Footer = () => {
           <h3 className="text-base md:text-lg font-semibold">
             {footerData.newsletter.title}
           </h3>
-          <form className="mt-4 flex items-center gap-2 bg-white/10 rounded-full p-1 pr-1.5">
+          <form onSubmit={onSubmit} className="mt-4 flex items-center gap-2 bg-white/10 rounded-full p-1 pr-1.5">
             <input
               type="email"
               placeholder={footerData.newsletter.placeholder}
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
               className="w-full bg-transparent outline-none placeholder:text-white/70 text-white text-sm md:text-base px-4 py-2"
             />
             <button
               type="submit"
-              className="bg-[#C5AE87] text-black rounded-full px-4 py-2 text-sm font-medium hover:opacity-90"
+              disabled={loading}
+              className="bg-[#C5AE87] text-black rounded-full px-4 py-2 text-sm font-medium hover:opacity-90 disabled:opacity-60"
             >
-              {footerData.newsletter.buttonText}
+              {loading ? 'Submitting...' : footerData.newsletter.buttonText}
             </button>
           </form>
+          {success && (
+            <p className="mt-2 text-xs text-green-300">Subscribed successfully.</p>
+          )}
+          {error && (
+            <p className="mt-2 text-xs text-red-300">{String(error)}</p>
+          )}
         </div>
       </div>
       {/* Divider */}
@@ -179,6 +211,35 @@ const Footer = () => {
           ))}
         </div>
       </div>
+
+      {/* Success Modal */}
+      {success && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 px-4">
+          <div className="bg-white rounded-lg max-w-md w-full p-5 text-gray-800">
+            <div className="flex items-start justify-between gap-4">
+              <h4 className="text-lg font-semibold">Subscribed</h4>
+              <button
+                onClick={() => dispatch(clearSubscribeState())}
+                className="text-gray-500 hover:text-gray-700"
+                aria-label="Close"
+              >
+                ✕
+              </button>
+            </div>
+            <p className="mt-3 text-sm leading-relaxed">
+              {message || 'Thank you for subscribing!'}
+            </p>
+            <div className="mt-5 flex justify-end">
+              <button
+                onClick={() => dispatch(clearSubscribeState())}
+                className="bg-[#C5AE87] text-black rounded-md px-4 py-2 text-sm font-medium hover:opacity-90"
+              >
+                OK
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

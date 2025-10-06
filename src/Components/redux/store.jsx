@@ -6,6 +6,7 @@ import blogReducer from './slice/BlogSlice'
 import diamondReducer from './slice/DiamondSlice'
 import bannerReducer from './slice/HomeBannerSlice'
 import jwelaryReducer from './slice/jwelaryEveryMomentslice'
+import subscribeReducer from './slice/Subscribe'
 
 export const store = configureStore({
     reducer: {
@@ -15,5 +16,6 @@ export const store = configureStore({
         diamonds: diamondReducer,
         banner: bannerReducer,
         jwelary: jwelaryReducer,
+        subscribe: subscribeReducer,
     },
 });
