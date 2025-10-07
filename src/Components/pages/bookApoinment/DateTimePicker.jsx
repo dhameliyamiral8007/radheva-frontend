@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import ArrowLeft from "../../../assets/ArrowLeft.svg"
 import ArrowRight from "../../../assets/Arrowrigth.svg"
 import { useTheme } from "../../config/hooks/useTheme";
-const DateTimePicker = () => {
+const DateTimePicker = ({ onApply }) => {
     const { theme } = useTheme();
     const [selectedDates, setSelectedDates] = useState([]);
     const [viewMonth, setViewMonth] = useState(new Date());
@@ -85,27 +85,36 @@ const DateTimePicker = () => {
 
     // Apply selection
     const handleApply = () => {
-        alert(
-            `✅ Appointment Set!\n\nDates: ${selectedDates
-                .map((d) => d.toDateString())
-                .join(", ")}\nTime: ${selectedTime.hour}:${selectedTime.minute
-                    .toString()
-                    .padStart(2, "0")} ${selectedTime.ampm}`
+        if (!onApply) return;
+        const firstDate = selectedDates[0] || new Date();
+        let hour24 = selectedTime.hour % 12;
+        if (selectedTime.ampm === "PM") hour24 += 12;
+        const finalDate = new Date(
+            firstDate.getFullYear(),
+            firstDate.getMonth(),
+            firstDate.getDate(),
+            hour24,
+            selectedTime.minute,
+            0,
+            0
         );
+        onApply({ date: finalDate, meta: { selectedDates, selectedTime } });
     };
 
     return (
-        <div className={` ${theme === "dark" ? "bg-white text-black" : "bg-[#1d1d1d] text-white"}`}>
-            <div className={` rounded-2xl shadow-xl p-6 w-[900px] ${theme === "dark" ? "bg-white" : "bg-[#282828]"}`}>
+        
+        <div className={` ${theme === "dark" ? "bg-[#1d1d1d] text-white" : "bg-white text-black"}`}>
+          
+            <div className={` rounded-2xl shadow-xl p-6 w-[900px] ${theme === "dark" ? "bg-[#2B2B2B]" : "bg-[#323232]"}`}>
                 <div className="flex">
                     {/* Sidebar */}
-                    <div className={`flex flex-col gap-3 w-1/5 pr-4 border-r border-gray-700 `}>
+                    <div className={`flex flex-col gap-3 w-1/5 pr-4 ${theme === "dark" ? "border-r border-gray-700" : "border-r border-gray-200"} `}>
                         {["Today", "Last 7 days", "Last 14 days", "This month", "Last month", "Custom"].map(
                             (item) => (
                                 <button
                                     key={item}
                                     onClick={() => handleSelectBy(item)}
-                                    className={`w-full px-4 py-2 rounded-lg hover:bg-gray-600 ${theme === "dark" ? "bg-[#F3F4F6]" : "bg-white text-gray-500"}`}
+                                    className={`w-full px-4 py-2 rounded-lg ${theme === "dark" ? "bg-white text-[#1E293B] hover:bg-gray-100" : "bg-[#F3F4F6] text-gray-700 hover:bg-gray-200"}`}
                                 >
                                     {item}
                                 </button>
@@ -115,7 +124,7 @@ const DateTimePicker = () => {
 
                     {/* Calendar */}
                     <div className="w-2/5 px-6 ">
-                        <div className="flex justify-between font-kufam rounded-sm px-2 bg-white text-black items-center mb-4">
+                        <div className={`flex justify-between font-kufam rounded-sm px-2 bg-white text-black items-center mb-4`}>
                             <button
                                 onClick={() =>
                                     setViewMonth(new Date(year, month - 1, 1))
@@ -138,7 +147,7 @@ const DateTimePicker = () => {
                         </div>
 
                         {/* Weekdays */}
-                        <div className="grid grid-cols-7 text-sm text-gray-400 mb-2">
+                        <div className={`grid grid-cols-7 text-sm ${theme === "dark" ? "text-gray-400" : "text-gray-500"} mb-2`}>
                             {["Mo", "Tu", "We", "Th", "Fr", "Sa", "Su"].map((d) => (
                                 <div key={d} className="text-center">
                                     {d}
@@ -163,7 +172,7 @@ const DateTimePicker = () => {
                                         onClick={() => setSelectedDates([thisDate])}
                                         className={`p-2 rounded-lg cursor-pointer ${isSelected
                                             ? "bg-yellow-600 text-white"
-                                            : "hover:bg-gray-700"
+                                            : theme === "dark" ? "hover:bg-gray-700" : "hover:bg-gray-200"
                                             }`}
                                     >
                                         {date}
@@ -177,7 +186,7 @@ const DateTimePicker = () => {
                     <div className="w-3/6 pl-8">
                         {/* Header with "Select Time" and selected time */}
                         <div className="flex justify-between items-center mb-2">
-                            <h3 className="text-lg text-gray-400">Select Time</h3>
+                            <h3 className={`text-lg ${theme === "dark" ? "text-gray-400" : "text-gray-500"}`}>Select Time</h3>
                             <div className="flex items-end gap-2">
                                 {/* Hour */}
                                 <select
@@ -185,7 +194,7 @@ const DateTimePicker = () => {
                                     onChange={(e) =>
                                         setSelectedTime({ ...selectedTime, hour: parseInt(e.target.value) })
                                     }
-                                    className="bg-gray-700 text-white rounded-lg px-2 py-1"
+                                    className={`${theme === "dark" ? "bg-gray-700 text-white" : "bg-gray-100 text-gray-800"} rounded-lg px-2 py-1`}
                                 >
                                     {Array.from({ length: 12 }, (_, i) => i + 1).map((h) => (
                                         <option key={h} value={h}>
@@ -200,7 +209,7 @@ const DateTimePicker = () => {
                                     onChange={(e) =>
                                         setSelectedTime({ ...selectedTime, minute: parseInt(e.target.value) })
                                     }
-                                    className="bg-gray-700 text-white rounded-lg px-2 py-1"
+                                    className={`${theme === "dark" ? "bg-gray-700 text-white" : "bg-gray-100 text-gray-800"} rounded-lg px-2 py-1`}
                                 >
                                     {Array.from({ length: 60 }, (_, i) => i).map((m) => (
                                         <option key={m} value={m}>
@@ -213,15 +222,15 @@ const DateTimePicker = () => {
                                 <div className="flex flex-col ml-2">
                                     <button
                                         onClick={() => setSelectedTime({ ...selectedTime, ampm: "AM" })}
-                                        className={`px-2 text-sm rounded-t ${selectedTime.ampm === "AM" ? "bg-yellow-600 text-white" : "bg-gray-600"
-                                            }`}
+                                        className={`px-2 text-sm rounded-t ${selectedTime.ampm === "AM" ? "bg-yellow-600 text-white" : theme === "dark" ? "bg-gray-600" : "bg-gray-200"}
+                                            `}
                                     >
                                         AM
                                     </button>
                                     <button
                                         onClick={() => setSelectedTime({ ...selectedTime, ampm: "PM" })}
-                                        className={`px-2 text-sm rounded-b ${selectedTime.ampm === "PM" ? "bg-yellow-600 text-white" : "bg-gray-600"
-                                            }`}
+                                        className={`px-2 text-sm rounded-b ${selectedTime.ampm === "PM" ? "bg-yellow-600 text-white" : theme === "dark" ? "bg-gray-600" : "bg-gray-200"}
+                                            `}
                                     >
                                         PM
                                     </button>
@@ -230,7 +239,7 @@ const DateTimePicker = () => {
                             </div>
                         </div>
                         {/* Clock  #EEF1F3*/}
-                        <div className="relative w-64 h-64 rounded-full bg-white flex items-center justify-center">
+                        <div className={`relative w-64 h-64 rounded-full ${theme === "dark" ? "bg-white" : "bg-[#f3f4f6]"} flex items-center justify-center`}>
                             {/* Hour hand */}
                             <div
                                 className="absolute top-0 left-1/2 w-1 h-28 bg-yellow-600 origin-bottom -translate-x-1/2"
@@ -260,7 +269,7 @@ const DateTimePicker = () => {
 
                 {/* Footer */}
                 <div className="flex justify-end mt-6 gap-3">
-                    <button className="px-4 py-2 rounded-lg bg-gray-600 hover:bg-gray-700">
+                    <button className={`px-4 py-2 rounded-lg ${theme === "dark" ? "bg-gray-600 hover:bg-gray-700" : "bg-gray-200 hover:bg-gray-300"}`}>
                         Cancel
                     </button>
                     <button

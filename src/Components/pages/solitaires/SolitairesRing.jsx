@@ -209,7 +209,7 @@ const SolitairesRing = () => {
     },
     {
       id: 11,
-      price: "₹ 2,20,000",
+      price: "₹ 2,20,00021212",
       image: Earring,
       description: "Lorem Ipsum is simply dummy text of the",
       longDescription:

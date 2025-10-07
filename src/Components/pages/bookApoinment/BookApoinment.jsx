@@ -10,6 +10,7 @@ import 'react-clock/dist/Clock.css';
 import format from 'date-fns/format';
 import Clock from 'react-clock';
 import DateTimePicker from './DateTimePicker';
+import { apiInstance } from '../../../api/AxiosApi';
 
 const quickRanges = [
     {
@@ -53,7 +54,7 @@ const quickRanges = [
 ];
 
 const BookApoinment = () => {
-    const { colors } = useTheme();
+    const { colors, theme } = useTheme();
     const [range, setRange] = useState({
         startDate: new Date(),
         endDate: new Date(),
@@ -63,6 +64,11 @@ const BookApoinment = () => {
     const [time, setTime] = useState(new Date());
     const [selectedDate, setSelectedDate] = useState(8); // default selected date
     const [selectedTime, setSelectedTime] = useState("12:04 AM");
+    const [appointmentDate, setAppointmentDate] = useState(null);
+    const [form, setForm] = useState({ name: '', email: '', phoneNumber: '', subject: '' });
+    const [files, setFiles] = useState([]);
+    const [submitting, setSubmitting] = useState(false);
+    const [success, setSuccess] = useState(null);
     // extract current hour (1–12)
     const currentHour = time.getHours() % 12 || 12;
 
@@ -91,108 +97,52 @@ const BookApoinment = () => {
 
             {/* Main Card */}
              <div className="flex justify-center items-center min-h-[600px] py-10">
-                {/* <div className="bg-[#232323] border border-[#bfa46a] rounded-2xl shadow-lg flex flex-col md:flex-row w-full max-w-4xl overflow-hidden">
-                   
-                    <div className="flex flex-col items-center md:items-start bg-[#232323] lg:px-6 lg:py-8 p-6 border-r border-[#bfa46a] lg:w-[180px] md:w-[150px] w-full">
-                        <span className="uppercase text-xs font-bold text-gray-300 mb-6 tracking-widest">Select By</span>
-                        {quickRanges.map(q => (
-                            <button
-                                key={q.label}
-                                onClick={() => handleQuickSelect(q.label)}
-                                className={`w-full text-left px-6 py-2 mb-3 rounded-xl font-semibold border transition text-base
-                  ${selectedQuick === q.label
-                                        ? 'bg-white text-[#bfa46a] border-[#bfa46a] shadow font-bold'
-                                        : 'bg-[#232323] text-white border border-[#bfa46a] hover:bg-[#bfa46a] hover:text-white'}
-                  ${q.label === 'Custom' && 'font-bold'}`}
-                            >
-                                {q.label}
-                            </button>
-                        ))}
-                    </div>
-                    
-                    <DateRange
-                        editableDateInputs={true}
-                        onChange={item => setRange(item.selection)}
-                        moveRangeOnFirstSelection={false}
-                        ranges={[range]}
-                        className="shadow"
-                        rangeColors={["#bfa46a"]}
-                        showMonthAndYearPickers={false}
-                    />
 
-                    
-                    <div className="flex flex-col items-center justify-center lg:w-[320px] md:w-full w-full lg:p-8 md:p-4 p-8">
-                        <div className="w-full items-center">
-                            <div className="w-full mb-4">
-                                <div className="flex items-center justify-between bg-white text-black font-kufam rounded-lg px-4 py-2">
-                                    
-                                    <span className="text-sm font-medium">Select Time</span>
-
-                                    
-                                    <TimePicker
-                                        onChange={(val) => {
-                                            if (val) {
-                                                const [hours, minutes] = val.split(":").map(Number);
-                                                const newDate = new Date();
-                                                newDate.setHours(hours);
-                                                newDate.setMinutes(minutes);
-                                                setTime(newDate);
-                                            }
-                                        }}
-                                        value={time}
-                                        clockIcon={null}
-                                        clearIcon={null}
-                                        className="timepicker-no-border"
-                                        disableClock={true}
-                                        format="hh:mm a"
-                                    />
-
-                                </div>
-                            </div>
-                            
-                            <Clock
-                                value={time}
-                                renderNumbers={({ number }) => (
-                                    <div
-                                        style={{
-                                            color: number === currentHour ? "white" : "black",
-                                            fontWeight: "bold",
-                                            fontSize: "18px",
-                                        }}
-                                    >
-                                        {number}
-                                    </div>
-                                )}
-                                hourHandWidth={2}
-                                hourHandLength={90}
-                                minuteHandWidth={false}
-                                secondHandWidth={false}
-                                className="mb-6 bg-white text-black rounded-full font-bold relative custom-clock"
-                                size={250}
-                                renderMinuteMarks={false}
-                                renderHourMarks={false}
-                            />
-                            <div className="flex gap-4 mt-4 w-full justify-end">
-                                <button className="px-8 py-2 rounded-lg bg-white text-[#bfa46a] font-semibold border border-[#bfa46a] hover:bg-[#bfa46a] hover:text-white transition">Cancel</button>
-                                <button className="px-8 py-2 rounded-lg bg-[#bfa46a] text-white font-semibold border border-[#bfa46a] hover:bg-yellow-700 transition">Apply</button>
-                            </div>
-                        </div>
-                    </div>
-                </div> */}
-                <DateTimePicker />
+                <DateTimePicker onApply={({ date }) => setAppointmentDate(date)} />
             </div> 
             
 
             <div className="w-full flex justify-center items-center pb-10">
                 <div className="w-full max-w-4xl md:p-8 p-4">
                     <h3 className="text-xl font-bold mb-6 text-center font-kufam">Fill the Details</h3>
-                    <form className="space-y-4">
+                    <form className="space-y-4" onSubmit={async (e) => {
+                        e.preventDefault();
+                        if (!appointmentDate) {
+                            alert('Please select date and time and click Apply.');
+                            return;
+                        }
+                        const fd = new FormData();
+                        fd.append('name', form.name);
+                        fd.append('email', form.email);
+                        fd.append('phoneNumber', form.phoneNumber);
+                        fd.append('appointmentDate', appointmentDate.toISOString());
+                        fd.append('subject', form.subject);
+                        files.forEach((f) => fd.append('referenceImages', f));
+                        try {
+                            setSubmitting(true);
+                            const res = await apiInstance.post('/client/appointment', fd, { headers: { 'Content-Type': 'multipart/form-data' } });
+                            const msg = res?.data?.message || res?.data?.Message || 'Appointment booked successfully';
+                            setSuccess({
+                                message: msg,
+                                appointmentDate,
+                                form: { ...form }
+                            });
+                            setForm({ name: '', email: '', phoneNumber: '', subject: '' });
+                            setFiles([]);
+                        } catch (err) {
+                            alert(err?.response?.data?.message || 'Failed to book appointment');
+                        } finally {
+                            setSubmitting(false);
+                        }
+                    }}>
                         <div className='grid gap-[10px]'>
                             <label className="block text-[20px] font-normal font-kufam">Name<span className='text-[#FF383C] text-[20px]'>*</span></label>
                             <input
                                 type="text"
                                 placeholder="Enter Your Name"
-                                className="w-full p-[14px] rounded-[10px] bg-white text-[#A9B2B9] text-[16px]"
+                                className={`w-full p-[14px] rounded-[10px] text-[16px] ${theme === 'dark' ? 'bg-white text-[#64748B]' : 'bg-[#2B2B2B] text-white placeholder:text-[#A9B2B9] border border-[#3a3a3a]'}`}
+                                value={form.name}
+                                onChange={(e) => setForm({ ...form, name: e.target.value })}
                                 required
                             />
                         </div>
@@ -201,7 +151,20 @@ const BookApoinment = () => {
                             <input
                                 type="email"
                                 placeholder="Enter Your Email"
-                                className="w-full p-[14px] rounded-[10px] bg-white text-[#A9B2B9] text-[16px]"
+                                className={`w-full p-[14px] rounded-[10px] text-[16px] ${theme === 'dark' ? 'bg-white text-[#64748B]' : 'bg-[#2B2B2B] text-white placeholder:text-[#A9B2B9] border border-[#3a3a3a]'}`}
+                                value={form.email}
+                                onChange={(e) => setForm({ ...form, email: e.target.value })}
+                                required
+                            />
+                        </div>
+                        <div className='grid gap-[10px]'>
+                            <label className="block text-[20px] font-normal font-kufam">Phone Number<span className='text-[#FF383C] text-[20px]'>*</span></label>
+                            <input
+                                type="tel"
+                                placeholder="Enter Your Phone Number"
+                                className={`w-full p-[14px] rounded-[10px] text-[16px] ${theme === 'dark' ? 'bg-white text-[#64748B]' : 'bg-[#2B2B2B] text-white placeholder:text-[#A9B2B9] border border-[#3a3a3a]'}`}
+                                value={form.phoneNumber}
+                                onChange={(e) => setForm({ ...form, phoneNumber: e.target.value })}
                                 required
                             />
                         </div>
@@ -210,27 +173,69 @@ const BookApoinment = () => {
                             <input
                                 type="text"
                                 placeholder="Enter Your Subject"
-                                className="w-full p-[14px] rounded-[10px] bg-white text-[#A9B2B9] text-[16px]"
+                                className={`w-full p-[14px] rounded-[10px] text-[16px] ${theme === 'dark' ? 'bg-white text-[#64748B]' : 'bg-[#2B2B2B] text-white placeholder:text-[#A9B2B9] border border-[#3a3a3a]'}`}
+                                value={form.subject}
+                                onChange={(e) => setForm({ ...form, subject: e.target.value })}
                                 required
                             />
                         </div>
                         <div className='grid gap-[10px]'>
                             <input
                                 type="file"
-                                className="w-full p-[14px] rounded-[10px] bg-white text-[#A9B2B9] text-[16px]"
+                                className={`w-full p-[14px] rounded-[10px] text-[16px] ${theme === 'dark' ? 'bg-white text-[#64748B]' : 'bg-[#2B2B2B] text-white placeholder:text-[#A9B2B9] border border-[#3a3a3a]'}`}
+                                multiple
+                                onChange={(e) => setFiles(Array.from(e.target.files || []))}
                             />
+                            {appointmentDate && (
+                                <span className="text-sm text-gray-500">Selected: {appointmentDate.toLocaleString()}</span>
+                            )}
                         </div>
                         <div className='flex justify-center items-center'>
                             <button
                                 type="submit"
-                                className="py-[13px] px-[21px] bg-[#C79954] font-kufam text-white font-semibold rounded-[8px] transition"
+                                disabled={submitting}
+                                className="py-[13px] px-[21px] bg-[#C79954] font-kufam text-white font-semibold rounded-[8px] transition disabled:opacity-60"
                             >
-                                Book Appointment
+                                {submitting ? 'Submitting...' : 'Book Appointment'}
                             </button>
                         </div>
                     </form>
                 </div>
             </div>
+
+            {success && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+                    <div className={`${theme === 'dark' ? 'bg-white text-[#1E293B]' : 'bg-[#1f1f1f] text-white'} rounded-2xl shadow-2xl w-full max-w-2xl mx-4`}>
+                        <div className={`flex items-center justify-between px-6 py-4 ${theme === 'dark' ? 'border-b border-gray-200' : 'border-b border-gray-700'}`}>
+                            <div className="flex items-center gap-3">
+                                <span className={`inline-flex h-8 w-8 items-center justify-center rounded-full ${theme === 'dark' ? 'bg-green-100 text-green-700' : 'bg-green-900 text-green-200'}`}>✓</span>
+                                <h3 className="text-xl font-semibold">You are scheduled</h3>
+                            </div>
+                            <button onClick={() => setSuccess(null)} className={`${theme === 'dark' ? 'text-gray-400 hover:text-gray-600' : 'text-gray-300 hover:text-gray-100'}`}>✕</button>
+                        </div>
+                        <div className={`px-6 py-4 ${theme === 'dark' ? 'text-[#64748B]' : 'text-gray-300'}`}>A calendar invitation has been sent to your email address.</div>
+                        <div className="px-6 pb-6">
+                            <div className={`rounded-xl p-5 ${theme === 'dark' ? 'border border-gray-200' : 'border border-gray-700'}`}>
+                                <div className={`${theme === 'dark' ? 'text-[#334155]' : 'text-white'} text-lg font-semibold mb-2`}>Virtual Appointment</div>
+                                <div className={`flex items-center gap-2 text-sm ${theme === 'dark' ? 'text-[#64748B]' : 'text-gray-300'} mb-2`}>
+                                    <span>👤</span>
+                                    <span>{success.form.name || 'Guest'}</span>
+                                </div>
+                                <div className={`flex items-center gap-2 text-sm ${theme === 'dark' ? 'text-[#64748B]' : 'text-gray-300'}`}>
+                                    <span>📅</span>
+                                    <span>
+                                        {new Date(success.appointmentDate).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })}
+                                        {" – "}
+                                        {new Date(new Date(success.appointmentDate).getTime() + 30 * 60000).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })}
+                                        {", "}
+                                        {new Date(success.appointmentDate).toLocaleDateString(undefined, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };

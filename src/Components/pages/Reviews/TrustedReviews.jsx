@@ -1,77 +1,20 @@
-import React, { useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { useTheme } from "../../config/hooks/useTheme.jsx";
 import underline from "../../../assets/about/underline.svg";
 import leftArrow from "../../../assets/about/leftArrow.svg";
 import rightArrow from "../../../assets/about/rightArrow.svg";
 import { useNavigate } from "react-router-dom";
+import { apiInstance } from "../../../api/AxiosApi";
 
-// Dummy review data (can be fetched from API later)
-const reviews = [
-  {
-    id: 1,
-    name: "Daenerys Targaryen",
-    date: "25/05/2025",
-    rating: 4,
-    title: "Unique designs that always stand out",
-    text: "I was blown away when I opened my package. The craftsmanship and creativity are unlike anything I’ve ever owned. These pieces feel personal and timeless.",
-  },
-  {
-    id: 2,
-    name: "Lena Headey",
-    date: "25/05/2025",
-    rating: 5,
-    title: "Absolutely in love with every piece.",
-    text: "This jewelry has completely changed the way I accessorize. Each design is so unique that I feel like I’m wearing a piece of art, not just an ornament.",
-  },
-  {
-    id: 3,
-    name: "Kit Harington",
-    date: "25/05/2025",
-    rating: 4,
-    title: "Creative jewelry with a personal touch.",
-    text: "Each piece feels like it was designed just for me. It’s rare to find jewelry that’s this original and still so wearable.",
-  },
-  {
-    id: 4,
-    name: "Arya Stark",
-    date: "25/05/2025",
-    rating: 4,
-    title: "Loved the detailing.",
-    text: "The little details in each piece make it stand out. Really happy with my purchase.",
-  },
-  {
-    id: 5,
-    name: "Jon Snow",
-    date: "25/05/2025",
-    rating: 5,
-    title: "Worth every penny.",
-    text: "High quality and elegant. This is not ordinary jewelry, this is art.",
-  },
-  {
-    id: 6,
-    name: "Cersei Lannister",
-    date: "25/05/2025",
-    rating: 4,
-    title: "Stylish and classy.",
-    text: "Each piece feels unique, and I always get compliments when I wear them.",
-  },
-  {
-    id: 7,
-    name: "Tyrion Lannister",
-    date: "25/05/2025",
-    rating: 5,
-    title: "Perfect gift idea.",
-    text: "Got this as a gift for my sister and she absolutely loved it. Amazing work!",
-  },
-  {
-    id: 8,
-    name: "Brienne of Tarth",
-    date: "25/05/2025",
-    rating: 4,
-    title: "Durable and elegant.",
-    text: "I wear this almost daily and it still looks brand new. Very impressed.",
-  },
-];
+// Map API doc to UI shape
+const mapApiDoc = (doc) => ({
+  id: doc._id,
+  name: doc.name,
+  date: doc.reviewDate ? new Date(doc.reviewDate).toLocaleDateString() : "",
+  rating: doc.rating || 0,
+  title: doc.title,
+  text: doc.review,
+});
 
 // Star rating component
 const Stars = ({ rating }) => {
@@ -89,14 +32,33 @@ const Stars = ({ rating }) => {
 const TrustedReviews = () => {
   const { colors } = useTheme();
   const [currentPage, setCurrentPage] = useState(1);
+  const [items, setItems] = useState([]);
+  const [loading, setLoading] = useState(true);
   const reviewsPerPage = 4;
   const navigate = useNavigate()
+
+  // Fetch reviews
+  useEffect(() => {
+    let mounted = true;
+    (async () => {
+      try {
+        const res = await apiInstance.get('/client/review');
+        const docs = Array.isArray(res?.data?.docs) ? res.data.docs.map(mapApiDoc) : [];
+        if (mounted) setItems(docs);
+      } catch (e) {
+        if (mounted) setItems([]);
+      } finally {
+        if (mounted) setLoading(false);
+      }
+    })();
+    return () => { mounted = false };
+  }, []);
 
   // Calculate pagination
   const indexOfLast = currentPage * reviewsPerPage;
   const indexOfFirst = indexOfLast - reviewsPerPage;
-  const currentReviews = reviews.slice(indexOfFirst, indexOfLast);
-  const totalPages = Math.ceil(reviews.length / reviewsPerPage);
+  const totalPages = Math.max(1, Math.ceil(items.length / reviewsPerPage));
+  const currentReviews = useMemo(() => items.slice(indexOfFirst, indexOfLast), [items, indexOfFirst, indexOfLast]);
 
   // Pagination function
   const paginate = (pageNumber) => {
@@ -112,7 +74,10 @@ const TrustedReviews = () => {
     <div className={`${colors.secondPart.background} ${colors.secondPart.text} w-full`}>
       {/* Reviews Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 lg:grid-cols-2 gap-[20px]">
-        {currentReviews.map((review) => (
+        {loading && (
+          <div className="col-span-full text-center py-8 opacity-70">Loading reviews...</div>
+        )}
+        {!loading && currentReviews.map((review) => (
           <div
             key={review.id}
             className="bg-[#FFFFFF] shadow p-[20px] flex flex-col gap-4"
@@ -148,7 +113,7 @@ const TrustedReviews = () => {
         {/* Stars & Reviews */}
         <div className="flex justify-end items-center gap-2">
           <Stars rating={4} />
-          <span className="text-sm font-kufam font-normal">6235 Reviews</span>
+          <span className="text-sm font-kufam font-normal">{items.length} Reviews</span>
           <a onClick={handleAllReviews} className="text-[#D9D9D9] font-semibold underline cursor-pointer">
             See All Reviews
           </a>

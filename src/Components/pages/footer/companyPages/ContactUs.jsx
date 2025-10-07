@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { useTheme } from "../../../config/hooks/useTheme";
 import contactUs from "../../../../assets/footer/contactUs.svg";
 import CloudIcon from "../../../../assets/Claud.svg"
+import { apiInstance } from "../../../../api/AxiosApi";
 
 // src/config/contactConfig.js
 const contactConfig = {
@@ -34,22 +35,36 @@ const contactConfig = {
 
 const ContactUs = () => {
     const { colors, theme } = useTheme();
-    const [file, setFile] = useState(null);
+    const [files, setFiles] = useState([]);
+    const [form, setForm] = useState({ name: "", email: "", phoneNumber: "", subject: "" });
+    const [submitting, setSubmitting] = useState(false);
+    const [success, setSuccess] = useState("");
 
     const handleFileChange = (e) => {
-        const selectedFile = e.target.files?.[0];
-        if (selectedFile) {
-            setFile(selectedFile);
-        }
+        const selected = Array.from(e.target.files || []);
+        setFiles(selected);
     };
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
-        if (!file) {
-            alert("Please upload a file before submitting.");
-            return;
+        setSuccess("");
+        const fd = new FormData();
+        fd.append("name", form.name);
+        fd.append("email", form.email);
+        fd.append("phoneNumber", form.phoneNumber);
+        fd.append("subject", form.subject);
+        files.forEach((f) => fd.append("images", f));
+        try {
+            setSubmitting(true);
+            const res = await apiInstance.post("/client/contact", fd, { headers: { "Content-Type": "multipart/form-data" } });
+            setSuccess(res?.data?.message || res?.data?.Message || "Message sent successfully");
+            setForm({ name: "", email: "", phoneNumber: "", subject: "" });
+            setFiles([]);
+        } catch (err) {
+            alert(err?.response?.data?.message || "Failed to send message");
+        } finally {
+            setSubmitting(false);
         }
-        alert("Form submitted successfully ✅");
     };
 
     return (
@@ -105,6 +120,11 @@ const ContactUs = () => {
                                         ? "bg-white text-black"
                                         : "bg-[#292929] text-[#A9B2B9]"
                                         }`}
+                                    value={form[field.name === 'phone' ? 'phoneNumber' : field.name]}
+                                    onChange={(e) => {
+                                        const key = field.name === 'phone' ? 'phoneNumber' : field.name;
+                                        setForm({ ...form, [key]: e.target.value });
+                                    }}
                                 />
                             </div>
                         ))}
@@ -119,6 +139,7 @@ const ContactUs = () => {
                                 id="fileInput"
                                 accept={contactConfig.form.upload.accept}
                                 className="hidden"
+                                multiple
                                 onChange={handleFileChange}
                             />
                             <label
@@ -130,18 +151,38 @@ const ContactUs = () => {
                             <span className="text-[14px] md:text-[15px] font-nunito opacity-80">
                                 {contactConfig.form.upload.label}
                             </span>
-                            {file && <p className="text-sm text-green-500">{file.name}</p>}
+                            {files.length > 0 && (
+                                <p className="text-sm text-green-500">{files.length} file(s) selected</p>
+                            )}
                         </div>
 
                         {/* Button */}
                         <div className="flex justify-center">
                             <button
                                 type="submit"
-                                className="py-3 px-6 bg-[#C79954] text-white font-kufam text-[18px] md:text-[20px] rounded-lg"
+                                disabled={submitting}
+                                className="py-3 px-6 bg-[#C79954] text-white font-kufam text-[18px] md:text-[20px] rounded-lg disabled:opacity-60"
                             >
-                                {contactConfig.form.button.text}
+                                {submitting ? "Submitting..." : contactConfig.form.button.text}
                             </button>
                         </div>
+                        {success && (
+                            <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+                                <div className={`${theme === 'dark' ? 'bg-white text-[#1E293B]' : 'bg-[#1f1f1f] text-white'} w-full max-w-md rounded-2xl shadow-2xl`}>
+                                    <div className={`flex items-center justify-between px-5 py-4 ${theme === 'dark' ? 'border-b border-gray-200' : 'border-b border-gray-700'}`}>
+                                        <div className="flex items-center gap-3">
+                                            <span className={`inline-flex h-8 w-8 items-center justify-center rounded-full ${theme === 'dark' ? 'bg-green-100 text-green-700' : 'bg-green-900 text-green-200'}`}>✓</span>
+                                            <h3 className="text-lg font-semibold">Message sent</h3>
+                                        </div>
+                                        <button onClick={() => setSuccess("")} className={`${theme === 'dark' ? 'text-gray-400 hover:text-gray-600' : 'text-gray-300 hover:text-gray-100'}`}>✕</button>
+                                    </div>
+                                    <div className="px-5 py-4 text-sm opacity-90">Thanks {form.name || 'there'}! We received your inquiry and will contact you shortly.</div>
+                                    <div className="px-5 pb-5 flex justify-end">
+                                        <button onClick={() => setSuccess("")} className="px-4 py-2 bg-[#C79954] rounded-lg text-white">OK</button>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
                     </form>
                 </div>
             </div>
