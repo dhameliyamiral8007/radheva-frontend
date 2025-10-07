@@ -13,7 +13,7 @@ import {
   fetchProductsCollections,
   fetchProductsCollectionsItems,
 } from "../../redux/service/SolitairesRingService";
-import { Dropdown } from "../../dropdowns/Dropdown";
+import ImageGallery from "../../gallary/ImageGallary";
 
 const SolitairesRing = () => {
   const { colors, theme } = useTheme();
@@ -28,12 +28,19 @@ const SolitairesRing = () => {
   const [currentRange] = useState({ start: 1, end: 30 });
   const [viewMore, setViewMore] = useState(12); // Show 30 images initially
   const [showFilterDropdown, setShowFilterDropdown] = useState(false);
+  const [showSortingDropdown, setShowSortingDropdown] = useState(false);
   const [inStockOnly, setInStockOnly] = useState(false);
   const [expandedCollections, setExpandedCollections] = useState([]);
 
   const [selectedFilters, setSelectedFilters] = useState({});
 
   const [products1, setProducts] = useState([]);
+
+  console.log("call--", {
+    products1,
+    collections,
+    selectedFilters,
+  });
 
   //   getColorsForUsers
   //getDiamondsForUsers
@@ -409,6 +416,69 @@ const SolitairesRing = () => {
     },
   ];
 
+  //   const products = Array.from({ length: 12 }).map((_, i) => ({
+  //   id: i,
+  //   label: i % 2 === 0 ? "BEST SELLER" : "MORE COLOR",
+  //   name: "Luxury Love Band (placeholder)",
+  //   price: "₹1,49,000.00",
+  //   oldPrice: "₹1,89,000.00",
+  // }));
+
+  //   {
+  //     "_id": "68dcc7f9ef5d9da901301e83",
+  //     "navigationid": {
+  //         "_id": "68dcc796ef5d9da901301e43",
+  //         "navigationname": "Shop"
+  //     },
+  //     "collectionname": "Earrings",
+  //     "collectionimage": "https://res.cloudinary.com/dmlhjgiyb/image/upload/v1759484253/collections/68c65ccd65d85c97e35f2dea/ttnjyrmimbzxwmuoyioz.png",
+  //     "collectionslug": "earrings",
+  //     "status": true,
+  //     "isDeleted": false,
+  //     "createdBy": "68c65ccd65d85c97e35f2dea",
+  //     "createdAt": "2025-10-01T06:19:37.243Z",
+  //     "updatedAt": "2025-10-03T09:37:32.958Z",
+  //     "__v": 0,
+  //     "updatedBy": "68c65ccd65d85c97e35f2dea"
+  // }
+
+  const imgGellary = products1.map(
+    ({ _id, discount, price, productimage, productname }, i) => {
+      return {
+        id: _id,
+        label: i % 2 === 0 ? "BEST SELLER" : "MORE COLOR",
+        name: productname,
+        price: price,
+        oldPrice: `${discount}% Off`,
+        image: productimage,
+      };
+    }
+  );
+
+  const isFilterd = Object.values(selectedFilters).some(
+    (values) => values.length
+  );
+
+  console.log('call--isFilterd',isFilterd);
+
+  const updatedImageGallary = useMemo(() => {
+    if (!Object.values(selectedFilters).some((values) => values.length)) {
+      const firstCollection = collections.Data?.[2];
+
+      const updatedGallary = imgGellary.toSpliced(2, 0, {
+        id: firstCollection?._id,
+        label: "Shop Now",
+        name: firstCollection?.collectionname,
+        oldPrice: null,
+        image: firstCollection?.collectionimage,
+      });
+
+      return updatedGallary;
+    }
+
+    return imgGellary;
+  }, [collections, imgGellary, selectedFilters]);
+
   // Function to render product card
   const ProductCard = ({ product, className = "" }) => (
     <Link to={`/product-detail/${product.productslug}`} state={{ product }}>
@@ -442,10 +512,10 @@ const SolitairesRing = () => {
     <div className="grid grid-cols-4 gap-4 mb-4">
       {/* Left side - 2 stacked images */}
       <div className="col-span-1 space-y-4">
-        <ProductCard
+        {/* <ProductCard
           product={products[startIndex]}
           className="h-[calc(50%-8px)]"
-        />
+        /> */}
         <ProductCard
           product={products[startIndex + 1]}
           className="h-[calc(50%-8px)]"
@@ -667,11 +737,15 @@ const SolitairesRing = () => {
           <div className="flex items-center space-x-8">
             {/* Filter */}
             <div className="flex items-center space-x-2 cursor-pointer hover:opacity-100 transition-opacity relative">
-              <MdFilterList
+              <div
+                className="flex flex-row gap-2"
                 onClick={() => setShowFilterDropdown((prev) => !prev)}
-                className="text-gray-300 text-xl"
-              />
-              <span className="text-gray-300 text-sm font-medium">Filter</span>
+              >
+                <MdFilterList className="text-gray-300 text-2xl" />
+                <span className="text-gray-300 text-sm font-medium">
+                  Filter
+                </span>
+              </div>
               {/* Dropdown */}
               {showFilterDropdown && (
                 <div
@@ -755,6 +829,38 @@ const SolitairesRing = () => {
                   })}
                 </div>
               )}
+
+              {showSortingDropdown && (
+                <div
+                  className={` absolute top-0 mt-6.5 w-[368px] -ml-5 h-[500px] overflow-auto shadow-lg rounded-lg z-50 p-4 min-w-[220px] ${colors.dropdown.background} ${colors.dropdown.text} `}
+                >
+                  <div className="pl-4 mt-2 text-sm">
+                    {options?.map(({ label, onClick, value }) => {
+                      return (
+                        <div
+                          className="flex flex-row justify-between"
+                          key={value}
+                        >
+                          <label
+                            htmlFor={value._id}
+                            className="text-xl cursor-pointer"
+                          >
+                            {label}
+                          </label>
+
+                          <input
+                            id={value._id}
+                            type="radio"
+                            className="mr-5 rounded-sm cursor-pointer"
+                            checked={value === selectedSort}
+                            onChange={() => onClick(value)}
+                          />
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* Sort By */}
@@ -765,18 +871,16 @@ const SolitairesRing = () => {
                   ? "border-2 border-dashed border-purple-400 rounded px-2 py-1"
                   : ""
               }`}
+              onClick={() => setShowSortingDropdown((prev) => !prev)}
             >
               <MdSort className="text-gray-300 text-xl" />
-              <Dropdown
-                value={selectedSort}
-                label="Sort By"
-                options={options}
-              />
+
+              <p>Sort By</p>
             </div>
           </div>
 
           {/* Right side - Product count */}
-          <div className="text-gray-300 text-sm">
+          <div className="text-gray-300 text-sm ">
             {currentRange.start} - {currentRange.end} products of{" "}
             {totalProducts} products
           </div>
@@ -784,10 +888,14 @@ const SolitairesRing = () => {
       </div>
 
       {/* Product Grid */}
-      <div className={`px-46 py-8 `}>{generateRows()}</div>
+      <div className={`px-30 py-4 `}>
+        <ImageGallery isFilterd={isFilterd} gallery={updatedImageGallary} />
+      </div>
+
+      {/* <div className={`px-46 py-8 `}>{generateRows()}</div> */}
 
       {/* Load More Button */}
-      <div className="text-center py-8">
+      <div className="text-center py-8 h-[100px]">
         {viewMore < products.length && (
           <button
             onClick={() => setViewMore((prev) => prev + 8)} // 👈 load 8 more per click
