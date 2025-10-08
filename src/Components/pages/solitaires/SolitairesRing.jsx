@@ -459,7 +459,7 @@ const SolitairesRing = () => {
     (values) => values.length
   );
 
-  console.log('call--isFilterd',isFilterd);
+  console.log("call--isFilterd", isFilterd);
 
   const updatedImageGallary = useMemo(() => {
     if (!Object.values(selectedFilters).some((values) => values.length)) {
@@ -477,7 +477,13 @@ const SolitairesRing = () => {
     }
 
     return imgGellary;
-  }, [collections, imgGellary, selectedFilters]);
+  }, [
+    collections,
+    imgGellary,
+    selectedFilters,
+    selectedSort,
+    showSortingDropdown,
+  ]);
 
   // Function to render product card
   const ProductCard = ({ product, className = "" }) => (
@@ -715,7 +721,7 @@ const SolitairesRing = () => {
     if (filteredProducts?.Data) {
       setProducts(filteredProducts.Data);
     }
-  }, [JSON.stringify(selectedFilters), selectedSort]);
+  }, [JSON.stringify(selectedFilters), selectedSort, showSortingDropdown]);
 
   return (
     <div
@@ -731,8 +737,11 @@ const SolitairesRing = () => {
           />
         </h2>
       </div>
-      <div className="select-none flex justify-center items-center xl:mx-24 lg:mx-5 md:mx-4 mx-4">
-        <div className="bg-[#303030] w-[1532px] h-[56px] p-5 flex justify-between items-center">
+
+      <div className="px-[50px] w-full select-none flex justify-center items-center">
+        <div
+          className={`${colors.dropdown.background}  w-full h-[56px] p-5 flex justify-between items-center`}
+        >
           {/* Left side - Filter and Sort */}
           <div className="flex items-center space-x-8">
             {/* Filter */}
@@ -741,157 +750,175 @@ const SolitairesRing = () => {
                 className="flex flex-row gap-2"
                 onClick={() => setShowFilterDropdown((prev) => !prev)}
               >
-                <MdFilterList className="text-gray-300 text-2xl" />
-                <span className="text-gray-300 text-sm font-medium">
+                <MdFilterList className="text-2xl" />
+                <span className="text-sm font-medium">
                   Filter
                 </span>
               </div>
               {/* Dropdown */}
-              {showFilterDropdown && (
-                <div
-                  className={` absolute top-0 mt-6.5 w-[368px] -ml-5 h-[500px] overflow-auto shadow-lg rounded-lg z-50 p-4 min-w-[220px] ${colors.dropdown.background} ${colors.dropdown.text} `}
-                >
-                  {/* In-Stock Only Toggle */}
-                  <div className={`flex items-center justify-between mb-4 `}>
-                    <span className={`font-medium `}>In-Stock Only</span>
-                    <button
-                      className={`w-10 h-5 flex items-center bg-gray-200 rounded-full p-1 duration-300 focus:outline-none ${
-                        inStockOnly ? "bg-[#B5904F]" : ""
-                      }`}
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setInStockOnly((v) => !v);
-                      }}
-                    >
-                      <div
-                        className={`bg-white w-4 h-4 rounded-full shadow-md transform duration-300 ${
-                          inStockOnly ? "translate-x-5" : ""
-                        }`}
-                      ></div>
-                    </button>
-                  </div>
-                  {/* Shop by collection sections */}
-                  {filterMap.map(({ label, values, key, filterKey }) => {
-                    return (
-                      <div key={label} className="mb-2">
-                        <div
-                          className="flex items-center justify-between cursor-pointer hover:text-[#B5904F]"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            setExpandedCollections((prev) => ({
-                              ...prev,
-                              [label]: !prev[label],
-                            }));
-                          }}
-                        >
-                          <span className="font-semibold">{label}</span>
-                          <span className="text-xl">
-                            {expandedCollections[label] ? "-" : "+"}
-                          </span>
-                        </div>
-
-                        {expandedCollections[label] && (
-                          <div className="pl-4 mt-2 text-sm">
-                            {values?.map((value) => {
-                              return (
-                                <div
-                                  className="flex flex-row justify-between"
-                                  key={value?.[key]}
-                                >
-                                  <label
-                                    htmlFor={value._id}
-                                    className="text-xl cursor-pointer"
-                                  >
-                                    {value?.[key] || "-"}
-                                  </label>
-
-                                  <input
-                                    id={value._id}
-                                    type="checkbox"
-                                    className="mr-5 rounded-sm cursor-pointer"
-                                    checked={selectedFilters[
-                                      filterKey
-                                    ]?.includes(value?._id)}
-                                    onChange={() =>
-                                      handleCheckboxChange(
-                                        filterKey,
-                                        value?._id
-                                      )
-                                    }
-                                  />
-                                </div>
-                              );
-                            })}
-                          </div>
-                        )}
-                      </div>
-                    );
-                  })}
-                </div>
-              )}
-
-              {showSortingDropdown && (
-                <div
-                  className={` absolute top-0 mt-6.5 w-[368px] -ml-5 h-[500px] overflow-auto shadow-lg rounded-lg z-50 p-4 min-w-[220px] ${colors.dropdown.background} ${colors.dropdown.text} `}
-                >
-                  <div className="pl-4 mt-2 text-sm">
-                    {options?.map(({ label, onClick, value }) => {
-                      return (
-                        <div
-                          className="flex flex-row justify-between"
-                          key={value}
-                        >
-                          <label
-                            htmlFor={value._id}
-                            className="text-xl cursor-pointer"
-                          >
-                            {label}
-                          </label>
-
-                          <input
-                            id={value._id}
-                            type="radio"
-                            className="mr-5 rounded-sm cursor-pointer"
-                            checked={value === selectedSort}
-                            onChange={() => onClick(value)}
-                          />
-                        </div>
-                      );
-                    })}
-                  </div>
-                </div>
-              )}
             </div>
 
-            {/* Sort By */}
             <div className="w-px h-6 bg-gray-400 mr-2"></div>
             <div
-              className={`flex items-center space-x-2 cursor-pointer hover:opacity-80 transition-opacity ${
-                selectedSort
-                  ? "border-2 border-dashed border-purple-400 rounded px-2 py-1"
-                  : ""
-              }`}
-              onClick={() => setShowSortingDropdown((prev) => !prev)}
+              className={`flex items-center space-x-2 cursor-pointer hover:opacity-80 transition-opacity`}
+              onClick={() => {
+                setShowSortingDropdown((prev) => {
+                  if (prev) {
+                    setSelectedFilters((prev) => {
+                      const updated = { ...prev };
+                      delete updated.sort;
+                      return updated;
+                    });
+                  }
+                  return !prev;
+                });
+              }}
             >
-              <MdSort className="text-gray-300 text-xl" />
+              <MdSort className=" text-xl" />
 
-              <p>Sort By</p>
+              <span className="text-sm font-medium">Sort By</span>
             </div>
           </div>
 
           {/* Right side - Product count */}
-          <div className="text-gray-300 text-sm ">
-            {currentRange.start} - {currentRange.end} products of{" "}
-            {totalProducts} products
+          <div className=" text-sm ">
+            <span>
+              {currentRange.start} - {currentRange.end} products of{" "}
+              {totalProducts} products
+            </span>
           </div>
         </div>
       </div>
 
-      {/* Product Grid */}
-      <div className={`px-30 py-4 `}>
-        <ImageGallery isFilterd={isFilterd} gallery={updatedImageGallary} />
-      </div>
+      <div className="px-[50px] flex">
+        <div
+          className={`transition-all duration-300 ease-in-out transform overflow-hidden
+    ${
+      showFilterDropdown
+        ? "w-[300px] min-w-[300px] opacity-100 translate-y-0 scale-100"
+        : "w-0 opacity-0 min-w-[0px] max-w-[0px] -translate-y-2 scale-95 pointer-events-none"
+    }`}
+        >
+          <div
+            className={`h-[100%] overflow-auto p-4 ${colors.dropdown.background} ${colors.dropdown.text} `}
+          >
+            {/* In-Stock Only Toggle */}
+            <div
+              hidden={showSortingDropdown}
+              className={`flex items-center justify-between mb-4 `}
+            >
+              <span className={`font-medium `}>In-Stock Only</span>
+              <button
+                className={`w-10 h-5 flex items-center bg-gray-200 p-1 duration-300 focus:outline-none ${
+                  inStockOnly ? "bg-[#B5904F]" : ""
+                }`}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setInStockOnly((v) => !v);
+                }}
+              >
+                <div
+                  className={`bg-white w-4 h-4 rounded-full shadow-md transform duration-300 ${
+                    inStockOnly ? "translate-x-5" : ""
+                  }`}
+                ></div>
+              </button>
+            </div>
+            {/* Shop by collection sections */}
+            {!showSortingDropdown &&
+              filterMap.map(({ label, values, key, filterKey }) => {
+                return (
+                  <div key={label} className="mb-2">
+                    <div
+                      className="flex items-center justify-between cursor-pointer hover:text-[#B5904F]"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setExpandedCollections((prev) => ({
+                          ...prev,
+                          [label]: !prev[label],
+                        }));
+                      }}
+                    >
+                      <span className="font-semibold">{label}</span>
+                      <span className="text-xl">
+                        {expandedCollections[label] ? "-" : "+"}
+                      </span>
+                    </div>
 
+                    {expandedCollections[label] && (
+                      <div className="pl-4 mt-2 text-sm">
+                        {values?.map((value) => {
+                          return (
+                            <div
+                              className="flex flex-row justify-between"
+                              key={value?.[key]}
+                            >
+                              <label
+                                htmlFor={value._id}
+                                className="text-xl cursor-pointer"
+                              >
+                                {value?.[key] || "-"}
+                              </label>
+
+                              <input
+                                id={value._id}
+                                type="checkbox"
+                                className="mr-5 rounded-sm cursor-pointer"
+                                checked={selectedFilters[filterKey]?.includes(
+                                  value?._id
+                                )}
+                                onChange={() =>
+                                  handleCheckboxChange(filterKey, value?._id)
+                                }
+                              />
+                            </div>
+                          );
+                        })}
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+
+            {showSortingDropdown && (
+              <div
+                className={` w-full ${colors.dropdown.background} ${colors.dropdown.text} `}
+              >
+                <div className="text-sm w-full">
+                  {options?.map(({ label, onClick, value }) => {
+                    return (
+                      <div
+                        className="flex flex-row justify-between"
+                        key={value}
+                      >
+                        <label
+                          htmlFor={value._id}
+                          className="font-semibold text-xl cursor-pointer"
+                        >
+                          {label}
+                        </label>
+
+                        <input
+                          id={value._id}
+                          type="radio"
+                          className="rounded-sm cursor-pointer"
+                          checked={value === selectedSort}
+                          onChange={() => onClick(value)}
+                        />
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Product Grid */}
+        <div className={`flex grow overflow-hidden  `}>
+          <ImageGallery isFilterd={isFilterd} gallery={updatedImageGallary} />
+        </div>
+      </div>
       {/* <div className={`px-46 py-8 `}>{generateRows()}</div> */}
 
       {/* Load More Button */}

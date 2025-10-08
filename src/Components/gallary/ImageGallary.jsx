@@ -10,7 +10,7 @@ const products = Array.from({ length: 12 }).map((_, i) => ({
 
 export default function ImageGallary({ gallery = products, isFilterd }) {
   return (
-    <div className="bg-black text-white min-h-screen">
+    <div className=" w-full text-white min-h-screen">
       {/* Product Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 p-6">
         {gallery.map((p, index) => (
@@ -29,7 +29,6 @@ export default function ImageGallary({ gallery = products, isFilterd }) {
               </span>
             )}
 
-            {/* Image Placeholder */}
             <div
               className={`bg-neutral-700 rounded-lg ${
                 index === 2 && !isFilterd ? "h-245" : "h-100"
@@ -72,31 +71,6 @@ export default function ImageGallary({ gallery = products, isFilterd }) {
             )}
           </div>
         ))}
-      </div>
-
-      {/* Promo Section */}
-      <div className="relative bg-neutral-900 my-10 mx-6 rounded-xl overflow-hidden flex flex-col md:flex-row items-center">
-        <div className="flex-1 p-10 text-center md:text-left">
-          <h2 className="text-2xl font-serif mb-4">
-            Wedding Rings In Stock & Ready
-          </h2>
-          <p className="text-gray-400 mb-6">
-            Need it now? Shop our ready-to-ship bands today.
-          </p>
-          <button className="bg-white text-black px-6 py-2 rounded-md hover:bg-yellow-400 transition">
-            Shop Now
-          </button>
-        </div>
-        <div className="flex-1 bg-neutral-700 h-80 flex items-center justify-center">
-          <span className="text-gray-400">Banner Image Placeholder</span>
-        </div>
-      </div>
-
-      {/* View More */}
-      <div className="text-center py-10">
-        <button className="bg-yellow-600 hover:bg-yellow-700 transition text-white font-medium px-6 py-3 rounded-md">
-          View More
-        </button>
       </div>
     </div>
   );
