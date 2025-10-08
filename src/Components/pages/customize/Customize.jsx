@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import RingDesign from "../../../assets/radheva.png"
 import { useTheme } from '../../config/hooks/useTheme'
 import CloudIcon from "../../../assets/Claud.svg";
@@ -9,6 +9,7 @@ import drawnecklace from "../../../assets/drownecklace.svg"
 import GeneralQuestions from '../solitaires/GeneralQuestions';
 import Expert from "../../../assets/Expertjweles.png"
 import underline from "../../../assets/about/underline.svg"
+import { apiInstance } from "../../../api/AxiosApi";
 const Customize = () => {
     const { theme, colors } = useTheme();
     const [form, setForm] = useState({
@@ -23,6 +24,34 @@ const Customize = () => {
     });
     const [touched, setTouched] = useState({});
     const [submitting, setSubmitting] = useState(false);
+    const [metals, setMetals] = useState([]);
+    const [files, setFiles] = useState([]);
+
+    const stoneTypes = ["Natural", "Lab grown", "Moissanite"];
+    const jewelryOptions = ["Ring/Band", "Earrings", "Pendant", "Bracelets", "Necklace"];
+    const budgetOptions = [
+        "Up to 500$",
+        "Up to 1000$",
+        "Up to 2000$",
+        "Up to 3000$",
+        "Up to 4000$",
+        "Up to 5000$",
+        "More then 5000$",
+    ];
+
+    useEffect(() => {
+        let isMounted = true;
+        (async () => {
+            try {
+                const { data } = await apiInstance.post('/client/product/getMetalsForUsers');
+                if (isMounted && Array.isArray(data?.data || data)) {
+                    setMetals(data.data || data);
+                }
+            } catch (_) {
+            }
+        })();
+        return () => { isMounted = false }
+    }, []);
 
     const errors = useMemo(() => {
         const e = {};
@@ -52,14 +81,31 @@ const Customize = () => {
         }
     };
 
+    const handleFileChange = (e) => {
+        const selected = Array.from(e.target.files || []);
+        setFiles(selected);
+    };
+
     const handleSubmit = async (e) => {
         e.preventDefault();
         setTouched({ firstName: true, email: true, phone: true, stoneType: true, jewelryTypes: true, metalType: true, budget: true });
         if (Object.keys(errors).length > 0) return;
         setSubmitting(true);
         try {
-            await new Promise(res => setTimeout(res, 700));
-            // TODO: send to API
+            const fd = new FormData();
+            fd.append('name', form.firstName);
+            fd.append('email', form.email);
+            fd.append('phoneNumber', form.phone);
+            fd.append('stoneType', form.stoneType);
+            form.jewelryTypes.forEach((jt) => fd.append('jewelryType', jt));
+            fd.append('metalType', form.metalType);
+            fd.append('budget', form.budget);
+            if (form.comments) fd.append('comments', form.comments);
+            files.forEach((file) => fd.append('referenceImages', file));
+
+            await apiInstance.post('/client/inquiry', fd, { headers: { 'Content-Type': 'multipart/form-data' } });
+            setForm({ firstName: '', email: '', phone: '', stoneType: '', jewelryTypes: [], metalType: '', budget: '', comments: '' });
+            setFiles([]);
         } finally {
             setSubmitting(false);
         }
@@ -116,11 +162,10 @@ const Customize = () => {
                             <label className={`block text-[20px] font-normal font-kufam leading-[100%] tracking-[0px] `}>Stone Type</label>
                             <select id="stoneType" value={form.stoneType} onChange={handleChange} onBlur={handleBlur}
                                 className={`appearance-none border ${theme === 'dark' ? ' bg-white text-[#5c6064]' : ' bg-[#282828] text-[#A9B2B9]'} border-white/20 rounded-[10px] w-full py-[10px] px-[16px] focus:outline-none leading-[100%] tracking-[0px]  text-[18px] font-normal font-kufam ${touched.stoneType && errors.stoneType ? 'border-red-500' : ''}`}>
-                                <option value="">Select Option</option>
-                                <option>Diamond</option>
-                                <option>Ruby</option>
-                                <option>Emerald</option>
-                                <option>Sapphire</option>
+                            <option value="">Select Option</option>
+                            {stoneTypes.map(s => (
+                                <option key={s} value={s}>{s}</option>
+                            ))}
                             </select>
                             {touched.stoneType && errors.stoneType && <p className="text-xs text-red-500">{errors.stoneType}</p>}
                         </div>
@@ -136,7 +181,7 @@ const Customize = () => {
                         </label>
 
                         <div className="flex flex-wrap gap-6 items-center ">
-                            {["Ring/Band", "Earrings", "Pendant", "Bracelets", "Necklace"].map((v) => (
+                            {jewelryOptions.map((v) => (
                                 <label key={v} className="inline-flex items-center gap-[18px] cursor-pointer">
                                     <div className="relative inline-flex items-center cursor-pointer">
                                         <input
@@ -182,10 +227,11 @@ const Customize = () => {
                         <select id="metalType" value={form.metalType} onChange={handleChange} onBlur={handleBlur}
                             className={`appearance-none border ${theme === 'dark' ? ' bg-white' : ' bg-[#282828] text-white'} border-white/20 rounded-[10px] w-full p-[14px] focus:outline-none leading-[100%] tracking-[0px] text-[#94A3B8] text-[20px] font-normal font-kufam cursor-pointer ${touched.metalType && errors.metalType ? 'border-red-500' : ''}`}>
                             <option value="">Select metal type</option>
-                            <option>Gold 14k</option>
-                            <option>Gold 18k</option>
-                            <option>Platinum</option>
-                            <option>Silver</option>
+                            {metals.map((m) => (
+                                <option key={m?._id || m?.id} value={m?._id || m?.id}>
+                                    {(m?.name || m?.metalName || m?.title || 'Unknown') + (m?.purity ? ` (${m.purity})` : '')}
+                                </option>
+                            ))}
                         </select>
                         {touched.metalType && errors.metalType && <p className="text-xs text-red-500">{errors.metalType}</p>}
                     </div>
@@ -196,10 +242,9 @@ const Customize = () => {
                         <select id="budget" value={form.budget} onChange={handleChange} onBlur={handleBlur}
                             className={`appearance-none border ${theme === 'dark' ? ' bg-white' : ' bg-[#282828] text-white'} border-white/20 rounded-[10px] w-full p-[14px] focus:outline-none leading-[100%] tracking-[0px] text-[#94A3B8] text-[20px] font-normal font-kufam cursor-pointer ${touched.budget && errors.budget ? 'border-red-500' : ''}`}>
                             <option value="">Select</option>
-                            <option>Under ₹50,000</option>
-                            <option>₹50,000 - ₹1,00,000</option>
-                            <option>₹1,00,000 - ₹2,00,000</option>
-                            <option>₹2,00,000+</option>
+                            {budgetOptions.map(b => (
+                                <option key={b} value={b}>{b}</option>
+                            ))}
                         </select>
                         {touched.budget && errors.budget && <p className="text-xs text-red-500">{errors.budget}</p>}
                     </div>
@@ -212,19 +257,18 @@ const Customize = () => {
                             placeholder="" />
                     </div>
 
-                    {/* Row 7: Upload box (UI only) */}
+                    {/* Row 7: Upload box */}
                     <div className="grid gap-[10px]">
-                        <div className={`border border-dashed border-white/30 rounded-xl w-full h-[140px] flex flex-col items-center justify-center gap-[10px] ${theme === 'dark' ? ' bg-white text-[#94A3B8]' : ' bg-[#282828] text-[#A9B2B9]'}`}>
+                        <label className={`block text-[20px] font-normal font-kufam leading-[100%] tracking-[0px] ${theme === 'dark' ? ' text-black' : ' text-white'}`}>Reference Images</label>
+                        <div className={`border border-dashed border-white/30 rounded-xl w-full min-h-[140px] flex flex-col items-center justify-center gap-[10px] ${theme === 'dark' ? ' bg-white text-[#94A3B8]' : ' bg-[#282828] text-[#A9B2B9]'}`}>
                             <div className="w-9 h-9 flex items-center justify-center">
-                                <img
-                                    src={CloudIcon}
-                                    alt="upload"
-                                    className={`w-[30px] h-[30px] ${theme === "dark" ? "" : ""}`}
-                                />
+                                <img src={CloudIcon} alt="upload" className={`w-[30px] h-[30px] ${theme === 'dark' ? '' : ''}`} />
                             </div>
-
-
                             <div className="text-[15px] leading-[26px] font-normal tracking-[1.05px] font-nunito text-[#94A3B8] opacity-80">Upload Reference Images</div>
+                            <input type="file" accept="image/*" multiple onChange={handleFileChange} className="mt-2 text-sm" />
+                            {files.length > 0 && (
+                                <div className="text-xs opacity-80">{files.length} file(s) selected</div>
+                            )}
                         </div>
                     </div>
 
