@@ -67,6 +67,26 @@ const ProductDetail = () => {
         return Math.round((goldPrice * percentage) / 100);
     };
 
+    // Get diamond price based on selected shape and size (carat)
+    const getSelectedDiamondPrice = () => {
+        if (!product || !selectedShape) return 0;
+        const diamond = (product.diamonds || []).find(
+            d => (d.diamondname || '').toLowerCase() === (selectedShape || '').toLowerCase()
+        );
+        if (!diamond || !diamond.sizes || diamond.sizes.length === 0) return 0;
+        if (!selectedSize) return diamond.sizes[0]?.price || 0;
+        const sizeItem = diamond.sizes.find(s => (s.carat + 'ct') === selectedSize);
+        return sizeItem?.price || 0;
+    };
+
+    const labourCharge = 11600;
+    const getGstAmount = () => {
+        const gold = calculateGoldPrice(selectedPurity);
+        const diamond = getSelectedDiamondPrice();
+        const subtotal = gold + diamond + labourCharge;
+        return Math.round(subtotal * 0.18); // 18% GST
+    };
+
     // Fetch latest gold price
     useEffect(() => {
         const fetchGoldPrice = async () => {
@@ -93,18 +113,24 @@ const ProductDetail = () => {
                 if (response.IsSuccess && response.Data) {
                     setProduct(response.Data);
                     
-                    // Set default selections from API data
+                    // Set default selections from API data (nested structure)
                     if (response.Data.metals && response.Data.metals.length > 0) {
-                        setSelectedPurity(response.Data.metals[0].metalname);
-                    }
-                    if (response.Data.colors && response.Data.colors.length > 0) {
-                        setSelectedColor(response.Data.colors[0].colorname);
-                    }
-                    if (response.Data.sizes && response.Data.sizes.length > 0) {
-                        setSelectedSize(response.Data.sizes[0].carat + "ct");
+                        const firstMetal = response.Data.metals[0];
+                        setSelectedPurity(firstMetal.metalname);
+                        if (firstMetal.colors && firstMetal.colors.length > 0) {
+                            setSelectedColor(firstMetal.colors[0].colorname);
+                        } else {
+                            setSelectedColor("");
+                        }
                     }
                     if (response.Data.diamonds && response.Data.diamonds.length > 0) {
-                        setSelectedShape(response.Data.diamonds[0].diamondname);
+                        const firstDiamond = response.Data.diamonds[0];
+                        setSelectedShape(firstDiamond.diamondname);
+                        if (firstDiamond.sizes && firstDiamond.sizes.length > 0) {
+                            setSelectedSize(firstDiamond.sizes[0].carat + "ct");
+                        } else {
+                            setSelectedSize("");
+                        }
                     }
                 } else {
                     setError("Product not found");
@@ -131,6 +157,38 @@ const ProductDetail = () => {
             setMainImage(product.productimage);
         }
     }, [product]);
+
+    // When metal purity changes, derive colors from that metal
+    useEffect(() => {
+        if (!product || !selectedPurity) return;
+        const metal = (product.metals || []).find(m => (m.metalname || '').toLowerCase() === selectedPurity.toLowerCase());
+        const availableColors = metal?.colors || [];
+        if (availableColors.length === 0) {
+            setSelectedColor("");
+            return;
+        }
+        // If current selectedColor is not in available list, reset to first
+        const exists = availableColors.some(c => c.colorname === selectedColor);
+        if (!exists) {
+            setSelectedColor(availableColors[0].colorname);
+        }
+    }, [product, selectedPurity]);
+
+    // When diamond shape changes, derive sizes from that diamond
+    useEffect(() => {
+        if (!product || !selectedShape) return;
+        const diamond = (product.diamonds || []).find(d => (d.diamondname || '').toLowerCase() === selectedShape.toLowerCase());
+        const availableSizes = diamond?.sizes || [];
+        if (availableSizes.length === 0) {
+            setSelectedSize("");
+            return;
+        }
+        // If current selectedSize is not in available list, reset to first
+        const exists = availableSizes.some(s => (s.carat + "ct") === selectedSize);
+        if (!exists) {
+            setSelectedSize(availableSizes[0].carat + "ct");
+        }
+    }, [product, selectedShape]);
 
     if (loading) {
         return (
@@ -193,7 +251,7 @@ const ProductDetail = () => {
 
                     {/* Price Row */}
                     <div className="flex items-center gap-3 mb-4">
-                        <span className="text-2xl font-bold text-[#B5904F]">₹{(calculateGoldPrice(selectedPurity) + 32000 + 11600 + 3000).toLocaleString()}</span>
+                        <span className="text-2xl font-bold text-[#B5904F]">₹{(calculateGoldPrice(selectedPurity) + getSelectedDiamondPrice() + labourCharge + getGstAmount()).toLocaleString()}</span>
                         {product.discount && (
                             <span className="bg-[#B5904F] text-white px-2 py-1 text-xs rounded">
                                 {product.discount}% Off
@@ -224,14 +282,17 @@ const ProductDetail = () => {
                         </div>
                     )}
 
-                    {/* Metal Color */}
-                    {product.colors && product.colors.length > 0 && (
+                    {/* Metal Color (derived from selected metal) */}
+                    {(() => {
+                        const metal = (product.metals || []).find(m => (m.metalname || '').toLowerCase() === selectedPurity.toLowerCase());
+                        const metalColors = metal?.colors || [];
+                        return metalColors.length > 0 ? (
                         <div className="mb-4">
                             <div className="text-sm font-semibold mb-1">
                                 Metal Color : <span className="text-[#B5904F]">{selectedColor}</span>
                             </div>
                             <div className="flex gap-4">
-                                {product.colors.map((color) => (
+                                {metalColors.map((color) => (
                                     <div
                                         key={color._id}
                                         onClick={() => setSelectedColor(color.colorname)}
@@ -248,16 +309,20 @@ const ProductDetail = () => {
                                 ))}
                             </div>
                         </div>
-                    )}
+                        ) : null;
+                    })()}
 
-                    {/* Diamond Size */}
-                    {product.sizes && product.sizes.length > 0 && (
+                    {/* Diamond Size (derived from selected diamond) */}
+                    {(() => {
+                        const diamond = (product.diamonds || []).find(d => (d.diamondname || '').toLowerCase() === selectedShape.toLowerCase());
+                        const diamondSizes = diamond?.sizes || [];
+                        return diamondSizes.length > 0 ? (
                         <div className="mb-4">
                             <div className="text-sm font-semibold mb-1">
                                 Diamond Size : <span className="text-[#B5904F]">{selectedSize}</span>
                             </div>
                             <div className="flex gap-3">
-                                {product.sizes.map((size) => (
+                                {diamondSizes.map((size) => (
                                     <button
                                         key={size._id}
                                         onClick={() => setSelectedSize(size.carat + "ct")}
@@ -271,7 +336,8 @@ const ProductDetail = () => {
                                 ))}
                             </div>
                         </div>
-                    )}
+                        ) : null;
+                    })()}
 
                     {/* Diamond Shape */}
                     {product.diamonds && product.diamonds.length > 0 && (
@@ -324,19 +390,19 @@ const ProductDetail = () => {
                                 <span>Gold ({selectedPurity})</span>
                             </div>
                             <div className="flex justify-between px-4 py-2 text-sm text-[#94A3B8] border-b">
-                                <span>₹32,000</span>
-                                <span>Diamond</span>
+                                <span>₹{getSelectedDiamondPrice().toLocaleString()}</span>
+                                <span>Diamond {selectedSize ? `(${selectedSize})` : ''}</span>
                             </div>
                             <div className="flex justify-between px-4 py-2 text-sm text-[#94A3B8] border-b">
-                                <span>₹11,600</span>
+                                <span>₹{labourCharge.toLocaleString()}</span>
                                 <span>Labour</span>
                             </div>
                             <div className="flex justify-between px-4 py-2 text-sm text-[#94A3B8] border-b">
-                                <span>₹3,000</span>
-                                <span>GST</span>
+                                <span>₹{getGstAmount().toLocaleString()}</span>
+                                <span>GST (18%)</span>
                             </div>
                             <div className={`flex justify-between px-4 py-2 text-sm font-semibold ${theme === "dark" ? "text-black " : "text-white"}`}>
-                                <span>₹{(calculateGoldPrice(selectedPurity) + 32000 + 11600 + 3000).toLocaleString()}</span>
+                                <span>₹{(calculateGoldPrice(selectedPurity) + getSelectedDiamondPrice() + labourCharge + getGstAmount()).toLocaleString()}</span>
                                 <span>Total</span>
                             </div>
                         </div>
@@ -371,7 +437,7 @@ const ProductDetail = () => {
                                     metalColor: selectedColor,
                                     ringSize: selectedSize,
                                     quantity,
-                                    price: calculateGoldPrice(selectedPurity) + 32000 + 11600 + 3000,
+                                    price: calculateGoldPrice(selectedPurity) + getSelectedDiamondPrice() + labourCharge + getGstAmount(),
                                     name: product.productname,
                                     image: product.productimage,
                                 })
