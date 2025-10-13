@@ -55,7 +55,6 @@ const SolitairesRing = () => {
       return { ...prev, [groupKey]: updatedValues };
     });
   };
-
   const handleProductClick = (product) => {
     console.log("Product clicked:", product);
     console.log("Navigating to:", `/product-detail/${product._id}`);
