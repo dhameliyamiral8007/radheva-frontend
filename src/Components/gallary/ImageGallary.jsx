@@ -6,16 +6,21 @@ const products = Array.from({ length: 12 }).map((_, i) => ({
   name: "Luxury Love Band (placeholder)",
   price: "₹1,49,000.00",
   oldPrice: "₹1,89,000.00",
+  image: "https://via.placeholder.com/300x400?text=Product+Image",
 }));
 
-export default function ImageGallary({ gallery = products, isFilterd }) {
+export default function ImageGallary({ gallery = products, isFilterd ,onProductClick }) {
+
+  console.log("gallery",gallery)
+
   return (
-    <div className=" w-full text-white min-h-screen">
+    <div className=" w-full text-white min-h-screen curser-pointer" >
       {/* Product Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 py-4">
         {gallery.map((p, index) => (
           <div
             key={p.id}
+            onClick={() => onProductClick(p.id)}
             className={`${
               index === 2 && !isFilterd
                 ? "col-span-2 row-span-2"

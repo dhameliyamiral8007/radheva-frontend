@@ -53,8 +53,8 @@ const ReviewsStar = () => {
                         <div className="col-span-12 md:col-span-7 md:border-l-4 md:border-[#A9B2B9] md:pl-6">
                             <div className={`${colors.reviewsstar.reviewstext} flex justify-center items-center text-[#1E293B] md:text-left text-[18px] tracking-[0px] leading-100% font-kufam font-bold mb-4`}>Customer Reviews</div>
                             {breakdown.map((b, idx) => (
-                                <div className='flex justify-center items-center'>
-                                    <div key={idx} className="flex items-center gap-[20px] lg:w-[381px] w-full md:w-[300px]">
+                                <div key={idx} className='flex justify-center items-center'>
+                                    <div className="flex items-center gap-[20px] lg:w-[381px] w-full md:w-[300px]">
                                         <div className="flex gap-[4px]">
                                             {[1, 2, 3, 4, 5].map(i => (
                                                 <Star key={i} filled={i <= b.stars} />

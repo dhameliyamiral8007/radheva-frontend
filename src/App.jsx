@@ -13,8 +13,6 @@ import CartPage from "./Components/pages/cart/CartPage.jsx";
 import PaymentFlow from "./Components/pages/payment/PaymentFlow.jsx";
 import WishList from "./Components/pages/wishList/WishList.jsx";
 import { WishlistProvider } from "./Components/context/WishListProvider.jsx";
-import Shop from "./Components/pages/shop/Shop.jsx";
-
 const OurStory = lazy(() => import("./Components/pages/footer/companyPages/OurStory.jsx"));
 const ContactUs = lazy(() => import("./Components/pages/footer/companyPages/ContactUs.jsx"));
 const HomeIndex = lazy(() => import("./Components/pages/home/Index.jsx"));

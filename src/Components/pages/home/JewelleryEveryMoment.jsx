@@ -28,7 +28,6 @@ const JewelleryEveryMoment = () => {
     products = [],
     loading = false,
     error = null,
-    isSuccess = false
   } = useSelector((state) => state.jwelary || {});
 
   const [currentPage, setCurrentPage] = useState(1);
@@ -81,9 +80,9 @@ const JewelleryEveryMoment = () => {
     });
   };
 
-  // const handleProductClick = (product) => {
-  //   navigate(`/product/${product.productslug}`, { state: { product } });
-  // };
+  const handleProductClick = (product) => {
+    navigate(`/product-detail/${product._id}`, { state: { product } });
+  };
 
   // Calculate pagination
   const totalPages = Math.ceil(products.length / itemsPerPage);

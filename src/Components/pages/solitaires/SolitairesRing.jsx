@@ -1,12 +1,8 @@
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 import { useTheme } from "../../config/hooks/useTheme";
 import underline from "../../../assets/about/underline.svg";
 import { MdFilterList, MdSort } from "react-icons/md";
-import weeddingring from "../../../assets/about/weeddingring.jpg";
-import Rectangle from "../../../assets/about/Rectangle.jpg";
-import Earring from "../../../assets/about/Earring.jpg";
-import Bracelets from "../../../assets/about/Bracelets.jpg";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import {
   fetchFilteredProducts,
   fetchProducts,
@@ -17,6 +13,7 @@ import ImageGallery from "../../gallary/ImageGallary";
 
 const SolitairesRing = () => {
   const { colors, theme } = useTheme();
+  const navigate = useNavigate();
   const [selectedSort, setSelectedSort] = useState();
   const [metalsForUsers, setMetalsForUsers] = useState([]);
   const [colorsForUsers, setColorsForUsers] = useState([]);
@@ -42,6 +39,9 @@ const SolitairesRing = () => {
     selectedFilters,
   });
 
+  console.log("Products1 length:", products1.length);
+  console.log("First product:", products1[0]);
+
   //   getColorsForUsers
   //getDiamondsForUsers
   //getSizesForUsers
@@ -56,7 +56,14 @@ const SolitairesRing = () => {
     });
   };
 
-  useMemo(async () => {
+  const handleProductClick = (product) => {
+    console.log("Product clicked:", product);
+    console.log("Navigating to:", `/product-detail/${product._id}`);
+    navigate(`/product-detail/${product}`, { state: { productId: product} });
+  };
+
+  useEffect(() => {
+    const fetchData = async () => {
     const metalsForUsers = await fetchProducts("getMetalsForUsers");
 
     if (metalsForUsers) {
@@ -91,6 +98,9 @@ const SolitairesRing = () => {
     if (collectionItems) {
       setCollectionsItems(collectionItems);
     }
+    };
+
+    fetchData();
   }, []);
 
   const filterMap = [
@@ -132,315 +142,7 @@ const SolitairesRing = () => {
     },
   ];
 
-  // Mock product data - replace with API data later
-  const products = [
-    {
-      id: 1,
-      price: "₹ 1,20,000",
-      image: weeddingring,
-      description: "Lorem Ipsum is simply dummy text of the",
-      longDescription:
-        "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
-    },
-    {
-      id: 2,
-      price: "₹ 95,000",
-      image: Rectangle,
-      description: "Lorem Ipsum is simply dummy text of the",
-      longDescription:
-        "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
-    },
-    {
-      id: 3,
-      price: "₹ 1,50,000",
-      image: Earring,
-      description: "Lorem Ipsum is simply dummy text of the",
-      longDescription:
-        "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
-    },
-    {
-      id: 4,
-      price: "₹ 2,10,000",
-      image: Bracelets,
-      description: "Lorem Ipsum is simply dummy text of the",
-      longDescription:
-        "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
-    },
-    {
-      id: 5,
-      price: "₹ 1,80,000",
-      image: weeddingring,
-      description: "Lorem Ipsum is simply dummy text of the",
-      longDescription:
-        "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
-    },
-    {
-      id: 6,
-      price: "₹ 75,000",
-      image: Rectangle,
-      description: "Lorem Ipsum is simply dummy text of the",
-      longDescription:
-        "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
-    },
-    {
-      id: 7,
-      price: "₹ 2,50,000",
-      image: Earring,
-      description: "Lorem Ipsum is simply dummy text of the",
-      longDescription:
-        "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
-    },
-    {
-      id: 8,
-      price: "₹ 1,95,000",
-      image: Bracelets,
-      description: "Lorem Ipsum is simply dummy text of the",
-      longDescription:
-        "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
-    },
-    {
-      id: 9,
-      price: "₹ 1,65,000",
-      image: weeddingring,
-      description: "Lorem Ipsum is simply dummy text of the",
-      longDescription:
-        "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
-    },
-    {
-      id: 10,
-      price: "₹ 1,35,000",
-      image: Rectangle,
-      description: "Lorem Ipsum is simply dummy text of the",
-      longDescription:
-        "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
-    },
-    {
-      id: 11,
-      price: "₹ 2,20,00021212",
-      image: Earring,
-      description: "Lorem Ipsum is simply dummy text of the",
-      longDescription:
-        "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
-    },
-    {
-      id: 12,
-      price: "₹ 1,40,000",
-      image: Bracelets,
-      description: "Lorem Ipsum is simply dummy text of the",
-      longDescription:
-        "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
-    },
-    {
-      id: 13,
-      price: "₹ 1,90,000",
-      image: weeddingring,
-      description: "Lorem Ipsum is simply dummy text of the",
-      longDescription:
-        "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
-    },
-    {
-      id: 14,
-      price: "₹ 2,80,000",
-      image: Rectangle,
-      description: "Lorem Ipsum is simply dummy text of the",
-      longDescription:
-        "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
-    },
-    {
-      id: 15,
-      price: "₹ 3,10,000",
-      image: Earring,
-      description: "Lorem Ipsum is simply dummy text of the",
-      longDescription:
-        "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
-    },
-    {
-      id: 16,
-      price: "₹ 2,45,000",
-      image: Bracelets,
-      description: "Lorem Ipsum is simply dummy text of the",
-      longDescription:
-        "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
-    },
-    {
-      id: 17,
-      price: "₹ 1,75,000",
-      image: weeddingring,
-      description: "Lorem Ipsum is simply dummy text of the",
-      longDescription:
-        "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
-    },
-    {
-      id: 18,
-      price: "₹ 1,55,000",
-      image: Rectangle,
-      description: "Lorem Ipsum is simply dummy text of the",
-      longDescription:
-        "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
-    },
-    {
-      id: 19,
-      price: "₹ 2,60,000",
-      image: Earring,
-      description: "Lorem Ipsum is simply dummy text of the",
-      longDescription:
-        "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
-    },
-    {
-      id: 20,
-      price: "₹ 1,25,000",
-      image: Bracelets,
-      description: "Lorem Ipsum is simply dummy text of the",
-      longDescription:
-        "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
-    },
-    {
-      id: 21,
-      price: "₹ 2,20,000",
-      image: Earring,
-      description: "Lorem Ipsum is simply dummy text of the",
-      longDescription:
-        "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
-    },
-    {
-      id: 22,
-      price: "₹ 1,40,000",
-      image: Bracelets,
-      description: "Lorem Ipsum is simply dummy text of the",
-      longDescription:
-        "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
-    },
-    {
-      id: 23,
-      price: "₹ 1,90,000",
-      image: weeddingring,
-      description: "Lorem Ipsum is simply dummy text of the",
-      longDescription:
-        "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
-    },
-    {
-      id: 24,
-      price: "₹ 2,80,000",
-      image: Rectangle,
-      description: "Lorem Ipsum is simply dummy text of the",
-      longDescription:
-        "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
-    },
-    {
-      id: 25,
-      price: "₹ 3,10,000",
-      image: Earring,
-      description: "Lorem Ipsum is simply dummy text of the",
-      longDescription:
-        "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
-    },
-    {
-      id: 26,
-      price: "₹ 2,45,000",
-      image: Bracelets,
-      description: "Lorem Ipsum is simply dummy text of the",
-      longDescription:
-        "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
-    },
-    {
-      id: 27,
-      price: "₹ 1,75,000",
-      image: weeddingring,
-      description: "Lorem Ipsum is simply dummy text of the",
-      longDescription:
-        "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
-    },
-    {
-      id: 28,
-      price: "₹ 1,55,000",
-      image: Rectangle,
-      description: "Lorem Ipsum is simply dummy text of the",
-      longDescription:
-        "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
-    },
-    {
-      id: 29,
-      price: "₹ 2,60,000",
-      image: Earring,
-      description: "Lorem Ipsum is simply dummy text of the",
-      longDescription:
-        "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
-    },
-    {
-      id: 30,
-      price: "₹ 1,25,000",
-      image: Bracelets,
-      description: "Lorem Ipsum is simply dummy text of the",
-      longDescription:
-        "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
-    },
-    {
-      id: 31,
-      price: "₹ 2,45,000",
-      image: Bracelets,
-      description: "Lorem Ipsum is simply dummy text of the",
-      longDescription:
-        "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
-    },
-    {
-      id: 32,
-      price: "₹ 1,75,000",
-      image: weeddingring,
-      description: "Lorem Ipsum is simply dummy text of the",
-      longDescription:
-        "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
-    },
-    {
-      id: 33,
-      price: "₹ 1,55,000",
-      image: Rectangle,
-      description: "Lorem Ipsum is simply dummy text of the",
-      longDescription:
-        "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
-    },
-    {
-      id: 34,
-      price: "₹ 2,60,000",
-      image: Earring,
-      description: "Lorem Ipsum is simply dummy text of the",
-      longDescription:
-        "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
-    },
-    {
-      id: 35,
-      price: "₹ 1,25,000",
-      image: Bracelets,
-      description: "Lorem Ipsum is simply dummy text of the",
-      longDescription:
-        "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
-    },
-  ];
-
-  //   const products = Array.from({ length: 12 }).map((_, i) => ({
-  //   id: i,
-  //   label: i % 2 === 0 ? "BEST SELLER" : "MORE COLOR",
-  //   name: "Luxury Love Band (placeholder)",
-  //   price: "₹1,49,000.00",
-  //   oldPrice: "₹1,89,000.00",
-  // }));
-
-  //   {
-  //     "_id": "68dcc7f9ef5d9da901301e83",
-  //     "navigationid": {
-  //         "_id": "68dcc796ef5d9da901301e43",
-  //         "navigationname": "Shop"
-  //     },
-  //     "collectionname": "Earrings",
-  //     "collectionimage": "https://res.cloudinary.com/dmlhjgiyb/image/upload/v1759484253/collections/68c65ccd65d85c97e35f2dea/ttnjyrmimbzxwmuoyioz.png",
-  //     "collectionslug": "earrings",
-  //     "status": true,
-  //     "isDeleted": false,
-  //     "createdBy": "68c65ccd65d85c97e35f2dea",
-  //     "createdAt": "2025-10-01T06:19:37.243Z",
-  //     "updatedAt": "2025-10-03T09:37:32.958Z",
-  //     "__v": 0,
-  //     "updatedBy": "68c65ccd65d85c97e35f2dea"
-  // }
+  // Using API data from products1 state
 
   const imgGellary = products1.map(
     ({ _id, discount, price, productimage, productname }, i) => {
@@ -487,11 +189,12 @@ const SolitairesRing = () => {
 
   // Function to render product card
   const ProductCard = ({ product, className = "" }) => (
-    <Link to={`/product-detail/${product.productslug}`} state={{ product }}>
+    <Link to={`/product-detail/${product._id}`} state={{ productId:product._id }}>
       <div
         className={` rounded-lg shadow-lg overflow-hidden cursor-pointer hover:shadow-xl transition-shadow duration-300 ${className} ${
           theme === "dark" ? "bg-white" : "bg-[#303030]"
         }`}
+        onClick={() => handleProductClick(product)}
       >
         <div
           className={`flex items-center justify-center w-full ] bg-gray-100`}
@@ -518,28 +221,24 @@ const SolitairesRing = () => {
     <div className="grid grid-cols-4 gap-4 mb-4">
       {/* Left side - 2 stacked images */}
       <div className="col-span-1 space-y-4">
-        {/* <ProductCard
-          product={products[startIndex]}
-          className="h-[calc(50%-8px)]"
-        /> */}
         <ProductCard
-          product={products[startIndex + 1]}
+          product={products1[startIndex + 1]}
           className="h-[calc(50%-8px)]"
         />
       </div>
       <div className="col-span-1 space-y-4">
         <ProductCard
-          product={products[startIndex]}
+          product={products1[startIndex]}
           className="h-[calc(50%-8px)]"
         />
         <ProductCard
-          product={products[startIndex + 1]}
+          product={products1[startIndex + 1]}
           className="h-[calc(50%-8px)]"
         />
       </div>
       {/* Middle - 1 large image */}
       <div className="col-span-2">
-        <ProductCard product={products[startIndex + 2]} className="h-full" />
+        <ProductCard product={products1[startIndex + 2]} className="h-full" />
       </div>
     </div>
   );
@@ -549,27 +248,27 @@ const SolitairesRing = () => {
     <div className="grid grid-cols-4 gap-4 mb-4">
       {/* Left side - 1 small image */}
       <div className="col-span-2">
-        <ProductCard product={products[startIndex + 2]} className="h-full" />
+        <ProductCard product={products1[startIndex + 2]} className="h-full" />
       </div>
 
       {/* Middle - 1 large image */}
       <div className="col-span-1 space-y-4">
         <ProductCard
-          product={products[startIndex]}
+          product={products1[startIndex]}
           className="h-[calc(50%-8px)]"
         />
         <ProductCard
-          product={products[startIndex + 1]}
+          product={products1[startIndex + 1]}
           className="h-[calc(50%-8px)]"
         />
       </div>
       <div className="col-span-1 space-y-4">
         <ProductCard
-          product={products[startIndex]}
+          product={products1[startIndex]}
           className="h-[calc(50%-8px)]"
         />
         <ProductCard
-          product={products[startIndex + 1]}
+          product={products1[startIndex + 1]}
           className="h-[calc(50%-8px)]"
         />
       </div>
@@ -712,7 +411,8 @@ const SolitairesRing = () => {
     },
   ];
 
-  useMemo(async () => {
+  useEffect(() => {
+    const fetchFilteredData = async () => {
     const filteredProducts = await fetchFilteredProducts({
       ...selectedFilters,
       ...(selectedSort ? { sort: [selectedSort] } : {}),
@@ -721,6 +421,9 @@ const SolitairesRing = () => {
     if (filteredProducts?.Data) {
       setProducts(filteredProducts.Data);
     }
+    };
+
+    fetchFilteredData();
   }, [JSON.stringify(selectedFilters), selectedSort, showSortingDropdown]);
 
   return (
@@ -916,14 +619,14 @@ const SolitairesRing = () => {
 
         {/* Product Grid */}
         <div className={`flex grow overflow-hidden  `}>
-          <ImageGallery isFilterd={isFilterd} gallery={updatedImageGallary} />
+          <ImageGallery isFilterd={isFilterd} gallery={updatedImageGallary} onProductClick={handleProductClick} />
         </div>
       </div>
       {/* <div className={`px-46 py-8 `}>{generateRows()}</div> */}
 
       {/* Load More Button */}
       <div className="text-center py-8 h-[100px]">
-        {viewMore < products.length && (
+        {viewMore < products1.length && (
           <button
             onClick={() => setViewMore((prev) => prev + 8)} // 👈 load 8 more per click
             className="bg-[#B5904F] text-white px-8 py-3 rounded-lg hover:bg-purple-700 transition-colors duration-300 font-Belleza"
