@@ -14,11 +14,12 @@ import Marquise from "../../../assets/about/leaf.svg";
 import Asscher from "../../../assets/about/hexagon.svg";
 import { useCart } from '../../context/CartProvider';
 import InformationSection from '../home/InformationSection';
+import { addToCartService } from '../../redux/service/CartService';
 
 const ProductDetail = () => {
     const location = useLocation();
     const { colors, theme } = useTheme();
-    const { addToCart } = useCart();
+    const { addToCart, fetchCart, cartItems, incrementQuantity, decrementQuantity } = useCart();
     const [selectedPurity, setSelectedPurity] = useState("");
     const [selectedColor, setSelectedColor] = useState("");
     const [selectedSize, setSelectedSize] = useState("");
@@ -79,11 +80,16 @@ const ProductDetail = () => {
         return sizeItem?.price || 0;
     };
 
-    const labourCharge = 11600;
+    // Get dynamic labour charge from product data
+    const getLabourCharge = () => {
+        return product?.labourCharge || 11600; // fallback to default if not available
+    };
+
     const getGstAmount = () => {
         const gold = calculateGoldPrice(selectedPurity);
         const diamond = getSelectedDiamondPrice();
-        const subtotal = gold + diamond + labourCharge;
+        const labour = getLabourCharge();
+        const subtotal = gold + diamond + labour;
         return Math.round(subtotal * 0.18); // 18% GST
     };
 
@@ -112,6 +118,12 @@ const ProductDetail = () => {
                 const response = await fetchProductByIdService(id);
                 if (response.IsSuccess && response.Data) {
                     setProduct(response.Data);
+                    // Initialize quantity from API cartQuantity if provided
+                    if (typeof response.Data.cartQuantity === 'number' && response.Data.cartQuantity > 0) {
+                        setQuantity(response.Data.cartQuantity);
+                    } else {
+                        setQuantity(1);
+                    }
                     
                     // Set default selections from API data (nested structure)
                     if (response.Data.metals && response.Data.metals.length > 0) {
@@ -210,13 +222,7 @@ const ProductDetail = () => {
         );
     }
 
-    const priceBreakup = product.priceBreakup || {
-        gold: '₹32,000',
-        diamond: '₹32,000',
-        labour: '₹32,000',
-        gst: '₹32,000',
-        total: '₹78,000',
-    };
+
 
     return (
         <div className={`${colors.firstPart.background} ${colors.firstPart.text} w-full px-6 py-8 md:px-10`}>
@@ -251,7 +257,7 @@ const ProductDetail = () => {
 
                     {/* Price Row */}
                     <div className="flex items-center gap-3 mb-4">
-                        <span className="text-2xl font-bold text-[#B5904F]">₹{(calculateGoldPrice(selectedPurity) + getSelectedDiamondPrice() + labourCharge + getGstAmount()).toLocaleString()}</span>
+                        <span className="text-2xl font-bold text-[#B5904F]">₹{(calculateGoldPrice(selectedPurity) + getSelectedDiamondPrice() + getLabourCharge() + getGstAmount()).toLocaleString()}</span>
                         {product.discount && (
                             <span className="bg-[#B5904F] text-white px-2 py-1 text-xs rounded">
                                 {product.discount}% Off
@@ -394,7 +400,7 @@ const ProductDetail = () => {
                                 <span>Diamond {selectedSize ? `(${selectedSize})` : ''}</span>
                             </div>
                             <div className="flex justify-between px-4 py-2 text-sm text-[#94A3B8] border-b">
-                                <span>₹{labourCharge.toLocaleString()}</span>
+                                <span>₹{getLabourCharge().toLocaleString()}</span>
                                 <span>Labour</span>
                             </div>
                             <div className="flex justify-between px-4 py-2 text-sm text-[#94A3B8] border-b">
@@ -402,7 +408,7 @@ const ProductDetail = () => {
                                 <span>GST (18%)</span>
                             </div>
                             <div className={`flex justify-between px-4 py-2 text-sm font-semibold ${theme === "dark" ? "text-black " : "text-white"}`}>
-                                <span>₹{(calculateGoldPrice(selectedPurity) + getSelectedDiamondPrice() + labourCharge + getGstAmount()).toLocaleString()}</span>
+                                <span>₹{(calculateGoldPrice(selectedPurity) + getSelectedDiamondPrice() + getLabourCharge() + getGstAmount()).toLocaleString()}</span>
                                 <span>Total</span>
                             </div>
                         </div>
@@ -416,39 +422,115 @@ const ProductDetail = () => {
                         <div className="flex items-center gap-3">
                             <div className="flex items-center border rounded-md overflow-hidden border-gray-400">
                                 <button
-                                    onClick={() => setQuantity(q => Math.max(1, q - 1))}
+                                    onClick={async () => {
+                                        // Try server decrement if current variant is in cart
+                                        try {
+                                            const metal = (product.metals || []).find(m => (m.metalname || '').toLowerCase() === (selectedPurity || '').toLowerCase());
+                                            const color = (metal?.colors || []).find(c => (c.colorname || '').toLowerCase() === (selectedColor || '').toLowerCase());
+                                            const diamond = (product.diamonds || []).find(d => (d.diamondname || '').toLowerCase() === (selectedShape || '').toLowerCase());
+                                            const size = (diamond?.sizes || []).find(s => (s.carat + 'ct') === selectedSize);
+
+                                            const matching = (cartItems || []).find(ci =>
+                                                ci?.productId?._id === product._id &&
+                                                ci?.metalId?._id === metal?._id &&
+                                                ci?.colorId?._id === color?._id &&
+                                                (selectedShape ? ci?.diamondId?._id === diamond?._id : true) &&
+                                                (selectedSize ? ci?.sizeId?._id === size?._id : ci?.sizeId == null)
+                                            );
+
+                                            if (matching) {
+                                                await decrementQuantity(matching._id);
+                                            } else {
+                                                setQuantity(q => Math.max(1, q - 1));
+                                            }
+                                        } catch {
+                                            setQuantity(q => Math.max(1, q - 1));
+                                        }
+                                    }}
                                     className="px-3 py-1"
                                 >
                                     −
                                 </button>
                                 <div className="px-4 py-1 min-w-[32px] text-center">{quantity}</div>
                                 <button
-                                    onClick={() => setQuantity(q => q + 1)}
+                                    onClick={async () => {
+                                        // Try server increment if current variant is in cart
+                                        try {
+                                            const metal = (product.metals || []).find(m => (m.metalname || '').toLowerCase() === (selectedPurity || '').toLowerCase());
+                                            const color = (metal?.colors || []).find(c => (c.colorname || '').toLowerCase() === (selectedColor || '').toLowerCase());
+                                            const diamond = (product.diamonds || []).find(d => (d.diamondname || '').toLowerCase() === (selectedShape || '').toLowerCase());
+                                            const size = (diamond?.sizes || []).find(s => (s.carat + 'ct') === selectedSize);
+
+                                            const matching = (cartItems || []).find(ci =>
+                                                ci?.productId?._id === product._id &&
+                                                ci?.metalId?._id === metal?._id &&
+                                                ci?.colorId?._id === color?._id &&
+                                                (selectedShape ? ci?.diamondId?._id === diamond?._id : true) &&
+                                                (selectedSize ? ci?.sizeId?._id === size?._id : ci?.sizeId == null)
+                                            );
+
+                                            if (matching) {
+                                                await incrementQuantity(matching._id);
+                                            } else {
+                                                setQuantity(q => q + 1);
+                                            }
+                                        } catch {
+                                            setQuantity(q => q + 1);
+                                        }
+                                    }}
                                     className="px-3 py-1"
                                 >
                                     +
                                 </button>
                             </div>
                             <button
-                                onClick={() => addToCart({
-                                    ...product,
-                                    id: `${product._id}-${selectedPurity}-${selectedColor}-${selectedSize}`, // unique per variation
-                                    metalType: selectedPurity,
-                                    metalColor: selectedColor,
-                                    ringSize: selectedSize,
-                                    quantity,
-                                    price: calculateGoldPrice(selectedPurity) + getSelectedDiamondPrice() + labourCharge + getGstAmount(),
-                                    name: product.productname,
-                                    image: product.productimage,
-                                })
-                                }
+                                onClick={async () => {
+                                    // Require auth: if no token, redirect to login
+                                    const token = localStorage.getItem('uuid') || localStorage.getItem('token') || localStorage.getItem('jwt');
+                                    if (!token) {
+                                        // remember current path to redirect after login
+                                        try { localStorage.setItem('postLoginRedirect', window.location.pathname + window.location.search); } catch {}
+                                        window.location.href = '/login';
+                                        return;
+                                    }
+                                    try {
+                                        const metal = (product.metals || []).find(m => (m.metalname || '').toLowerCase() === (selectedPurity || '').toLowerCase());
+                                        const color = (metal?.colors || []).find(c => (c.colorname || '').toLowerCase() === (selectedColor || '').toLowerCase());
+                                        const diamond = (product.diamonds || []).find(d => (d.diamondname || '').toLowerCase() === (selectedShape || '').toLowerCase());
+                                        const size = (diamond?.sizes || []).find(s => (s.carat + 'ct') === selectedSize);
+
+                                        await addToCartService({
+                                            productId: product._id,
+                                            metalId: metal?._id,
+                                            colorId: color?._id,
+                                            diamondId: diamond?._id,
+                                            sizeId: size?._id,
+                                            discountId: "",
+                                            discountcode: "",
+                                            discountAmount: "",
+                                        });
+
+                                        // Refresh cart from server after adding item and open popup
+                                        fetchCart();
+                                        try {
+                                            const evt = new CustomEvent('open-cart-popup');
+                                            window.dispatchEvent(evt);
+                                        } catch {}
+                                    } catch (err) {
+                                        console.error('Add to cart failed', err);
+                                        alert('Failed to add to cart.');
+                                    }
+                                }}
                                 className="flex-1 bg-[#2a2a2a] text-white px-3 py-3 rounded"
                             >
                                 Add To Cart
                             </button>
                         </div>
                         <div className="mt-4">
-                            <button className="flex-1 bg-[#5E6A74] text-white px-4 py-3 rounded w-full">
+                            <button className="flex-1 bg-[#5E6A74] text-white px-4 py-3 rounded w-full" onClick={() => {
+                                // open cart popup after adding
+                                try { window.scrollTo({ top: 0, behavior: 'smooth' }); } catch {}
+                            }}>
                                 Shop This Piece
                             </button>
                         </div>

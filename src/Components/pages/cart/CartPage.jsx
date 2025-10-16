@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { useCart } from "../../context/CartProvider";
 import { useTheme } from "../../config/hooks/useTheme";
 import underline from "../../../assets/about/underline.svg";
@@ -10,12 +10,17 @@ import master from "../../../assets/master.svg";
 import G from "../../../assets/gpay.svg"
 import cart from "../../../assets/cart.svg"
 const CartPage = () => {
-  const { cartItems, removeFromCart, updateQuantity } = useCart();
+  const { cartItems, removeFromCart, updateQuantity, incrementQuantity, decrementQuantity, fetchCart } = useCart();
   const { colors, theme } = useTheme();
   const navigate = useNavigate();
 
+  // Fetch cart data when component mounts
+  useEffect(() => {
+    fetchCart();
+  }, [fetchCart]);
+
   const subtotal = cartItems.reduce(
-    (acc, item) => acc + Number(item.price) * (item.quantity || 1),
+    (acc, item) => acc + Number(item.finalAmount || item.totalPrice || 0),
     0
   );
   const handleService = () => {
@@ -120,44 +125,45 @@ const CartPage = () => {
           {/* Cart Items */}
           {cartItems.map((item) => (
             <div
-              key={item.id}
+              key={item._id}
               className="grid grid-cols-12 items-center border-b-2 border-[#A9B2B9]/40 py-8"
             >
               {/* Product */}
               <div className="col-span-6 flex gap-10">
                 <div className="flex items-center">
                   <button
-                    onClick={() => removeFromCart(item.id)}
+                    onClick={() => removeFromCart(item._id)}
                     className="text-[#333333] bg-white rounded-full text-[18px] font-semibold w-[33.25px] h-[33.25px]"
                   >
                     ✕
                   </button>
                 </div>
                 <img
-                  src={item.image}
-                  alt={item.name}
+                  src={item.productId?.productimage || "/placeholder.jpg"}
+                  alt={item.productId?.productname || "Product"}
                   className="w-[184.45px] h-[180px] object-cover"
                 />
                 <div className="flex flex-col gap-[20px]">
                   <div>
-                    <h3 className="font-medium font-kufam text-[#0F172A] text-[20px] tracking-[0px] leading-[100%]">{item.name}</h3>
+                    <h3 className="font-medium font-kufam text-[#0F172A] text-[20px] tracking-[0px] leading-[100%]">{item.productId?.productname || "Product"}</h3>
                   </div>
                   <div className="flex flex-col gap-[12px]">
-                    {item.badge && (
-                      <span className="inline-block bg-gray-200 text-[#334155] text-xs px-2 py-1 rounded mb-1">
-                        {item.badge}
-                      </span>
-                    )}
                     <p className="text-[20px] tracking-[0px] leading-[100%] font-medium font-kufam">
-                      <span className="text-[#334155] ">Metal Type:</span> <span className="pl-10  text-[#64748B]">{item.metalType}</span>
+                      <span className="text-[#334155] ">Metal Type:</span> <span className="pl-10  text-[#64748B]">{item.metalId?.metalname}</span>
                     </p>
                     <p className="text-[20px] tracking-[0px] leading-[100%] font-medium font-kufam">
-                      <span className="text-[#334155]">Metal Tone:</span> <span className="pl-10 text-[#64748B]">{item.metalColor}</span>
+                      <span className="text-[#334155]">Metal Tone:</span> <span className="pl-10 text-[#64748B]">{item.colorId?.colorname}</span>
                     </p>
-                    {item.ringSize && (
+                    {item.diamondId && (
                       <p className="text-[20px] tracking-[0px] leading-[100%] font-medium font-kufam">
-                        <span className="text-[#334155]">Ring Size(US):</span>{" "}
-                        <span className="pl-10 text-[#64748B]">{item.ringSize}</span>
+                        <span className="text-[#334155]">Diamond:</span>{" "}
+                        <span className="pl-10 text-[#64748B]">{item.diamondId.diamondname}</span>
+                      </p>
+                    )}
+                    {item.sizeId && (
+                      <p className="text-[20px] tracking-[0px] leading-[100%] font-medium font-kufam">
+                        <span className="text-[#334155]">Size:</span>{" "}
+                        <span className="pl-10 text-[#64748B]">{item.sizeId.carat}ct</span>
                       </p>
                     )}
                   </div>
@@ -168,22 +174,14 @@ const CartPage = () => {
               {/* Price */}
               <div className="col-span-2 text-center">
                 <span className="font-medium font-kufam text-[#334155] text-[20px] tracking-[0px] leading-[100%]">
-                  Price: Rs. {item.price.toLocaleString()}
+                  Price: Rs. {item.finalAmount?.toLocaleString() || item.totalPrice?.toLocaleString()}
                 </span>
-                {item.oldPrice && (
-                  <p className="relative text-[#94A3B8] text-[20px] font-medium font-kufam inline-block tracking-[0px] leading-[100%]">
-                    Rs. {item.oldPrice.toLocaleString()}
-                    <span className="absolute left-0 right-0 top-2 border-t border-[#94A3B8]"></span>
-                  </p>
-                )}
               </div>
 
               {/* Quantity */}
               <div className="col-span-2 flex justify-center items-center">
                 <button
-                  onClick={() =>
-                    updateQuantity(item.id, Math.max(1, (item.quantity || 1) - 1))
-                  }
+                  onClick={() => decrementQuantity(item._id)}
                   className="w-[30px] h-[30px] bg-[#D9D9D9]/40 text-[#292D32] rounded-[6px] flex items-center justify-center"
                   aria-label="Decrease quantity"
                 >
@@ -205,7 +203,7 @@ const CartPage = () => {
                   {item.quantity}
                 </div>
                 <button
-                  onClick={() => updateQuantity(item.id, (item.quantity || 1) + 1)}
+                  onClick={() => incrementQuantity(item._id)}
                   className="w-[30px] h-[30px] bg-[#D9D9D9]/40 text-[#292D32] rounded-[6px] flex items-center justify-center"
                   aria-label="Increase quantity"
                 >
@@ -217,7 +215,7 @@ const CartPage = () => {
 
               {/* Subtotal */}
               <div className="col-span-2 font-medium font-kufam text-[#0F172A] text-[20px] tracking-[0px] leading-[100%]">
-                Price: Rs. {(item.price * (item.quantity || 1)).toLocaleString()}
+                Price: Rs. {(item.finalAmount || item.totalPrice || 0).toLocaleString()}
               </div>
             </div>
           ))}
@@ -316,3 +314,4 @@ const CartPage = () => {
 };
 
 export default CartPage;
+

@@ -369,7 +369,7 @@
 
 
 import { useEffect, useRef, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { MdDarkMode, MdLightMode, MdOutlineDarkMode } from "react-icons/md";
 import { HiOutlineMenu, HiOutlineX } from "react-icons/hi";
 import search from "../../../assets/search_black.svg";
@@ -393,12 +393,12 @@ const Header = () => {
   const [shopMenu, setShopMenu] = useState([]);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const { theme, toggleTheme, colors } = useTheme();
-  const [isCartOpen, setIsCartOpen] = useState(false);
+  // use cart context for cart popup open/close
   const [openMobileMenu, setOpenMobileMenu] = useState(null);
 
-  const { cartItems } = useCart();
-  const cartCount = cartItems.reduce((sum, item) => sum + item.quantity, 0);
+  const { cartCount, isCartOpen, openCart, closeCart } = useCart();
   const navigate = useNavigate();
+  const location = useLocation();
 
   const dispatch = useDispatch();
 
@@ -609,10 +609,14 @@ const Header = () => {
               <div className="relative">
                 <button
                   onClick={() => {
-                    setIsCartOpen(true);
                     setIsMobileMenuOpen(false);
                     setIsShopOpen(false);
                     setOpenMobileMenu(null);
+                    // if (location.pathname === '/cart') {
+                      navigate('/cart');
+                    // } else {
+                      // openCart();
+                    // }
                   }}
                 >
                   <img
@@ -753,10 +757,14 @@ const Header = () => {
             <button
               className={`p-1 rounded-full hover:bg-opacity-20 relative`}
               onClick={() => {
-                setIsCartOpen(true);
                 setIsMobileMenuOpen(false);
                 setIsShopOpen(false);
                 setOpenMobileMenu(null);
+                // if (location.pathname === '/cart') {
+                  navigate('/cart');
+                // } else {
+                  // openCart();
+                // }
               }}
             >
               <img
@@ -775,7 +783,7 @@ const Header = () => {
       </div>
 
       {/* Global Cart Popup */}
-      <CartPopup isOpen={isCartOpen} onClose={() => setIsCartOpen(false)} />
+      <CartPopup isOpen={isCartOpen || false} onClose={closeCart} />
     </div>
   );
 };

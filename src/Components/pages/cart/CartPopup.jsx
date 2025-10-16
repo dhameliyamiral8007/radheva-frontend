@@ -1,5 +1,5 @@
 
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { useCart } from "../../context/CartProvider";
 import { useTheme } from "../../config/hooks/useTheme";
 import { useNavigate } from "react-router-dom";
@@ -7,9 +7,32 @@ import returnPolicy from "../../../assets/returnpolicy.svg"
 import moneyBack from "../../../assets/moneyBack.svg"
 import quality from "../../../assets/quality.svg"
 const CartPopup = ({ isOpen, onClose }) => {
-  const { cartItems, removeFromCart, updateQuantity } = useCart();
+  const [localOpen, setLocalOpen] = useState(false);
+  const { cartItems, removeFromCart, updateQuantity, incrementQuantity, decrementQuantity, fetchCart } = useCart();
   const { theme } = useTheme();
   const navigate = useNavigate();
+
+  // Open popup when global event is dispatched
+  useEffect(() => {
+    const handleOpen = () => setLocalOpen(true);
+    const handleClose = () => setLocalOpen(false);
+    window.addEventListener('open-cart-popup', handleOpen);
+    window.addEventListener('close-cart-popup', handleClose);
+    return () => {
+      window.removeEventListener('open-cart-popup', handleOpen);
+      window.removeEventListener('close-cart-popup', handleClose);
+    };
+  }, []);
+
+  // Fetch cart data when popup opens
+  useEffect(() => {
+    const open = isOpen || localOpen;
+    if (open) {
+      fetchCart();
+    }
+  }, [isOpen, localOpen, fetchCart]);
+
+  const open = isOpen || localOpen;
 
   const handleViewCart = () => {
     navigate("/cart");
@@ -17,7 +40,7 @@ const CartPopup = ({ isOpen, onClose }) => {
 
   // Calculate subtotal
   const subtotal = cartItems.reduce(
-    (acc, item) => acc + Number(item.price) * (item.quantity || 1),
+    (acc, item) => acc + Number(item.finalAmount || item.totalPrice || 0),
     0
   );
 
@@ -35,19 +58,22 @@ const CartPopup = ({ isOpen, onClose }) => {
   }
   return (
     <div
-      className={`fixed inset-0 z-60 flex justify-end transition-all duration-500 ${isOpen ? "opacity-100" : "opacity-0 pointer-events-none"
+      className={`fixed inset-0 z-60 flex justify-end transition-all duration-500 ${open ? "opacity-100" : "opacity-0 pointer-events-none"
         }`}
     >
       {/* Overlay */}
       <div
         className="absolute inset-0 bg-black/60 transition-opacity"
-        onClick={onClose}
+        onClick={() => {
+          setLocalOpen(false);
+          onClose && onClose();
+        }}
       />
       {/* Panel */}
       <div
         className={`absolute top-0 right-0 md:w-[700px] w-full h-full shadow-lg overflow-y-auto
           ${theme === "dark" ? "bg-[#2F2F2F] text-white" : "bg-white text-black"}
-          transition-transform duration-500 ${isOpen ? "translate-x-0" : "translate-x-full"
+          transition-transform duration-500 ${open ? "translate-x-0" : "translate-x-full"
           }`}
       >
         {/* Header */}
@@ -56,7 +82,7 @@ const CartPopup = ({ isOpen, onClose }) => {
             Cart {" "}
             <span className="text-[20px] font-medium font-kufam">{cartItems.length} items</span>
           </span>
-          <button onClick={onClose} className="text-xl">
+          <button onClick={() => { setLocalOpen(false); onClose && onClose(); }} className="text-xl">
             ✕
           </button>
         </div>
@@ -76,63 +102,55 @@ const CartPopup = ({ isOpen, onClose }) => {
           <div className="p-5 space-y-4">
             {cartItems.map((item) => (
               <div
-                key={item.id}
+                key={item._id}
                 className="flex gap-8 border border-gray-600 rounded-lg p-3 relative"
               >
                 {/* Product Image */}
                 <img
-                  src={item.image}
-                  alt={item.name}
+                  src={item.productId?.productimage || "/placeholder.jpg"}
+                  alt={item.productId?.productname || "Product"}
                   className="w-40 h-40 object-cover rounded"
                 />
 
                 {/* Product Info */}
                 <div className="flex-1">
                   <h3 className="font-semibold text-sm mb-1">
-                    {item.name}
+                    {item.productId?.productname || "Product"}
                   </h3>
-
-                  {/* Badge (example: Lab Grown Diamond) */}
-                  {item.badge && (
-                    <span className="inline-block bg-gray-200 text-gray-800 text-xs px-2 py-1 rounded mb-2">
-                      {item.badge}
-                    </span>
-                  )}
 
                   <div className="text-sm space-y-1">
                     <p>
                       <span className="font-medium">Metal Type:</span>{" "}
-                      {item.metalType}
+                      {item.metalId?.metalname}
                     </p>
                     <p>
                       <span className="font-medium">Metal Tone:</span>{" "}
-                      {item.metalColor}
+                      {item.colorId?.colorname}
                     </p>
-                    {item.ringSize && (
+                    {item.diamondId && (
                       <p>
-                        <span className="font-medium">Ring Size(US):</span>{" "}
-                        {item.ringSize}
+                        <span className="font-medium">Diamond:</span>{" "}
+                        {item.diamondId.diamondname}
+                      </p>
+                    )}
+                    {item.sizeId && (
+                      <p>
+                        <span className="font-medium">Size:</span>{" "}
+                        {item.sizeId.carat}ct
                       </p>
                     )}
                     <p>
                       <span className="font-medium">Price:</span>{" "}
                       <span className="text-[#B5904F] font-semibold">
-                        Rs. {item.price.toLocaleString()}
-                      </span>{" "}
-                      {item.oldPrice && (
-                        <span className="line-through text-gray-400 ml-1">
-                          Rs. {item.oldPrice.toLocaleString()}
-                        </span>
-                      )}
+                        Rs. {(item.finalAmount || item.totalPrice || 0).toLocaleString()}
+                      </span>
                     </p>
                   </div>
 
                   {/* Quantity Selector */}
                   <div className="flex items-center *:mt-2">
                     <button
-                      onClick={() =>
-                        updateQuantity(item.id, Math.max(1, (item.quantity || 1) - 1))
-                      }
+                      onClick={() => decrementQuantity(item._id)}
                       className="px-2 py-1 border rounded-l"
                     >
                       −
@@ -141,9 +159,7 @@ const CartPopup = ({ isOpen, onClose }) => {
                       {item.quantity}
                     </div>
                     <button
-                      onClick={() =>
-                        updateQuantity(item.id, (item.quantity || 1) + 1)
-                      }
+                      onClick={() => incrementQuantity(item._id)}
                       className="px-2 py-1 border rounded-r"
                     >
                       +
@@ -154,7 +170,7 @@ const CartPopup = ({ isOpen, onClose }) => {
                 {/* Remove Button */}
                 <button
                   className="absolute bottom-3 right-3 text-sm text-gray-300 hover:underline"
-                  onClick={() => removeFromCart(item.id)}
+                  onClick={() => removeFromCart(item._id)}
                 >
                   Remove
                 </button>

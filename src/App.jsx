@@ -12,12 +12,14 @@ import { CartProvider } from "./Components/context/CartProvider.jsx";
 import CartPage from "./Components/pages/cart/CartPage.jsx";
 import PaymentFlow from "./Components/pages/payment/PaymentFlow.jsx";
 import WishList from "./Components/pages/wishList/WishList.jsx";
-import { WishlistProvider } from "./Components/context/WishListProvider.jsx";
+import { WishlistProvider } from "./Components/context/WishlistProvider.jsx";
+import Login from "./Components/pages/auth/Login.jsx";
+import Register from "./Components/pages/auth/Register.jsx";
 const OurStory = lazy(() => import("./Components/pages/footer/companyPages/OurStory.jsx"));
 const ContactUs = lazy(() => import("./Components/pages/footer/companyPages/ContactUs.jsx"));
 const HomeIndex = lazy(() => import("./Components/pages/home/Index.jsx"));
 const SolitairesPage = lazy(() => import("./Components/pages/solitaires/Index.jsx"));
-const RootLayout = lazy(() => import("./Components/layouts/RootLayout.jsx"));
+import RootLayout from "./Components/layouts/RootLayout.jsx";
 const ProductIndex = lazy(() => import("./Components/pages/productDetail/index.jsx"));
 const Loader = lazy(() => import("./Components/loader/Loader.jsx"));
 const RouteChangeLoader = lazy(() => import("./Components/loader/RouteChangeLoader.jsx"));
@@ -36,6 +38,8 @@ function App() {
         <Suspense fallback={<Loader />}>
           <Routes>
             <Route element={<RootLayout />}>
+              <Route path="/login" element={<Login />} />
+              <Route path="/register" element={<Register />} />
               <Route path="/" element={<HomeIndex />} />
               <Route path="/solitaires" element={<SolitairesPage />} />
               <Route path="/product-detail/:id" element={<ProductIndex />} />

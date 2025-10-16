@@ -11,9 +11,19 @@ export const apiInstance = axios.create({
 
 apiInstance.interceptors.request.use(
     (config) => {
-        const token = localStorage.getItem('uuid');
+        // Support multiple possible keys; prefer 'uuid'
+        let token = localStorage.getItem('uuid') || localStorage.getItem('token') || localStorage.getItem('jwt');
+        // Some apps save the whole auth object; try common nests
+        if (!token) {
+            try {
+                const auth = JSON.parse(localStorage.getItem('auth') || '{}');
+                token = auth?.token || auth?.user?.token || auth?.data?.token;
+            } catch {}
+        }
         if (token) {
             config.headers.Authorization = `Bearer ${token}`;
+        } else {
+            delete config.headers.Authorization;
         }
         return config;
     },
