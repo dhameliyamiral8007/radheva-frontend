@@ -114,9 +114,9 @@ const TrustedReviews = () => {
         <div className="flex justify-end items-center gap-2">
           <Stars rating={4} />
           <span className="text-sm font-kufam font-normal">{items.length} Reviews</span>
-          <a onClick={handleAllReviews} className="text-[#D9D9D9] font-semibold underline cursor-pointer">
+          {/* <a onClick={handleAllReviews} className="text-[#D9D9D9] font-semibold underline cursor-pointer">
             See All Reviews
-          </a>
+          </a> */}
         </div>
 
         {/* Pagination Buttons */}

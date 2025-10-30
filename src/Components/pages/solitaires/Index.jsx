@@ -17,13 +17,13 @@ const SolitairesPage = () => {
 
       {/* <ReviewsStar /> */}
       <div className={`${colors.firstPart.background} ${colors.firstPart.text} w-full`}>
-        <div className="text-center py-8">
+        {/* <div className="text-center py-8">
           <h2 className="text-[35px] font-belleza inline-block relative uppercase tracking-wide">
             Trusted Reviews
             <img src={underline} alt="underline" className="p-2 mx-auto" />
           </h2>
           <ReviewsSection showSummary={true} showList={true} />
-        </div>
+        </div> */}
       </div>
       <div>
         <TitleGeneralQuestions/>

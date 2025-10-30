@@ -518,7 +518,7 @@ const ProductDetail = () => {
                                         } catch {}
                                     } catch (err) {
                                         console.error('Add to cart failed', err);
-                                        alert('Failed to add to cart.');
+                                        // alert('Failed to add to cart.');
                                     }
                                 }}
                                 className="flex-1 bg-[#2a2a2a] text-white px-3 py-3 rounded"

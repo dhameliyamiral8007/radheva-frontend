@@ -383,7 +383,7 @@ import wishList from "../../../assets/wishlist.png";
 import CartPopup from "../cart/CartPopup.jsx";
 import { useCart } from "../../context/CartProvider.jsx";
 import ShopMenu from "../shop/Shop.jsx";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
 import { fetchNavigationMenu } from "../../redux/slice/NavigationMenuSlice.jsx";
 
 const Header = () => {
@@ -431,7 +431,8 @@ const Header = () => {
             const transformedShopMenu = shopData.collections.map(collection => ({
               id: collection._id,
               title: collection.collectionname.toUpperCase(),
-              items: collection.items.map(item => item.itemname)
+              // keep item id so clicks can navigate with collectionItemID
+              items: collection.items.map(item => ({ id: item._id, label: item.itemname }))
             }));
             // console.log("🛍️ Shop menu created:", transformedShopMenu);
             setShopMenu(transformedShopMenu);
@@ -504,7 +505,7 @@ const Header = () => {
       'blogs': '/blogs',
       'book appointment': '/book-apoinment',
       'book appoinment': '/book-apoinment',
-      'solitaires': '/solitaires',
+      'solitaires': '/products',
       'customize': '/customize'
     };
 
@@ -661,7 +662,24 @@ const Header = () => {
         {/* Mega dropdown for Shop */}
         {isShopOpen && shopMenu.length > 0 && (
           <div className="absolute top-full left-0 right-0 z-40">
-            <ShopMenu theme={theme} data={shopMenu} isMobile={false} />
+            <ShopMenu
+              theme={theme}
+              data={shopMenu}
+              isMobile={false}
+              onSelectCollection={(collectionId) => {
+                setIsShopOpen(false);
+                setOpenMobileMenu(null);
+                setIsMobileMenuOpen(false);
+                navigate(`/products?collectionID=${encodeURIComponent(collectionId)}`);
+              }}
+              onSelectItem={(collectionId, itemId) => {
+                setIsShopOpen(false);
+                setOpenMobileMenu(null);
+                setIsMobileMenuOpen(false);
+                const qs = new URLSearchParams({ collectionID: collectionId, collectionItemID: itemId }).toString();
+                navigate(`/products?${qs}`);
+              }}
+            />
           </div>
         )}
 
@@ -729,7 +747,24 @@ const Header = () => {
                     {/* Mobile Shop Menu */}
                     {isShop && isOpen && shopMenu.length > 0 && (
                       <div className="ml-4 border-l-2 border-gray-400 pl-4 my-2">
-                        <ShopMenu theme={theme} data={shopMenu} isMobile={true} />
+                        <ShopMenu
+                          theme={theme}
+                          data={shopMenu}
+                          isMobile={true}
+                          onSelectCollection={(collectionId) => {
+                            setIsShopOpen(false);
+                            setOpenMobileMenu(null);
+                            setIsMobileMenuOpen(false);
+                            navigate(`/products?collectionID=${encodeURIComponent(collectionId)}`);
+                          }}
+                          onSelectItem={(collectionId, itemId) => {
+                            setIsShopOpen(false);
+                            setOpenMobileMenu(null);
+                            setIsMobileMenuOpen(false);
+                            const qs = new URLSearchParams({ collectionID: collectionId, collectionItemID: itemId }).toString();
+                            navigate(`/products?${qs}`);
+                          }}
+                        />
                       </div>
                     )}
                   </div>

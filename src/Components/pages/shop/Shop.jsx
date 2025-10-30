@@ -38,7 +38,7 @@
 // export default ShopMenu;
 import React from "react";
 
-const ShopMenu = ({ theme, data, isMobile }) => {
+const ShopMenu = ({ theme, data, isMobile, onSelectCollection, onSelectItem }) => {
     // Filter out empty collections and ensure data is valid
     const validData = data?.filter(group => 
         group && group.title && group.items && group.items.length > 0
@@ -66,7 +66,12 @@ const ShopMenu = ({ theme, data, isMobile }) => {
                         <h4
                             className={`${
                                 theme === "dark" ? "text-black border-gray-300" : "text-white border-gray-500"
-                            } text-xs tracking-widest font-kufam border-t pt-3 pb-2 font-semibold`}
+                            } text-xs tracking-widest font-kufam border-t pt-3 pb-2 font-semibold cursor-pointer`}
+                            onClick={() => {
+                                if (typeof onSelectCollection === 'function') {
+                                    onSelectCollection(group.id);
+                                }
+                            }}
                         >
                             {group.title}
                         </h4>
@@ -75,12 +80,17 @@ const ShopMenu = ({ theme, data, isMobile }) => {
                                 theme === "dark" ? "text-gray-700" : "text-gray-300"
                             } text-sm font-kufam space-y-2 mt-3`}
                         >
-                            {group.items.map((label, idx) => (
-                                <li 
+                            {group.items.map((item, idx) => (
+                                <li
                                     key={`${group.id}-${idx}`}
                                     className="hover:text-yellow-400 transition-colors duration-200 cursor-pointer py-1"
+                                    onClick={() => {
+                                        if (typeof onSelectItem === 'function') {
+                                            onSelectItem(group.id, item.id);
+                                        }
+                                    }}
                                 >
-                                    {label}
+                                    {item.label}
                                 </li>
                             ))}
                         </ul>

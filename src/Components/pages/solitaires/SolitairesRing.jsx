@@ -2,7 +2,7 @@ import { useMemo, useState, useEffect } from "react";
 import { useTheme } from "../../config/hooks/useTheme";
 import underline from "../../../assets/about/underline.svg";
 import { MdFilterList, MdSort } from "react-icons/md";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import {
   fetchFilteredProducts,
   fetchProducts,
@@ -14,6 +14,7 @@ import ImageGallery from "../../gallary/ImageGallary";
 const SolitairesRing = () => {
   const { colors, theme } = useTheme();
   const navigate = useNavigate();
+  const location = useLocation();
   const [selectedSort, setSelectedSort] = useState();
   const [metalsForUsers, setMetalsForUsers] = useState([]);
   const [colorsForUsers, setColorsForUsers] = useState([]);
@@ -30,6 +31,7 @@ const SolitairesRing = () => {
   const [expandedCollections, setExpandedCollections] = useState([]);
 
   const [selectedFilters, setSelectedFilters] = useState({});
+  const [pageTitle, setPageTitle] = useState("Products");
 
   const [products1, setProducts] = useState([]);
 
@@ -60,6 +62,40 @@ const SolitairesRing = () => {
     console.log("Navigating to:", `/product-detail/${product._id}`);
     navigate(`/product-detail/${product}`, { state: { productId: product} });
   };
+
+  useEffect(() => {
+    // seed filters from URL query params (collectionID, collectionItemID)
+    const params = new URLSearchParams(location.search);
+    const collectionId = params.get("collectionID");
+    const collectionItemId = params.get("collectionItemID");
+
+    if (collectionId || collectionItemId) {
+      setSelectedFilters((prev) => ({
+        ...prev,
+        ...(collectionId ? { collectionID: [collectionId] } : {}),
+        ...(collectionItemId ? { collectionItemID: [collectionItemId] } : {}),
+      }));
+    }
+  // re-run if URL changes
+  }, [location.search]);
+
+  // derive page title from query + fetched collections data
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const collectionId = params.get("collectionID");
+    const collectionItemId = params.get("collectionItemID");
+
+    const col = collections?.Data?.find?.((c) => c?._id === collectionId);
+    const item = collectionsItems?.Data?.find?.((i) => i?._id === collectionItemId);
+
+    if (col && item) {
+      setPageTitle(`${col.collectionname} ${item.itemname}`);
+    } else if (col) {
+      setPageTitle(col.collectionname);
+    } else {
+      setPageTitle("Products");
+    }
+  }, [location.search, collections, collectionsItems]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -431,7 +467,7 @@ const SolitairesRing = () => {
     >
       <div className="text-center py-4 sm:py-5 px-4 sm:px-6 lg:px-8">
         <h2 className="text-[20px] sm:text-[26px] md:text-[36px] lg:text-[44px] leading-[100%] tracking-[0px] font-Belleza inline-flex flex-col items-center gap-[8px] sm:gap-[12px]">
-          Solitaires Rings
+          {pageTitle}
           <img
             src={underline}
             alt="underline"

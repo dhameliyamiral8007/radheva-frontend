@@ -41,7 +41,7 @@ function App() {
               <Route path="/login" element={<Login />} />
               <Route path="/register" element={<Register />} />
               <Route path="/" element={<HomeIndex />} />
-              <Route path="/solitaires" element={<SolitairesPage />} />
+              <Route path="/products" element={<SolitairesPage />} />
               <Route path="/product-detail/:id" element={<ProductIndex />} />
               <Route path="/customize" element={<CustomizeIndex />} />
               {/* <Route path="/shop" element={<Shop/>}/> */}

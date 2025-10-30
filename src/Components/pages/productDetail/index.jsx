@@ -10,16 +10,20 @@ import GeneralQuestions from '../solitaires/GeneralQuestions'
 import AskQuestion from './AskQuestion'
 import underline from "../../../assets/about/underline.svg";
 import ReviewsSection from '../Reviews/ReviewSection'
+import { useParams } from 'react-router-dom'
 
 const ProductIndex = () => {
   const { colors } = useTheme();
+  const { id: routeProductId } = useParams();
+  console.log("routeProductId");
+  
   return (
     <div>
       <ProductDetail />
       <GlameUpWith />
       <YourRecentPicks />
-      {/* <ReviewsStar /> */}
-      <div className={`${colors.firstPart.background} ${colors.firstPart.text} w-full`}>
+      <ReviewsStar productId={routeProductId} />
+      {/* <div className={`${colors.firstPart.background} ${colors.firstPart.text} w-full`}>
         <div className="text-center py-8">
           <h2 className="text-[35px] font-belleza inline-block relative uppercase tracking-wide">
             Trusted Reviews
@@ -27,7 +31,7 @@ const ProductIndex = () => {
           </h2>
           <ReviewsSection showSummary={true} showList={true} />
         </div>
-      </div>
+      </div> */}
       <div
         className={`${colors.firstPart.background} ${colors.firstPart.text} w-full`}
        >

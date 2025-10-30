@@ -1,12 +1,21 @@
-import React from 'react'
+import React, { useMemo, useState } from 'react'
 import { useTheme } from '../../../Components/config/hooks/useTheme'
+import { createReviewService } from '../../redux/service/ReviewService'
 
 const Star = ({ filled }) => (
     <div className={`${filled ? 'text-[#B5904F] text-[24px] tracking-[0px] leading-100%' : 'text-gray-400 text-[24px] tracking-[0px] leading-100% text-center'}  `}>★</div>
 );
 
-const ReviewsStar = () => {
+const ReviewsStar = ({ productId: productIdProp, userId: userIdProp }) => {
     const { colors } = useTheme();
+
+    const [isWriting, setIsWriting] = useState(false);
+    const [rating, setRating] = useState(0);
+    const [hoverRating, setHoverRating] = useState(0);
+    const [title, setTitle] = useState("");
+    const [content, setContent] = useState("");
+    const [files, setFiles] = useState([]);
+    const [submitting, setSubmitting] = useState(false);
 
     const totalReviews = 40;
     const avgRating = 4.0;
@@ -19,6 +28,40 @@ const ReviewsStar = () => {
     ];
 
     const maxCount = Math.max(...breakdown.map(b => b.count));
+
+    const effectiveUserId = useMemo(() => {
+        if (userIdProp) return userIdProp;
+        try {
+            const auth = JSON.parse(localStorage.getItem('auth') || '{}');
+            return auth?.user?._id || auth?._id || localStorage.getItem('userId') || undefined;
+        } catch { return undefined; }
+    }, [userIdProp]);
+
+    const productId = productIdProp; // keep explicit name
+
+    const onSubmit = async (e) => {
+        e.preventDefault();
+        if (!rating) return alert('Please select a star rating');
+        setSubmitting(true);
+        try {
+            const formFiles = Array.from(files || []);
+            await createReviewService({
+                rating,
+                review: content,
+                productId,
+                title,
+                files: formFiles,
+            });
+            setIsWriting(false);
+            setRating(0); setHoverRating(0); setTitle(""); setContent(""); setFiles([]);
+            alert('Review submitted successfully');
+        } catch (err) {
+            console.error(err);
+            alert(err?.message || 'Failed to submit review');
+        } finally {
+            setSubmitting(false);
+        }
+    };
 
     return (
         <div className={`${colors.firstPart.background} ${colors.firstPart.text} w-full`}>
@@ -74,9 +117,67 @@ const ReviewsStar = () => {
 
                         {/* Right: CTA */}
                         <div className="flex justify-center items-center md:border-l-4 md:border-[#A9B2B9] md:pl-6 md:col-span-2">
-                            <button className={`${colors.reviewsstar.buttonborder} ${colors.reviewsstar.text} px-[20px] py-[14px] rounded-[10px] font-kufam font-semibold border-[2px] text-[#334155] text-[20px] max-sm:mt-4 cursor-pointer`}>Write Review</button>
+                            {isWriting ? (
+                                <button
+                                    onClick={() => setIsWriting(false)}
+                                    className={`${colors.reviewsstar.buttonborder} ${colors.reviewsstar.text} px-[20px] py-[14px] rounded-[10px] font-kufam font-semibold border-[2px] text-[#334155] text-[20px] max-sm:mt-4 cursor-pointer`}
+                                >
+                                    Cancel Review
+                                </button>
+                            ) : (
+                                <button
+                                    onClick={() => setIsWriting(true)}
+                                    className={`${colors.reviewsstar.buttonborder} ${colors.reviewsstar.text} px-[20px] py-[14px] rounded-[10px] font-kufam font-semibold border-[2px] text-[#334155] text-[20px] max-sm:mt-4 cursor-pointer`}
+                                >
+                                    Write Review
+                                </button>
+                            )}
                         </div>
                     </div>
+
+                    {/* Write Review Form */}
+                    {isWriting && (
+                        <div className="mt-6 border-t border-[#A9B2B9] pt-6">
+                            <form onSubmit={onSubmit} className="space-y-4">
+                                {/* rating selector */}
+                                <div className="flex items-center gap-3">
+                                    <span className="font-semibold">Your rating:</span>
+                                    <div className='flex flex-row'>
+                                        {[1,2,3,4,5].map(i => (
+                                            <button
+                                                type="button"
+                                                key={i}
+                                                onMouseEnter={() => setHoverRating(i)}
+                                                onMouseLeave={() => setHoverRating(0)}
+                                                onClick={() => setRating(i)}
+                                                className="px-1"
+                                            >
+                                                <Star filled={i <= (hoverRating || rating)} />
+                                            </button>
+                                        ))}
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <label className="block mb-1 font-semibold">Title</label>
+                                    <input value={title} onChange={e=>setTitle(e.target.value)} placeholder="Enter Review Title" className="w-full p-3 rounded-md outline-none bg-transparent border border-gray-400" />
+                                </div>
+                                <div>
+                                    <label className="block mb-1 font-semibold">Content</label>
+                                    <textarea value={content} onChange={e=>setContent(e.target.value)} placeholder="Enter Review Content" rows={5} className="w-full p-3 rounded-md outline-none bg-transparent border border-gray-400" />
+                                </div>
+                                <div>
+                                    <label className="block mb-1 font-semibold">Upload Images/Video (Optional)</label>
+                                    <input type="file" accept="image/*,video/*" multiple onChange={e=>setFiles(e.target.files)} className="w-full" />
+                                </div>
+                                <div className="pt-2">
+                                    <button disabled={submitting} type="submit" className="bg-[#B5904F] text-white px-6 py-3 rounded-md font-semibold disabled:opacity-60">
+                                        {submitting ? 'Submitting...' : 'Submit Review'}
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    )}
                 </div>
             </div>
         </div>
