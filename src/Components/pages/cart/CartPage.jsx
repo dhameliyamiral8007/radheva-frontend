@@ -9,9 +9,28 @@ import { useNavigate } from "react-router-dom";
 import master from "../../../assets/master.svg";
 import G from "../../../assets/gpay.svg"
 import cart from "../../../assets/cart.svg"
+import { baseUrl } from "../../../api/BaseUrl";
 const CartPage = () => {
   const { cartItems, removeFromCart, updateQuantity, incrementQuantity, decrementQuantity, fetchCart } = useCart();
   const { colors, theme } = useTheme();
+  const resolveProduct = (item) => {
+    console.log("item =",item);
+    
+    // API may return populated product object or just an id
+    // Try common shapes
+    return item?.productId && typeof item.productId === 'object' ? item.productId : (item?.product || null);
+  };
+
+  const resolveImageSrc = (item) => {
+    const product = resolveProduct(item);
+    console.log("item = ",item);
+    
+    const raw = product?.productimage || product?.imageUrl || product?.image || null;
+    if (!raw) return "data:image/gif;base64,R0lGODlhAQABAAAAACw="; // 1x1 transparent
+    // Prefix baseUrl if server returned a relative path
+    if (typeof raw === 'string' && /^https?:\/\//i.test(raw)) return raw;
+    return `${baseUrl}${raw.startsWith('/') ? '' : '/'}${raw}`;
+  };
   const navigate = useNavigate();
 
   // Fetch cart data when component mounts
@@ -139,9 +158,14 @@ const CartPage = () => {
                   </button>
                 </div>
                 <img
-                  src={item.productId?.productimage || "/placeholder.jpg"}
-                  alt={item.productId?.productname || "Product"}
+                  src={resolveImageSrc(item)}
+                  alt={(resolveProduct(item)?.productname) || "Product"}
                   className="w-[184.45px] h-[180px] object-cover"
+                  crossOrigin="anonymous"
+                  referrerPolicy="no-referrer"
+                  onError={(e) => {
+                    try { e.currentTarget.src = "data:image/gif;base64,R0lGODlhAQABAAAAACw="; } catch {}
+                  }}
                 />
                 <div className="flex flex-col gap-[20px]">
                   <div>

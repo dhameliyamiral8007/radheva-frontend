@@ -3,6 +3,7 @@ import React, { useEffect, useState } from "react";
 import { useCart } from "../../context/CartProvider";
 import { useTheme } from "../../config/hooks/useTheme";
 import { useNavigate } from "react-router-dom";
+import { baseUrl } from "../../../api/BaseUrl";
 import returnPolicy from "../../../assets/returnpolicy.svg"
 import moneyBack from "../../../assets/moneyBack.svg"
 import quality from "../../../assets/quality.svg"
@@ -11,6 +12,17 @@ const CartPopup = ({ isOpen, onClose }) => {
   const { cartItems, removeFromCart, updateQuantity, incrementQuantity, decrementQuantity, fetchCart } = useCart();
   const { theme } = useTheme();
   const navigate = useNavigate();
+  const resolveProduct = (item) => {
+    return item?.productId && typeof item.productId === 'object' ? item.productId : (item?.product || null);
+  };
+
+  const resolveImageSrc = (item) => {
+    const product = resolveProduct(item);
+    const raw = product?.productimage || product?.imageUrl || product?.image || null;
+    if (!raw) return "data:image/gif;base64,R0lGODlhAQABAAAAACw="; // 1x1 transparent
+    if (typeof raw === 'string' && /^https?:\/\//i.test(raw)) return raw;
+    return `${baseUrl}${raw.startsWith('/') ? '' : '/'}${raw}`;
+  };
 
   // Open popup when global event is dispatched
   useEffect(() => {
@@ -107,9 +119,14 @@ const CartPopup = ({ isOpen, onClose }) => {
               >
                 {/* Product Image */}
                 <img
-                  src={item.productId?.productimage || "/placeholder.jpg"}
-                  alt={item.productId?.productname || "Product"}
+                  src={resolveImageSrc(item)}
+                  alt={(resolveProduct(item)?.productname) || "Product"}
                   className="w-40 h-40 object-cover rounded"
+                  crossOrigin="anonymous"
+                  referrerPolicy="no-referrer"
+                  onError={(e) => {
+                    try { e.currentTarget.src = "data:image/gif;base64,R0lGODlhAQABAAAAACw="; } catch {}
+                  }}
                 />
 
                 {/* Product Info */}
