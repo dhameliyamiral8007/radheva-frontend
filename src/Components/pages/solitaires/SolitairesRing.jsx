@@ -69,7 +69,9 @@ const SolitairesRing = () => {
       navigate('/products');
       return;
     }
-    navigate(`/product-detail/${product._id}`, { state: { productId: product._id } });
+    const productId = product?._id || product?.id;
+    if (!productId) return;
+    navigate(`/product-detail/${productId}`, { state: { productId } });
   };
 
   useEffect(() => {
