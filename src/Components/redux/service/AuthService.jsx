@@ -1,6 +1,19 @@
 import { apiInstance } from "../../../api/AxiosApi";
 import { baseUrl } from "../../../api/BaseUrl";
 
+export const getUserProfileService = async () => {
+  const response = await apiInstance.get(`${baseUrl}/user/auth`);
+  return response.data;
+};
+
+export const updateUserProfileService = async (userId, payload) => {
+  const response = await apiInstance.put(`${baseUrl}/user/auth/update/${userId}`, payload);
+  return response.data;
+};
+
+// import { apiInstance } from "../../../api/AxiosApi";
+// import { baseUrl } from "../../../api/BaseUrl";
+
 export const registerService = async (payload) => {
   const { data } = await apiInstance.post(`${baseUrl}/auth/register`, payload);
   return data;

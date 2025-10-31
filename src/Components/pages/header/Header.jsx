@@ -236,13 +236,19 @@ const Header = () => {
 
             {/* Icons Section */}
             <div className="hidden md:flex items-center xl:gap-4 lg:gap-2 md:gap-4">
-              <button className={`p-1 rounded-full`}>
-                <img
-                  src={person}
-                  alt="auth"
-                  className={`h-5 w-5 ${theme === "dark" ? "invert" : ""}`}
-                />
-              </button>
+              {(() => {
+                const isLoggedIn = Boolean(localStorage.getItem('uuid') || localStorage.getItem('token') || localStorage.getItem('jwt'));
+                if (!isLoggedIn) return null;
+                return (
+                  <button className={`p-1 rounded-full`} onClick={() => navigate('/profile')}>
+                    <img
+                      src={person}
+                      alt="profile"
+                      className={`h-5 w-5 ${theme === "dark" ? "invert" : ""}`}
+                    />
+                  </button>
+                );
+              })()}
 
               <button
                 className={`p-1 rounded-full hover:bg-opacity-20`}
@@ -425,13 +431,19 @@ const Header = () => {
 
           {/* Icons row */}
           <div className="flex items-center space-x-5 md:hidden pt-4 border-t border-gray-400">
-            <button className={`p-1 rounded-full`}>
-              <img
-                src={person}
-                alt="auth"
-                className={`h-5 w-5 ${theme === "dark" ? "invert" : ""}`}
-              />
-            </button>
+            {(() => {
+              const isLoggedIn = Boolean(localStorage.getItem('uuid') || localStorage.getItem('token') || localStorage.getItem('jwt'));
+              if (!isLoggedIn) return null;
+              return (
+                <button className={`p-1 rounded-full`} onClick={() => { setIsMobileMenuOpen(false); navigate('/profile'); }}>
+                  <img
+                    src={person}
+                    alt="profile"
+                    className={`h-5 w-5 ${theme === "dark" ? "invert" : ""}`}
+                  />
+                </button>
+              );
+            })()}
             <button className={`p-1 rounded-full hover:bg-opacity-20`}>
               <img
                 src={wishList}

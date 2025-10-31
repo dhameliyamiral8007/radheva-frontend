@@ -20,6 +20,7 @@ const ContactUs = lazy(() => import("./Components/pages/footer/companyPages/Cont
 const HomeIndex = lazy(() => import("./Components/pages/home/Index.jsx"));
 const SolitairesPage = lazy(() => import("./Components/pages/solitaires/Index.jsx"));
 import RootLayout from "./Components/layouts/RootLayout.jsx";
+import Profile from "./Components/pages/profile/Profile.jsx";
 const ProductIndex = lazy(() => import("./Components/pages/productDetail/index.jsx"));
 const Loader = lazy(() => import("./Components/loader/Loader.jsx"));
 const RouteChangeLoader = lazy(() => import("./Components/loader/RouteChangeLoader.jsx"));
@@ -58,6 +59,7 @@ function App() {
               <Route path="/terms-condition" element={<TermsAndCondition />} />
               <Route path="/cart" element={<CartPage/>}/>
               <Route path="/wishlist" element={<WishList/>}/>
+              <Route path="/profile" element={<Profile/>}/>
               {/* Default 404 */}
               <Route path="*" element={<h1 className="p-8">404 - Page Not Found</h1>} />
             </Route>
