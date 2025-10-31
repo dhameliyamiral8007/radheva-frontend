@@ -18,7 +18,7 @@ const products = Array.from({ length: 12 }).map((_, i) => ({
 export default function ImageGallary({ gallery = products, isFilterd ,onProductClick }) {
 
   console.log("gallery",gallery)
-  const { wishlist, addToWishlist } = useWishlist?.() || { wishlist: [], addToWishlist: async () => {} };
+  const { wishlist, addToWishlist, removeFromWishlist } = useWishlist?.() || { wishlist: [], addToWishlist: async () => {}, removeFromWishlist: async () => {} };
   const wishlistProductIdSet = new Set((wishlist || []).map((w) => (w?.productId?._id) || (w?._id) || (w?.id)));
 
   return (
@@ -67,20 +67,28 @@ export default function ImageGallary({ gallery = products, isFilterd ,onProductC
                           return;
                         }
                         try {
-                          // fetch product to derive default variant ids
-                          const res = await fetchProductByIdService(productId);
-                          const prod = res?.Data;
-                          const metal = (prod?.metals || [])[0];
-                          const color = (metal?.colors || [])[0];
-                          const diamond = (prod?.diamonds || [])[0];
-                          const size = (diamond?.sizes || [])[0];
-                          await addToWishlist({
-                            productId: prod?._id || productId,
-                            metalId: metal?._id || null,
-                            colorId: color?._id || null,
-                            diamondId: diamond?._id || null,
-                            sizeId: size?._id || null,
-                          });
+                          if (isInWishlist) {
+                            // find wishlist entry id and remove
+                            const entry = (wishlist || []).find((w) => (w?.productId?._id) === productId || (w?._id) === productId || (w?.id) === productId);
+                            if (entry?._id) {
+                              await removeFromWishlist(entry._id);
+                            }
+                          } else {
+                            // fetch product to derive default variant ids and add
+                            const res = await fetchProductByIdService(productId);
+                            const prod = res?.Data;
+                            const metal = (prod?.metals || [])[0];
+                            const color = (metal?.colors || [])[0];
+                            const diamond = (prod?.diamonds || [])[0];
+                            const size = (diamond?.sizes || [])[0];
+                            await addToWishlist({
+                              productId: prod?._id || productId,
+                              metalId: metal?._id || null,
+                              colorId: color?._id || null,
+                              diamondId: diamond?._id || null,
+                              sizeId: size?._id || null,
+                            });
+                          }
                         } catch {}
                       }}
                       className="w-10 h-10 rounded-md bg-white/90 text-black flex items-center justify-center shadow"
