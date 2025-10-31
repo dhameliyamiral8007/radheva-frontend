@@ -4,10 +4,7 @@ import radheva from "../../../assets/Radhevalogo.svg";
 import shop from "../../../assets/shop.svg";
 import G from "../../../assets/gpay.svg";
 import { Link, useNavigate } from "react-router-dom";
-import upi from "../../../assets/upi.svg"
-import rupay from "../../../assets/rupay.svg"
-import visa from "../../../assets/visa.svg"
-import master from "../../../assets/master.svg"
+
 import { useCart } from "../../context/CartProvider";
 const PaymentFlow = () => {
     const [country, setCountry] = useState("");
@@ -15,8 +12,10 @@ const PaymentFlow = () => {
     const [selected, setSelected] = useState("credit");
     const navigate = useNavigate();
     const { cartItems } = useCart(); // ✅ ACCESS cartItems
+    console.log("cartItems =",cartItems);
+    
     const subtotal = cartItems.reduce(
-        (acc, item) => acc + Number(item.price) * (item.quantity || 1),
+        (acc, item) => acc + Number(item.finalAmount || item.totalPrice || (item.price || 0) * (item.quantity || 1)),
         0
     );
 
@@ -202,22 +201,22 @@ const PaymentFlow = () => {
                     </label>
 
                     {/* shipping method */}
-                    <div>
+                    {/* <div>
                         <p className="font-kufam py-3 text-lg">Shipping method</p>
                         <input
                             type="text"
                             placeholder="Enter your shipping address to view available shipping methods."
                             className="bg-[#8a8a8a] w-full py-2 px-2 rounded-sm outline-none"></input>
-                    </div>
+                    </div> */}
                 </div>
                 {/* pauyment */}
-                <div className="mt-6">
+                {/* <div className="mt-6">
                     <h2 className="text-lg font-kufam mb-2">Payment</h2>
                     <p className="text-sm text-gray-500 font-kufam py-1">
                         All transactions are secure and encrypted.
                     </p>
 
-                    {/* Credit Card */}
+                  
                     <div
                         className={`border rounded-lg mb-3 ${selected === "credit" ? "border-white" : "border-gray-600"
                             }`}
@@ -274,7 +273,6 @@ const PaymentFlow = () => {
                         </div>
 
 
-                        {/* Razorpay */}
                         <div
                             className={`border-b mb-3 ${selected === "razorpay" ? "border-white" : "border-gray-600 "
                                 }`}
@@ -300,7 +298,7 @@ const PaymentFlow = () => {
                             </label>
                         </div>
 
-                        {/* Bread Pay */}
+                     
                         <div
                             className={`border-b ${selected === "bread" ? "border-white" : "border-gray-600 "
                                 }`}
@@ -319,18 +317,18 @@ const PaymentFlow = () => {
                             </label>
                         </div>
                     </div>
-                </div>
+                </div> */}
                 {/* Add Tip Section */}
-                <div className="mt-6">
+                {/* <div className="mt-6">
                     <h2 className="text-lg font-kufam mb-2">Add tip</h2>
                     <div className="border rounded-lg mb-3">
-                        {/* Checkbox */}
+                  
                         <label className="flex items-center gap-2 text-sm text-white border-b border-gray-400 px-4 py-3 cursor-pointer">
                             <input type="checkbox" className="accent-[#592FF4] font-kufam" />
                             Show your support for the team at Radheva Jewels
                         </label>
 
-                        {/* Tip Options */}
+                    
                         <div className="grid grid-cols-4 text-center">
                             <button className="p-3 border-r bg-[#454545]">
                                 <p className="text-sm">5%</p>
@@ -349,7 +347,7 @@ const PaymentFlow = () => {
                             </button>
                         </div>
 
-                        {/* Custom Tip */}
+                  
                         <div className="flex items-center gap-2 p-3 border-t border-gray-400 bg-[#454545]">
                             <input
                                 type="number"
@@ -363,7 +361,7 @@ const PaymentFlow = () => {
                         <p className="font-kufam px-3 bg-[#454545] text-sm text-gray-400">Thank you, we appreciate it.</p>
                     </div>
 
-                </div>
+                </div> */}
 
                 {/* Remember Me */}
                 <div className="mt-6">
@@ -442,41 +440,48 @@ const PaymentFlow = () => {
 
                     {/* ✅ Loop through cart items */}
                     {cartItems.length > 0 ? (
-                        cartItems.map((item) => (
+                        cartItems.map((item) => {
+                            const product = item?.productId && typeof item.productId === 'object' ? item.productId : {};
+                            const img = product?.productimage;
+                            const qty = item?.quantity || 1;
+                            const lineTotal = Number(item.finalAmount || item.totalPrice || (item.price || 0) * qty);
+                            return (
                             <div
-                                key={item.id}
+                                key={item._id}
                                 className="flex items-center gap-3 mb-4 border-b border-gray-700 pb-4"
                             >
-                                <img
-                                    src={item.image}
-                                    alt={item.name}
-                                    className="w-16 h-16 rounded object-cover"
-                                />
+                                <div className="relative">
+                                  <img
+                                      src={img}
+                                      alt={product?.productname || 'Product'}
+                                      className="w-16 h-16 rounded object-cover"
+                                  />
+                                  <span className="absolute -top-2 -right-2 bg-[#C79954] text-black text-xs font-semibold rounded-full w-6 h-6 flex items-center justify-center">{qty}</span>
+                                </div>
                                 <div>
-                                    <p className="text-sm">{item.name}</p>
+                                    <p className="text-sm">{product?.productname || 'Product'}</p>
                                     <p className="text-xs text-gray-400">
-                                        {item.metalType} • {item.metalColor}{" "}
-                                        {item.ringSize && `• Size: ${item.ringSize}`}
-                                    </p>
-                                    <p className="text-xs text-gray-400">
-                                        Qty: {item.quantity}
+                                        {item.metalId?.metalname || item.metalType || ''}
+                                        {item.colorId?.colorname ? ` • ${item.colorId?.colorname}` : ''}
+                                        {item.sizeId?.carat ? ` • ${item.sizeId?.carat}ct` : ''}
                                     </p>
                                 </div>
-                                <span className="ml-auto">
-                                    ₹{(item.price * (item.quantity || 1)).toLocaleString()}
-                                </span>
+                                <span className="ml-auto">₹{lineTotal.toLocaleString()}</span>
                             </div>
-                        ))
+                        );})
                     ) : (
                         <p className="text-gray-400 text-sm">Your cart is empty</p>
                     )}
 
                     {/* Discount Code */}
-                    <input
+                    <div className="flex gap-2 mb-3">
+                      <input
                         type="text"
                         placeholder="Discount code or gift card"
-                        className="w-full bg-[#1d1d1d] border border-gray-600 rounded p-2 text-sm mb-3"
-                    />
+                        className="flex-1 bg-[#1d1d1d] border border-gray-600 rounded p-2 text-sm"
+                      />
+                      <button className="bg-white text-black px-4 rounded text-sm font-semibold">Apply</button>
+                    </div>
 
                     {/* Subtotal */}
                     <div className="flex justify-between text-sm mb-2">

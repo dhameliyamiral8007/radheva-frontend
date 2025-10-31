@@ -81,6 +81,7 @@ const CartPage = () => {
             <span className="text-[44px] font-medium text-[#475569] tracking-[0px] leading-[52.8px] font-belleza">Your cart is empty</span>
             <span className="">You have no items in your shopping cart.</span>
           </div>
+
           <button
             onClick={() => navigate("/payment-flow")}
             className="bg-[#C79954] text-white px-6 py-3 rounded font-kufam mt-10"
@@ -244,11 +245,17 @@ const CartPage = () => {
             </div>
           ))}
         </div>
+        
         {/* Summary Section */}
-        <div className="flex justify-center items-center mt-10">
+        <div className="mt-10 max-w-[583px] mx-auto w-full">
+          <div className="flex justify-between items-center mb-4">
+            <span className="text-lg font-kufam opacity-80">Total</span>
+            <span className="text-2xl font-semibold">₹{subtotal.toLocaleString()}</span>
+          </div>
+          <p className="text-sm opacity-70 mb-4">Shipping, taxes, & discounts calculated during checkout.</p>
           <button
             onClick={handleCheckout}
-            className="bg-[#C79954] text-[#FFFFFF] text-[20px] w-full max-w-[583px] font-semibold px-[17px] py-[15px] rounded-[10px] font-kufam"
+            className="bg-[#C79954] text-[#FFFFFF] text-[20px] w-full font-semibold px-[17px] py-[15px] rounded-[10px] font-kufam"
           >
             CHECKOUT
           </button>
