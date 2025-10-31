@@ -3,6 +3,7 @@ import { useTheme } from "../../config/hooks/useTheme";
 import underline from "../../../assets/about/underline.svg";
 import { MdFilterList, MdSort } from "react-icons/md";
 import { Link, useNavigate, useLocation } from "react-router-dom";
+import { useSelector } from "react-redux";
 import {
   fetchFilteredProducts,
   fetchProducts,
@@ -15,6 +16,7 @@ const SolitairesRing = () => {
   const { colors, theme } = useTheme();
   const navigate = useNavigate();
   const location = useLocation();
+  const productFilter = useSelector((state) => state.productFilter);
   const [selectedSort, setSelectedSort] = useState();
   const [metalsForUsers, setMetalsForUsers] = useState([]);
   const [colorsForUsers, setColorsForUsers] = useState([]);
@@ -64,29 +66,23 @@ const SolitairesRing = () => {
   };
 
   useEffect(() => {
-    // seed filters from URL query params (collectionID, collectionItemID)
-    const params = new URLSearchParams(location.search);
-    const collectionId = params.get("collectionID");
-    const collectionItemId = params.get("collectionItemID");
+    // seed filters from Redux (navigationID / collectionID / collectionItemID)
+    const { navigationID, collectionID, collectionItemID } = productFilter || {};
 
-    if (collectionId || collectionItemId) {
-      setSelectedFilters((prev) => ({
-        ...prev,
-        ...(collectionId ? { collectionID: [collectionId] } : {}),
-        ...(collectionItemId ? { collectionItemID: [collectionItemId] } : {}),
-      }));
-    }
-  // re-run if URL changes
-  }, [location.search]);
+    const next = {};
+    if (navigationID) next.navigationID = [navigationID];
+    if (collectionID) next.collectionID = [collectionID];
+    if (collectionItemID) next.collectionItemID = [collectionItemID];
+
+    // Replace entirely so stale IDs are removed when switching
+    setSelectedFilters(next);
+  }, [productFilter]);
 
   // derive page title from query + fetched collections data
   useEffect(() => {
-    const params = new URLSearchParams(location.search);
-    const collectionId = params.get("collectionID");
-    const collectionItemId = params.get("collectionItemID");
-
-    const col = collections?.Data?.find?.((c) => c?._id === collectionId);
-    const item = collectionsItems?.Data?.find?.((i) => i?._id === collectionItemId);
+    const { collectionID, collectionItemID } = productFilter || {};
+    const col = collections?.Data?.find?.((c) => c?._id === collectionID);
+    const item = collectionsItems?.Data?.find?.((i) => i?._id === collectionItemID);
 
     if (col && item) {
       setPageTitle(`${col.collectionname} ${item.itemname}`);
@@ -95,7 +91,7 @@ const SolitairesRing = () => {
     } else {
       setPageTitle("Products");
     }
-  }, [location.search, collections, collectionsItems]);
+  }, [productFilter, collections, collectionsItems]);
 
   useEffect(() => {
     const fetchData = async () => {

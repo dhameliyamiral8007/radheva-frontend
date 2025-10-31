@@ -9,6 +9,7 @@ const Star = ({ filled }) => (
 const ReviewsStar = ({ productId: productIdProp, userId: userIdProp }) => {
     const { colors } = useTheme();
 
+
     const [isWriting, setIsWriting] = useState(false);
     const [rating, setRating] = useState(0);
     const [hoverRating, setHoverRating] = useState(0);
@@ -16,6 +17,7 @@ const ReviewsStar = ({ productId: productIdProp, userId: userIdProp }) => {
     const [content, setContent] = useState("");
     const [files, setFiles] = useState([]);
     const [submitting, setSubmitting] = useState(false);
+    const [showSuccess, setShowSuccess] = useState(false);
 
     const totalReviews = 40;
     const avgRating = 4.0;
@@ -54,7 +56,7 @@ const ReviewsStar = ({ productId: productIdProp, userId: userIdProp }) => {
             });
             setIsWriting(false);
             setRating(0); setHoverRating(0); setTitle(""); setContent(""); setFiles([]);
-            alert('Review submitted successfully');
+            setShowSuccess(true);
         } catch (err) {
             console.error(err);
             alert(err?.message || 'Failed to submit review');
@@ -64,6 +66,7 @@ const ReviewsStar = ({ productId: productIdProp, userId: userIdProp }) => {
     };
 
     return (
+        <>
         <div className={`${colors.firstPart.background} ${colors.firstPart.text} w-full`}>
             <div className="text-center py-5 flex justify-center items-center flex-col xl:mx-24 md:mx-10 mx-4">
                 <span className={`${colors.reviewsstar.reviewstext} text-[26px] font-kufam font-semibold inline-flex items-center relative tracking-[0px] leading-[100%] gap-[4px]`}>
@@ -181,6 +184,25 @@ const ReviewsStar = ({ productId: productIdProp, userId: userIdProp }) => {
                 </div>
             </div>
         </div>
+        {/* Success Modal */}
+        {showSuccess && (
+            <div className="fixed inset-0 z-50 flex items-center justify-center">
+                <div className="absolute inset-0 bg-black/40" onClick={() => setShowSuccess(false)} />
+                <div className={`${colors.reviewsstar.background} ${colors.reviewsstar.border} relative z-10 w-full max-w-md rounded-[12px] border-2 p-6 shadow-xl`}>
+                    <div className="text-center space-y-3">
+                        <div className="text-2xl font-semibold">Review submitted</div>
+                        <div className={`${colors.reviewsstar.text}`}>Thank you for your feedback!</div>
+                        <button
+                            onClick={() => setShowSuccess(false)}
+                            className="mt-2 bg-[#B5904F] text-white px-5 py-2 rounded-md font-semibold"
+                        >
+                            Close
+                        </button>
+                    </div>
+                </div>
+            </div>
+        )}
+        </>
     )
 }
 
