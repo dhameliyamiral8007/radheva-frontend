@@ -11,11 +11,14 @@ import {
   fetchProductsCollectionsItems,
 } from "../../redux/service/SolitairesRingService";
 import ImageGallery from "../../gallary/ImageGallary";
+import { useDispatch } from "react-redux";
+import { setProductFilter } from "../../redux/slice/ProductFilterSlice";
 
 const SolitairesRing = () => {
   const { colors, theme } = useTheme();
   const navigate = useNavigate();
   const location = useLocation();
+  const dispatch = useDispatch();
   const productFilter = useSelector((state) => state.productFilter);
   const [selectedSort, setSelectedSort] = useState();
   const [metalsForUsers, setMetalsForUsers] = useState([]);
@@ -60,9 +63,13 @@ const SolitairesRing = () => {
     });
   };
   const handleProductClick = (product) => {
-    console.log("Product clicked:", product);
-    console.log("Navigating to:", `/product-detail/${product._id}`);
-    navigate(`/product-detail/${product}`, { state: { productId: product} });
+    // If this is a collection card, navigate to that collection filter
+    if (product?.isCollectionCard) {
+      dispatch(setProductFilter({ navigationID: null, collectionID: product.id, collectionItemID: null }));
+      navigate('/products');
+      return;
+    }
+    navigate(`/product-detail/${product._id}`, { state: { productId: product._id } });
   };
 
   useEffect(() => {
@@ -195,28 +202,57 @@ const SolitairesRing = () => {
   console.log("call--isFilterd", isFilterd);
 
   const updatedImageGallary = useMemo(() => {
-    if (!Object.values(selectedFilters).some((values) => values.length)) {
-      const firstCollection = collections.Data?.[2];
+    const base = [...imgGellary];
 
-      const updatedGallary = imgGellary.toSpliced(2, 0, {
-        id: firstCollection?._id,
+    const allCollections = collections?.Data || [];
+
+    // Determine primary collection card
+    const selectedColId = selectedFilters?.collectionID?.[0] || null;
+    const primaryCollection = selectedColId
+      ? allCollections.find((c) => c?._id === selectedColId)
+      : allCollections[0];
+
+    // Determine secondary collection (different from primary)
+    const secondaryCollection = allCollections.find(
+      (c) => c && c._id !== (primaryCollection?._id || null)
+    );
+
+    const collectionCards = [];
+    if (primaryCollection) {
+      collectionCards.push({
+        id: primaryCollection._id,
         label: "Shop Now",
-        name: firstCollection?.collectionname,
+        name: primaryCollection.collectionname,
         oldPrice: null,
-        image: firstCollection?.collectionimage,
+        image: primaryCollection.collectionimage,
+        // marker for gallery consumers if needed
+        isCollectionCard: true,
       });
-
-      return updatedGallary;
+    }
+    if (secondaryCollection) {
+      collectionCards.push({
+        id: secondaryCollection._id,
+        label: "Shop Now",
+        name: secondaryCollection.collectionname,
+        oldPrice: null,
+        image: secondaryCollection.collectionimage,
+        isCollectionCard: true,
+      });
     }
 
-    return imgGellary;
-  }, [
-    collections,
-    imgGellary,
-    selectedFilters,
-    selectedSort,
-    showSortingDropdown,
-  ]);
+    // Insert two collection cards at visually pleasing slots
+    // guard against small arrays
+    if (collectionCards[0]) {
+      const insertAt = Math.min(2, base.length);
+      base.splice(insertAt, 0, collectionCards[0]);
+    }
+    if (collectionCards[1]) {
+      const insertAt = Math.min(14, base.length);
+      base.splice(insertAt, 0, collectionCards[1]);
+    }
+
+    return base;
+  }, [collections, imgGellary, selectedFilters]);
 
   // Function to render product card
   const ProductCard = ({ product, className = "" }) => (

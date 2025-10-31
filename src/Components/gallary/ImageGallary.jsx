@@ -17,31 +17,29 @@ export default function ImageGallary({ gallery = products, isFilterd ,onProductC
     <div className=" w-full text-white min-h-screen curser-pointer" >
       {/* Product Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 py-4">
-        {gallery.map((p, index) => (
+        {gallery.map((p, index) => {
+          const isCollection = Boolean(p.isCollectionCard);
+          const spanClass = isCollection ? "col-span-2 row-span-2" : (index === 2 && !isFilterd ? "col-span-2 row-span-2" : "col-span-1 row-span-1");
+          const mediaHeight = isCollection ? "h-245" : (index === 2 && !isFilterd ? "h-245" : "h-100");
+          return (
           <div
             key={p.id}
-            onClick={() => onProductClick(p.id)}
-            className={`${
-              index === 2 && !isFilterd
-                ? "col-span-2 row-span-2"
-                : "col-span-1 row-span-1"
-            } relative bg-neutral-900 border border-neutral-800 rounded-lg overflow-hidden`}
+            onClick={() => onProductClick(p)}
+            className={`${spanClass} relative bg-neutral-900 border border-neutral-800 rounded-lg overflow-hidden`}
           >
             {/* Tag */}
-            {index !== 2 && (
+            {(index !== 2 || isFilterd) && !isCollection && (
               <span className="absolute top-2 left-2 bg-neutral-100 text-black text-xs font-semibold px-2 py-1 ">
                 {p.label}
               </span>
             )}
 
             <div
-              className={`bg-neutral-700 rounded-lg ${
-                index === 2 && !isFilterd ? "h-245" : "h-100"
-              } flex items-center justify-center`}
+              className={`bg-neutral-700 rounded-lg ${mediaHeight} flex items-center justify-center`}
             >
-              <img className="h-full w-full" src={p.image} />
+              <img className="h-full w-full object-cover" src={p.image} />
 
-              {index === 2 && !isFilterd && (
+            {isCollection || (index === 2 && !isFilterd) ? (
                 <div className="p-10 absolute bottom-0 w-full bg-gradient-to-t from-black/90 via-black/60  to-transparent">
                   <p
                     style={{ fontFamily: "Belleza" }}
@@ -50,20 +48,25 @@ export default function ImageGallary({ gallery = products, isFilterd ,onProductC
                     {p.name}
                   </p>
 
-                  <div className="text-center flex gap-3 flex-row items-center w-full justify-center">
+                   <div className="text-center flex gap-3 flex-row items-center w-full justify-center">
                     <button
                       style={{ fontFamily: "Belleza" }}
-                      className="p-[6px 10px] text-center bg-neutral-100 text-black text-xs  font-semibold px-2 py-1 "
+                      className="p-[6px 10px] text-center bg-neutral-100 text-black text-xs  font-semibold px-2 py-1 cursor-pointer"
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onProductClick(p);
+                      }}
                     >
                       {p.label}
                     </button>
                   </div>
                 </div>
-              )}
+              ) : null}
             </div>
 
             {/* Info */}
-            {(index !== 2 || isFilterd) && (
+            {(index !== 2 || isFilterd) && !isCollection && (
               <div className="p-4">
                 <p className="text-sm text-gray-300">{p.name}</p>
                 <div className="flex gap-2 mt-1 text-sm">
@@ -75,7 +78,7 @@ export default function ImageGallary({ gallery = products, isFilterd ,onProductC
               </div>
             )}
           </div>
-        ))}
+        );})}
       </div>
     </div>
   );
