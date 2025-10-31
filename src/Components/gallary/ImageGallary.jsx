@@ -19,6 +19,7 @@ export default function ImageGallary({ gallery = products, isFilterd ,onProductC
 
   console.log("gallery",gallery)
   const { wishlist, addToWishlist } = useWishlist?.() || { wishlist: [], addToWishlist: async () => {} };
+  const wishlistProductIdSet = new Set((wishlist || []).map((w) => (w?.productId?._id) || (w?._id) || (w?.id)));
 
   return (
     <div className=" w-full text-white min-h-screen curser-pointer" >
@@ -30,7 +31,7 @@ export default function ImageGallary({ gallery = products, isFilterd ,onProductC
           const mediaHeight = isCollection ? "h-245" : (index === 2 && !isFilterd ? "h-245" : "h-100");
           const productId = p.id || p._id;
           const isLoggedIn = Boolean(localStorage.getItem('uuid') || localStorage.getItem('token') || localStorage.getItem('jwt'));
-          const isInWishlist = Array.isArray(wishlist) && wishlist.some((w) => (w._id || w.id) === productId);
+          const isInWishlist = wishlistProductIdSet.has(productId);
 
           return (
           <div
