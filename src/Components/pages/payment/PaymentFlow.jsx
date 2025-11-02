@@ -1,39 +1,152 @@
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import radheva from "../../../assets/Radhevalogo.svg";
 import shop from "../../../assets/shop.svg";
 import G from "../../../assets/gpay.svg";
 import { Link, useNavigate } from "react-router-dom";
 
 import { useCart } from "../../context/CartProvider";
+import { applyDiscountCode, placeOrder, processPayment } from "../../redux/service/OrderService";
+import { getUserProfileService } from "../../redux/service/AuthService";
 const PaymentFlow = () => {
-    const [country, setCountry] = useState("");
     const [state, setState] = useState("");
     const [selected, setSelected] = useState("credit");
+    const [discountCode, setDiscountCode] = useState("");
+    const [isApplyingDiscount, setIsApplyingDiscount] = useState(false);
+    const [discountMessage, setDiscountMessage] = useState("");
+    const [discountIsError, setDiscountIsError] = useState(false);
+    const [isPlacingOrder, setIsPlacingOrder] = useState(false);
+    const [isRazorpayLoaded, setIsRazorpayLoaded] = useState(false);
+    
+    // Form fields state
+    const [email, setEmail] = useState("");
+    const [firstName, setFirstName] = useState("");
+    const [lastName, setLastName] = useState("");
+    const [address, setAddress] = useState("");
+    const [apartment, setApartment] = useState("");
+    const [city, setCity] = useState("");
+    const [pincode, setPincode] = useState("");
+    const [phone, setPhone] = useState("");
+    
     const navigate = useNavigate();
-    const { cartItems } = useCart(); // ✅ ACCESS cartItems
+    const { cartItems, fetchCart } = useCart(); // ✅ ACCESS cartItems and fetchCart
     console.log("cartItems =",cartItems);
     
+    // Calculate totals from cart items - using API response fields
     const subtotal = cartItems.reduce(
-        (acc, item) => acc + Number(item.finalAmount || item.totalPrice || (item.price || 0) * (item.quantity || 1)),
+        (acc, item) => acc + Number(item.totalPrice || 0),
+        0
+    );
+    
+    const totalDiscount = cartItems.reduce(
+        (acc, item) => acc + Number(item.discountAmount || 0),
+        0
+    );
+    
+    const totalTax = cartItems.reduce(
+        (acc, item) => acc + Number(item.taxAmount || 0),
+        0
+    );
+    
+    const finalTotal = cartItems.reduce(
+        (acc, item) => acc + Number(item.finalAmount || 0),
         0
     );
 
-    // Country → States mapping
-    const statesByCountry = {
-        india: ["Gujarat", "Maharashtra", "Delhi", "Karnataka"],
-        usa: ["California", "Texas", "New York", "Florida"],
-        uk: ["England", "Scotland", "Wales", "Northern Ireland"],
-        canada: ["Ontario", "Quebec", "British Columbia", "Alberta"],
+    const handleApplyDiscount = async () => {
+        if (!discountCode) return;
+        try {
+            setIsApplyingDiscount(true);
+            setDiscountMessage("");
+            setDiscountIsError(false);
+
+            const data = await applyDiscountCode(discountCode);
+
+            if (!data?.IsSuccess) {
+                const message = data?.Message || "Failed to apply discount";
+                setDiscountMessage(message);
+                setDiscountIsError(true);
+                return;
+            }
+
+            // After successful discount apply, refresh cart to get updated totals
+            await fetchCart();
+            setDiscountMessage(data?.Message || "Discount applied successfully");
+            setDiscountIsError(false);
+        } catch (err) {
+            setDiscountMessage("Something went wrong while applying discount");
+            setDiscountIsError(true);
+        } finally {
+            setIsApplyingDiscount(false);
+        }
     };
 
-    // Country list (keys must match statesByCountry)
-    const countries = [
-        { code: "india", name: "India" },
-        { code: "usa", name: "United States" },
-        { code: "uk", name: "United Kingdom" },
-        { code: "canada", name: "Canada" },
-    ];
+    // All states available
+    const allStates = ["Gujarat", "Maharashtra", "Delhi", "Karnataka", "California", "Texas", "New York", "Florida", "England", "Scotland", "Wales", "Northern Ireland", "Ontario", "Quebec", "British Columbia", "Alberta"];
+
+    // Load Razorpay script
+    useEffect(() => {
+        const script = document.createElement("script");
+        script.src = "https://checkout.razorpay.com/v1/checkout.js";
+        script.async = true;
+        script.onload = () => {
+            setIsRazorpayLoaded(true);
+        };
+        document.body.appendChild(script);
+
+        return () => {
+            // Cleanup script on unmount
+            if (document.body.contains(script)) {
+                document.body.removeChild(script);
+            }
+        };
+    }, []);
+
+    // Fetch user profile and auto-fill form
+    useEffect(() => {
+        const fetchUserProfile = async () => {
+            try {
+                const response = await getUserProfileService();
+                if (response?.IsSuccess && response?.Data) {
+                    const profile = response.Data;
+                    
+                    // Set email
+                    if (profile.email) setEmail(profile.email);
+                    
+                    // Split name into first and last
+                    if (profile.name) {
+                        const nameParts = profile.name.trim().split(/\s+/);
+                        setFirstName(nameParts[0] || "");
+                        setLastName(nameParts.slice(1).join(" ") || "");
+                    }
+                    
+                    // Set phone
+                    if (profile.mobile) setPhone(profile.mobile);
+                    
+                    // Set address data from addresses.home
+                    if (profile.addresses?.home) {
+                        const homeAddress = profile.addresses.home;
+                        
+                        if (homeAddress.street) setAddress(homeAddress.street);
+                        if (homeAddress.city) setCity(homeAddress.city);
+                        if (homeAddress.pincode) setPincode(homeAddress.pincode);
+                        
+                        // Set state
+                        if (homeAddress.state) {
+                            const stateLower = homeAddress.state.toLowerCase();
+                            setState(stateLower);
+                        }
+                    }
+                }
+            } catch (error) {
+                console.error("Error fetching user profile:", error);
+                // Don't show error to user, just fail silently
+            }
+        };
+
+        fetchUserProfile();
+    }, []);
+
     const handleService = () => {
         navigate("/terms-condition")
     }
@@ -46,6 +159,116 @@ const PaymentFlow = () => {
     const handleReturnPolicy = () => {
         navigate("/return-policy")
     }
+
+    const handlePlaceOrder = async () => {
+        // Validate required fields
+        if (!email || !firstName || !lastName || !address || !city || !state || !pincode || !phone) {
+            alert("Please fill in all required fields");
+            return;
+        }
+
+        // Check if Razorpay is loaded
+        if (!isRazorpayLoaded || !window.Razorpay) {
+            alert("Payment gateway is loading. Please wait a moment and try again.");
+            return;
+        }
+
+        // Prepare shipping address data
+        const shippingAddress = {
+            name: `${firstName} ${lastName}`.trim(),
+            mobile: phone,
+            address1: address,
+            address2: apartment || "",
+            country: "India", // Default to India since we removed country dropdown
+            city: city,
+            pincode: pincode,
+            addresstype: "Home" // Default to Home
+        };
+
+        try {
+            setIsPlacingOrder(true);
+            
+            // Step 1: Place order to get Razorpay order ID
+            const orderData = await placeOrder(shippingAddress);
+console.log("orderData =",orderData);
+            if (!orderData?.IsSuccess) {
+                const message = orderData?.Message || "Failed to place order";
+                alert(message);
+                return;
+            }
+
+            // Extract Razorpay order details from response
+            // Structure: orderData.Data.order.razorpayOrder.id
+            const razorpayOrderId = orderData?.Data?.order?.razorpayOrder?.id;
+            const amount = orderData?.Data?.order?.razorpayOrder?.amount || finalTotal * 100; // Amount in paise (Razorpay expects amount in paise)
+            const orderId = orderData?.Data?.order?.orderId || orderData?.Data?.order?.order_no;
+
+            if (!razorpayOrderId) {
+                alert("Failed to initialize payment. Please try again.");
+                return;
+            }
+
+            // Step 2: Open Razorpay checkout
+            const options = {
+                key: "rzp_test_mGJqET54AHAF1d", // Razorpay Key ID
+                amount: amount, // Amount in paise
+                currency: "INR",
+                name: "Radheva Jewels",
+                description: `Order #${orderId || razorpayOrderId}`,
+                order_id: razorpayOrderId, // Razorpay order ID
+                prefill: {
+                    name: `${firstName} ${lastName}`.trim(),
+                    email: email,
+                    contact: phone,
+                },
+                handler: async function (response) {
+                    // Step 3: On successful payment, automatically call payment API
+                    try {
+                        setIsPlacingOrder(true);
+                        const paymentResponse = await processPayment({
+                            razorpay_order_id: response.razorpay_order_id,
+                            razorpay_payment_id: response.razorpay_payment_id,
+                            razorpay_signature: response.razorpay_signature,
+                        });
+
+                        if (paymentResponse?.IsSuccess) {
+                            alert(paymentResponse?.Message || "Payment successful! Order placed successfully!");
+                            // Optionally navigate to success page or clear cart
+                            navigate("/order-success");
+                        } else {
+                            alert(paymentResponse?.Message || "Payment verification failed. Please contact support.");
+                        }
+                    } catch (paymentError) {
+                        const errorMessage = paymentError?.response?.data?.Message || paymentError?.message || "Something went wrong while processing payment";
+                        alert(errorMessage);
+                    } finally {
+                        setIsPlacingOrder(false);
+                    }
+                },
+                modal: {
+                    ondismiss: function () {
+                        // User closed the payment modal without completing payment
+                        setIsPlacingOrder(false);
+                    },
+                },
+            };
+
+            const razorpay = new window.Razorpay(options);
+            
+            // Handle payment failure
+            razorpay.on('payment.failed', function (response) {
+                setIsPlacingOrder(false);
+                alert(`Payment failed: ${response.error.description || 'Payment could not be processed. Please try again.'}`);
+            });
+
+            razorpay.open();
+
+        } catch (err) {
+            const errorMessage = err?.response?.data?.Message || err?.message || "Something went wrong while placing order";
+            alert(errorMessage);
+            setIsPlacingOrder(false);
+        }
+    };
     return (
         <div className={`flex flex-col md:flex-row bg-[#1d1d1d] p-6`}>
             {/* Left Side - Form */}
@@ -100,6 +323,8 @@ const PaymentFlow = () => {
                         type="email"
                         placeholder="Email"
                         className="w-full bg-[#282828] border border-gray-600 rounded p-2 text-sm mb-2"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
                     />
 
                     {/* Checkbox */}
@@ -113,36 +338,21 @@ const PaymentFlow = () => {
                 <div>
                     <h2 className="text-lg font-kufam mb-2">Delivery</h2>
 
-                    {/* Country Dropdown */}
-                    <div className="mb-2">
-                        <select
-                            className="w-full bg-[#282828] border border-gray-600 font-kufam rounded p-2 text-sm text-white"
-                            value={country}
-                            onChange={(e) => {
-                                setCountry(e.target.value);
-                                setState("");
-                            }}
-                        >
-                            <option value="">Select Country/Region</option>
-                            {countries.map((c) => (
-                                <option key={c.code} value={c.code}>
-                                    {c.name}
-                                </option>
-                            ))}
-                        </select>
-                    </div>
-
                     {/* First & Last Name */}
                     <div className="grid grid-cols-2 gap-2">
                         <input
                             type="text"
                             placeholder="First name"
                             className="bg-[#282828] font-kufam border border-gray-600 rounded p-2 text-sm"
+                            value={firstName}
+                            onChange={(e) => setFirstName(e.target.value)}
                         />
                         <input
                             type="text"
                             placeholder="Last name"
                             className="bg-[#282828] font-kufam border border-gray-600 rounded p-2 text-sm"
+                            value={lastName}
+                            onChange={(e) => setLastName(e.target.value)}
                         />
                     </div>
 
@@ -150,12 +360,16 @@ const PaymentFlow = () => {
                         type="text"
                         placeholder="Address"
                         className="w-full bg-[#282828] font-kufam border border-gray-600 rounded p-2 text-sm mt-2"
+                        value={address}
+                        onChange={(e) => setAddress(e.target.value)}
                     />
 
                     <input
                         type="text"
                         placeholder="Apartment, suite, etc. (optional)"
                         className="w-full bg-[#282828] font-kufam border border-gray-600 rounded p-2 text-sm mt-2"
+                        value={apartment}
+                        onChange={(e) => setApartment(e.target.value)}
                     />
 
                     {/* City, State, PIN */}
@@ -164,6 +378,8 @@ const PaymentFlow = () => {
                             type="text"
                             placeholder="City"
                             className="bg-[#282828] border font-kufam border-gray-600 rounded p-2 text-sm"
+                            value={city}
+                            onChange={(e) => setCity(e.target.value)}
                         />
 
                         {/* State Dropdown */}
@@ -171,21 +387,21 @@ const PaymentFlow = () => {
                             className="bg-[#282828] font-kufam border border-gray-600 rounded p-2 text-sm text-white"
                             value={state}
                             onChange={(e) => setState(e.target.value)}
-                            disabled={!country} // disable if no country selected
                         >
-                            <option value="">{country ? "Select State" : "Select Country first"}</option>
-                            {country &&
-                                statesByCountry[country].map((s) => (
-                                    <option key={s} value={s.toLowerCase()}>
-                                        {s}
-                                    </option>
-                                ))}
+                            <option value="">Select State</option>
+                            {allStates.map((s) => (
+                                <option key={s} value={s.toLowerCase()}>
+                                    {s}
+                                </option>
+                            ))}
                         </select>
 
                         <input
                             type="text"
                             placeholder="PIN code"
                             className="bg-[#282828] font-kufam border border-gray-600 rounded p-2 text-sm"
+                            value={pincode}
+                            onChange={(e) => setPincode(e.target.value)}
                         />
                     </div>
 
@@ -193,6 +409,8 @@ const PaymentFlow = () => {
                         type="text"
                         placeholder="Phone (optional)"
                         className="w-full bg-[#282828] font-kufam border border-gray-600 rounded p-2 text-sm mt-2"
+                        value={phone}
+                        onChange={(e) => setPhone(e.target.value)}
                     />
                     {/* Checkbox */}
                     <label className="flex items-center gap-2 font-kufam text-gray-400 text-sm py-2 mb-4">
@@ -399,8 +617,12 @@ const PaymentFlow = () => {
                     </div>
 
                     {/* Pay Now Button */}
-                    <button className="w-full mt-4 bg-[#8a6a3f] text-gray-200 py-3 rounded-md text-center font-medium cursor-pointer hover:opacity-90">
-                        Pay now
+                    <button 
+                        onClick={handlePlaceOrder}
+                        disabled={isPlacingOrder}
+                        className={`w-full mt-4 bg-[#8a6a3f] text-gray-200 py-3 rounded-md text-center font-medium cursor-pointer hover:opacity-90 ${isPlacingOrder ? 'opacity-60 cursor-not-allowed' : ''}`}
+                    >
+                        {isPlacingOrder ? "Placing Order..." : "Pay now"}
                     </button>
                 </div>
                 <div className="border mt-15"></div>
@@ -444,7 +666,7 @@ const PaymentFlow = () => {
                             const product = item?.productId && typeof item.productId === 'object' ? item.productId : {};
                             const img = product?.productimage;
                             const qty = item?.quantity || 1;
-                            const lineTotal = Number(item.finalAmount || item.totalPrice || (item.price || 0) * qty);
+                            const lineTotal = Number(item.totalPrice || 0);
                             return (
                             <div
                                 key={item._id}
@@ -474,14 +696,25 @@ const PaymentFlow = () => {
                     )}
 
                     {/* Discount Code */}
-                    <div className="flex gap-2 mb-3">
+                    <div className="flex gap-2 mb-2">
                       <input
                         type="text"
                         placeholder="Discount code or gift card"
                         className="flex-1 bg-[#1d1d1d] border border-gray-600 rounded p-2 text-sm"
+                        value={discountCode}
+                        onChange={(e) => setDiscountCode(e.target.value)}
                       />
-                      <button className="bg-white text-black px-4 rounded text-sm font-semibold">Apply</button>
+                      <button
+                        onClick={handleApplyDiscount}
+                        disabled={!discountCode || isApplyingDiscount}
+                        className={`bg-white text-black px-4 rounded text-sm font-semibold ${(!discountCode || isApplyingDiscount) ? "opacity-60 cursor-not-allowed" : ""}`}
+                      >
+                        {isApplyingDiscount ? "Applying..." : "Apply"}
+                      </button>
                     </div>
+                    {discountMessage ? (
+                      <p className={`text-xs mb-3 ${discountIsError ? 'text-red-400' : 'text-green-400'}`}>{discountMessage}</p>
+                    ) : null}
 
                     {/* Subtotal */}
                     <div className="flex justify-between text-sm mb-2">
@@ -497,10 +730,26 @@ const PaymentFlow = () => {
 
                     <div className="border-t border-gray-600 my-3"></div>
 
+                    {/* Discount Row (if any) */}
+                    {totalDiscount > 0 && (
+                      <div className="flex justify-between text-sm mb-2 text-[#C79954]">
+                        <span>Discount</span>
+                        <span>-₹{totalDiscount.toLocaleString()}</span>
+                      </div>
+                    )}
+
+                    {/* Tax Amount */}
+                    {totalTax > 0 && (
+                      <div className="flex justify-between text-sm mb-2">
+                        <span>Tax Amount</span>
+                        <span>₹{totalTax.toLocaleString()}</span>
+                      </div>
+                    )}
+
                     {/* Total */}
                     <div className="flex justify-between text-lg font-semibold">
                         <span>Total</span>
-                        <span>₹{subtotal.toLocaleString()}</span>
+                        <span>₹{finalTotal.toLocaleString()}</span>
                     </div>
                 </div>
             </div>
