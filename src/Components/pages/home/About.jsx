@@ -157,16 +157,16 @@ const About = () => {
       </div>
 
       {/* SHOP BY STYLE */}
-      <div className="text-center md:my-16 my-8">
+      {/* <div className="text-center md:my-16 my-8">
         <h2 className="md:text-[35px] text-[30px] font-belleza inline-block relative">
           Shop By Style
           <img src={underline} alt="underline" className="p-2" />
         </h2>
-      </div>
+      </div> */}
 
-      <div className="flex flex-col gap-[20px] justify-center">
-        {/* Categories Section */}
-        <div className="grid xl:gap-[20px] xl:mx-24 lg:mx-5 md:mx-10 mx-4 gap-[15px] grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 justify-items-center">
+      <div className="flex flex-col gap-[20px] justify-center md:my-16 my-8">
+     
+        {/* <div className="grid xl:gap-[20px] xl:mx-24 lg:mx-5 md:mx-10 mx-4 gap-[15px] grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 justify-items-center">
           {categories.map((cat, idx) => {
             const isInWishlist = wishlist.some((item) => item.id === cat.id);
 
@@ -177,7 +177,7 @@ const About = () => {
                 data-aos-delay={idx * 150}
                 className="relative group gap-[4px] flex flex-col shadow-md transition-transform duration-300 overflow-hidden rounded-xl"
               >
-                {/* Like & View buttons */}
+              
                 <div className="absolute top-3 right-3 flex flex-col gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
                   <button
                     onClick={() => handleAddToWishlist(cat)}
@@ -195,14 +195,13 @@ const About = () => {
                   </button>
                 </div>
 
-                {/* Product Image */}
                 <img
                   src={cat.icon}
                   alt={cat.name}
                   className="w-[368px] h-[460px] object-cover"
                 />
 
-                {/* Add to Cart Button */}
+          
                 <div className="absolute bottom-10 w-full px-2 pb-2">
                   <button
                     onClick={() => handleAddToCart(cat)}
@@ -212,7 +211,7 @@ const About = () => {
                   </button>
                 </div>
 
-                {/* Product Title */}
+          
                 <div className="text-start px-2 py-1">
                   <span
                     className={`${colors.firstPart.text} text-[12px] uppercase leading-none letter-spacing-0 font-semibold font-kufam`}
@@ -223,7 +222,7 @@ const About = () => {
               </div>
             );
           })}
-        </div>
+        </div> */}
 
         <InformationSection />
         <JwellaryEveryMoment />

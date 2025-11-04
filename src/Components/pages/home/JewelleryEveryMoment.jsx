@@ -15,13 +15,15 @@ import { useNavigate } from "react-router-dom";
 import { useCart } from "../../context/CartProvider";
 import { useWishlist } from "../../context/WishListProvider";
 import { fetchJwelaryProducts } from "../../redux/slice/jwelaryEveryMomentslice";
+import { addToCartService } from "../../redux/service/CartService";
+import { addToWishlistService, removeFromWishlistService } from "../../redux/service/WishlistService";
 
 const JewelleryEveryMoment = () => {
   const { colors, theme } = useTheme();
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const { wishlist, addToWishlist, removeFromWishlist } = useWishlist();
-  const { addToCart } = useCart();
+  const { wishlist, fetchWishlist } = useWishlist();
+  const { fetchCart } = useCart();
 
   // CORRECTED: Use 'jwelary' instead of 'latestProducts'
   const {
@@ -52,36 +54,79 @@ const JewelleryEveryMoment = () => {
     }, 100);
   }, [products]);
 
-  const handleAddToWishlist = (product) => {
-    const isInWishlist = wishlist.some((w) => w.id === product._id);
+  const handleAddToWishlist = async (product, e) => {
+    e?.stopPropagation();
+    e?.preventDefault();
+    
+    try {
+      const token = localStorage.getItem('uuid') || localStorage.getItem('token') || localStorage.getItem('jwt');
+      if (!token) {
+        navigate('/login');
+        return;
+      }
 
-    if (isInWishlist) {
-      removeFromWishlist(product._id);
-    } else {
-      addToWishlist({
-        id: product._id,
-        name: product.productname,
-        image: product.productimage,
-        price: product.price,
-        discount: product.discount,
-        slug: product.productslug
-      });
+      // Check if product is in wishlist
+      const wishlistItem = wishlist.find((w) => w.productId?._id === product._id);
+      
+      if (wishlistItem) {
+        // Remove from wishlist
+        await removeFromWishlistService(wishlistItem._id);
+        await fetchWishlist();
+      } else {
+        // Add to wishlist
+        await addToWishlistService({
+          productId: product._id,
+          metalId: product.metalId || null,
+          colorId: product.colorId || null,
+          diamondId: product.diamondId || null,
+          sizeId: product.sizeId || null,
+        });
+        await fetchWishlist();
+      }
+    } catch (error) {
+      console.error('Wishlist operation failed:', error);
     }
   };
 
-  const handleAddToCart = (product) => {
-    addToCart({
-      id: product._id,
-      name: product.productname,
-      image: product.productimage,
-      price: product.price,
-      discount: product.discount,
-      quantity: 1
-    });
+  const handleAddToCart = async (product, e) => {
+    e?.stopPropagation();
+    e?.preventDefault();
+    
+    try {
+      const token = localStorage.getItem('uuid') || localStorage.getItem('token') || localStorage.getItem('jwt');
+      if (!token) {
+        navigate('/login');
+        return;
+      }
+
+      await addToCartService({
+        productId: product._id,
+        metalId: product.metalId || null,
+        colorId: product.colorId || null,
+        diamondId: product.diamondId || null,
+        sizeId: product.sizeId || null,
+        discountId: "",
+        discountcode: "",
+        discountAmount: "",
+      });
+
+      // Refresh cart
+      await fetchCart();
+      
+      // Open cart popup
+      try {
+        window.dispatchEvent(new CustomEvent('open-cart-popup'));
+      } catch (err) {
+        console.error('Failed to open cart popup:', err);
+      }
+    } catch (error) {
+      console.error('Add to cart failed:', error);
+    }
   };
 
-  const handleProductClick = (product) => {
-    navigate(`/product-detail/${product._id}`, { state: { product } });
+  const handleProductClick = (product, e) => {
+    e?.stopPropagation();
+    navigate(`/product-detail/${product._id}`, { state: { productId: product._id } });
   };
 
   // Calculate pagination
@@ -160,7 +205,7 @@ const JewelleryEveryMoment = () => {
           <>
             <div className="grid xl:gap-[20px] xl:mx-24 md:mx-10 lg:mx-5 mx-4 gap-[15px] grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 justify-items-center">
               {currentProducts.map((product, idx) => {
-                const isInWishlist = wishlist.some((item) => item.id === product._id);
+                const isInWishlist = wishlist.some((item) => item.productId?._id === product._id);
                 const discountedPrice = calculateDiscountedPrice(product.price, product.discount);
 
                 return (
@@ -180,8 +225,9 @@ const JewelleryEveryMoment = () => {
                     {/* Action Buttons */}
                     <div className="absolute top-3 right-3 flex flex-col gap-2 z-10">
                       <button
-                        onClick={() => handleAddToWishlist(product)}
-                        className="p-2 bg-white rounded-full shadow hover:scale-110 transition-transform"
+                        type="button"
+                        onClick={(e) => handleAddToWishlist(product, e)}
+                        className="p-2 bg-white rounded-full shadow hover:scale-110 transition-transform z-20"
                       >
                         <img
                           src={isInWishlist ? likeFilled : like}
@@ -194,7 +240,7 @@ const JewelleryEveryMoment = () => {
                     {/* Product Image */}
                     <div
                       className="cursor-pointer"
-                      onClick={() => handleProductClick(product)}
+                      onClick={(e) => handleProductClick(product, e)}
                     >
                       <img
                         src={product.productimage}
@@ -207,10 +253,11 @@ const JewelleryEveryMoment = () => {
                     </div>
 
                     {/* Add to Cart Button */}
-                    <div className="absolute bottom-20 w-full px-3">
+                    <div className="absolute bottom-20 w-full px-3 z-10">
                       <button
-                        onClick={() => handleAddToCart(product)}
-                        className="w-full bg-white text-gray-800 font-kufam py-3 shadow-lg hover:bg-gray-100 transition-all rounded font-semibold"
+                        type="button"
+                        onClick={(e) => handleAddToCart(product, e)}
+                        className="w-full bg-white text-gray-800 font-kufam py-3 shadow-lg hover:bg-gray-100 transition-all rounded font-semibold z-20"
                       >
                         Add To Cart
                       </button>
@@ -219,8 +266,8 @@ const JewelleryEveryMoment = () => {
                     {/* Product Details */}
                     <div className={`${theme === "dark" ? "bg-white text-black " : "bg-[#262626] text-white"} p-4`}>
                       <h3
-                        className="text-lg font-semibold cursor-pointer mt-3"
-                        onClick={() => handleProductClick(product)}
+                        className="text-lg font-semibold cursor-pointer mt-3 hover:text-[#C79954] transition-colors"
+                        onClick={(e) => handleProductClick(product, e)}
                       >
                         {product.productname}
                       </h3>

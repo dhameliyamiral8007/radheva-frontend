@@ -52,10 +52,23 @@ export const processPayment = async (paymentData) => {
     }
 };
 
+export const fetchOrderHistory = async () => {
+    try {
+        const { data } = await apiInstance.get(`${baseUrl}/user/order/orderHistory`);
+        return data;
+    } catch (error) {
+        if (error.response?.data) {
+            return error.response.data;
+        }
+        throw error;
+    }
+};
+
 export default {
     applyDiscountCode,
     placeOrder,
     processPayment,
+    fetchOrderHistory,
 };
 
 

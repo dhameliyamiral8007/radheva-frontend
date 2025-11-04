@@ -17,6 +17,9 @@ const PaymentFlow = () => {
     const [discountIsError, setDiscountIsError] = useState(false);
     const [isPlacingOrder, setIsPlacingOrder] = useState(false);
     const [isRazorpayLoaded, setIsRazorpayLoaded] = useState(false);
+    const [showSuccessModal, setShowSuccessModal] = useState(false);
+    const [countdown, setCountdown] = useState(5);
+    const [successMessage, setSuccessMessage] = useState("");
     
     // Form fields state
     const [email, setEmail] = useState("");
@@ -147,6 +150,24 @@ const PaymentFlow = () => {
         fetchUserProfile();
     }, []);
 
+    // Countdown timer for auto-redirect
+    useEffect(() => {
+        if (showSuccessModal && countdown > 0) {
+            const timer = setTimeout(() => {
+                setCountdown(countdown - 1);
+            }, 1000);
+            return () => clearTimeout(timer);
+        } else if (showSuccessModal && countdown === 0) {
+            // Auto-redirect after countdown
+            navigate('/order-history');
+        }
+    }, [showSuccessModal, countdown, navigate]);
+
+    const handleSuccessModalClose = () => {
+        setShowSuccessModal(false);
+        navigate('/order-history');
+    };
+
     const handleService = () => {
         navigate("/terms-condition")
     }
@@ -232,9 +253,9 @@ console.log("orderData =",orderData);
                         });
 
                         if (paymentResponse?.IsSuccess) {
-                            alert(paymentResponse?.Message || "Payment successful! Order placed successfully!");
-                            // Optionally navigate to success page or clear cart
-                            navigate("/order-success");
+                            setSuccessMessage(paymentResponse?.Message || "Payment successful! Order placed successfully!");
+                            setShowSuccessModal(true);
+                            setCountdown(5);
                         } else {
                             alert(paymentResponse?.Message || "Payment verification failed. Please contact support.");
                         }
@@ -753,6 +774,54 @@ console.log("orderData =",orderData);
                     </div>
                 </div>
             </div>
+
+            {/* Success Modal */}
+            {showSuccessModal && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 px-4">
+                    <div className="bg-white rounded-lg p-8 max-w-md w-full mx-4 text-center relative">
+                        {/* Success Icon */}
+                        <div className="mb-4">
+                            <div className="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-green-100">
+                                <svg
+                                    className="h-10 w-10 text-green-600"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    viewBox="0 0 24 24"
+                                >
+                                    <path
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                        strokeWidth={2}
+                                        d="M5 13l4 4L19 7"
+                                    />
+                                </svg>
+                            </div>
+                        </div>
+
+                        {/* Success Message */}
+                        <h2 className="text-2xl font-bold text-gray-900 mb-2">Success!</h2>
+                        <p className="text-gray-600 mb-6">{successMessage}</p>
+
+                        {/* Countdown Timer */}
+                        <div className="mb-6">
+                            <p className="text-sm text-gray-500 mb-2">
+                                Redirecting to order history in
+                            </p>
+                            <div className="text-4xl font-bold text-[#C79954]">
+                                {countdown}
+                            </div>
+                        </div>
+
+                        {/* OK Button */}
+                        <button
+                            onClick={handleSuccessModalClose}
+                            className="w-full bg-[#C79954] text-white py-3 rounded-md font-semibold hover:bg-[#B5904F] transition-colors"
+                        >
+                            OK
+                        </button>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };

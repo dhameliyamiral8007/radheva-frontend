@@ -1,5 +1,6 @@
 import React, { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
 import { useTheme } from "../../config/hooks/useTheme.jsx";
 import underline from "../../../assets/about/underline.svg";
 import necklace from "../../../assets/necklace.png";
@@ -8,10 +9,12 @@ import luxuryImg from "../../../assets/necklaceHome.png";
 import jewelImg from "../../../assets/handRing.svg";
 import diomand from "../../../assets/diomand_ring.svg";
 import { fetchBanner } from "../../redux/slice/HomeBannerSlice.jsx";
+import { setProductFilter } from "../../redux/slice/ProductFilterSlice";
 
 const CuratedRadiance = () => {
   const { colors, theme } = useTheme();
   const dispatch = useDispatch();
+  const navigate = useNavigate();
 
   // Get the entire banner state
   const bannerState = useSelector((state) => state.banner);
@@ -105,6 +108,23 @@ const CuratedRadiance = () => {
     // return defaultDescriptions[index];
   };
 
+  // Helper function to get collection ID from banner
+  const getBannerCollectionId = (index) => {
+    return banners[index]?.collectionid?._id || banners[index]?.collectionid?.id || null;
+  };
+
+  // Handle Shop Now button click
+  const handleShopNowClick = (index) => {
+    const collectionId = getBannerCollectionId(index);
+    if (collectionId) {
+      dispatch(setProductFilter({ navigationID: null, collectionID: collectionId, collectionItemID: null }));
+      navigate('/products');
+    } else {
+      // If no collection ID, just navigate to products page
+      navigate('/products');
+    }
+  };
+
   return (
     <div className={`${colors.firstPart.background} ${colors.firstPart.text} w-full`}>
       <div className="text-center py-4 sm:py-5 px-4 sm:px-6 lg:px-8">
@@ -140,9 +160,6 @@ const CuratedRadiance = () => {
             src={getBannerImage(0)}
             alt={getBannerTitle(0)}
             className="w-full lg:w-[900px] md:w-[768px] h-auto xl:h-[780px] lg:h-[550px] md:h-[700px] sm:h-[500px] object-cover"
-            onError={(e) => {
-              e.target.src = defaultImages[0];
-            }}
           />
           <div className="absolute inset-0 flex justify-end md:justify-end items-start lg:items-start xl:top-[110px] lg:top-[80px] md:top-[100px] top-[70px] right-3 sm:right-6 md:right-5 lg:right-[0px] xl:right-[60px]">
             <div className="max-w-[280px] sm:max-w-[320px] md:max-w-[350px] lg:max-w-[299px]">
@@ -153,7 +170,10 @@ const CuratedRadiance = () => {
                 {getBannerDescription(0)}
               </p>
               <div className="w-full flex justify-center">
-                <button className="bg-[#B5904F] text-white px-3 sm:px-4 md:px-[16px] py-2 sm:py-[10px] rounded-[8px] font-kufam hover:bg-[#B8A076] transition-colors text-sm sm:text-base">
+                <button 
+                  onClick={() => handleShopNowClick(0)}
+                  className="bg-[#B5904F] text-white px-3 sm:px-4 md:px-[16px] py-2 sm:py-[10px] rounded-[8px] font-kufam hover:bg-[#B8A076] transition-colors text-sm sm:text-base"
+                >
                   Shop Now
                 </button>
               </div>
@@ -169,9 +189,6 @@ const CuratedRadiance = () => {
               src={getBannerImage(1)}
               alt={getBannerTitle(1)}
               className="w-full lg:w-[756px] xl:h-[374px] lg:h-[306px] md:h-[300px] h-[250px] object-cover"
-              onError={(e) => {
-                e.target.src = defaultImages[1];
-              }}
             />
             <div className="absolute inset-0 flex flex-col justify-start items-start top-4 sm:top-6 md:top-8 lg:top-[60px] w-[90%] xl:w-[448px] lg:w-[250px] left-3 sm:left-4 xl:left-[30px] lg:left-4 text-left sm:text-center">
               <div className="text-white">
@@ -181,7 +198,10 @@ const CuratedRadiance = () => {
                 <p className="text-xs sm:text-sm md:text-base text-start mb-12 sm:mb-6 md:mb-8 lg:mb-20 xl:mx-10 lg:mx-0 font-medium text-[#CFCFCF] leading-relaxed max-sm:w-[270px]">
                   {getBannerDescription(1)}
                 </p>
-                <button className="bg-[#548AA6] text-white px-[16px] py-[10px] font-kufam rounded-[8px] transition-colors text-sm sm:text-base self-start sm:self-center">
+                <button 
+                  onClick={() => handleShopNowClick(1)}
+                  className="bg-[#548AA6] text-white px-[16px] py-[10px] font-kufam rounded-[8px] transition-colors text-sm sm:text-base self-start sm:self-center"
+                >
                   Shop Now
                 </button>
               </div>
@@ -195,9 +215,6 @@ const CuratedRadiance = () => {
                 src={getBannerImage(2)}
                 alt={getBannerTitle(2)}
                 className="w-full sm:w-[368px] h-auto sm:h-[390px] xl:h-[390px] md:h-[350px] lg:h-auto object-contain xl:object-cover lg:object-contain md:object-cover"
-                onError={(e) => {
-                  e.target.src = defaultImages[2];
-                }}
               />
               <div className="absolute inset-0 flex justify-end items-start right-3 sm:right-4 mxl:right-6 md:right-4">
                 <div className="text-white text-right mt-5 sm:mt-4 xl:mt-6 md:mt-3">
@@ -207,7 +224,10 @@ const CuratedRadiance = () => {
                   <p className="text-[12px] sm:text-[12px] md:text-[14px] tracking-[0px] mb-12 sm:mb-6 xl:mb-10 md:mb-24 font-medium leading-relaxed">
                     {getBannerDescription(2)}
                   </p>
-                  <button className="bg-[#BFAC40] text-[11px] sm:text-[12px] md:text-[14px] tracking-[0px] px-[12px] py-[6px] rounded-[4px] font-kufam">
+                  <button 
+                    onClick={() => handleShopNowClick(2)}
+                    className="bg-[#BFAC40] text-[11px] sm:text-[12px] md:text-[14px] tracking-[0px] px-[12px] py-[6px] rounded-[4px] font-kufam"
+                  >
                     Shop Now
                   </button>
                 </div>
@@ -218,9 +238,6 @@ const CuratedRadiance = () => {
                 src={getBannerImage(3)}
                 alt={getBannerTitle(3)}
                 className="w-full sm:w-[368px] h-auto sm:h-[390px] xl:h-[390px] md:h-[350px] lg:h-auto object-contain xl:object-cover lg:object-contain md:object-cover"
-                onError={(e) => {
-                  e.target.src = defaultImages[3];
-                }}
               />
               <div className="absolute inset-0 left-3 sm:left-4 xl:left-6 lg:left-3">
                 <div className="text-white mt-5 sm:mt-6 xl:mt-8 lg:mt-4">
@@ -230,7 +247,10 @@ const CuratedRadiance = () => {
                   <p className="text-[12px] sm:text-[12px] xl:text-[14px] lg:text-[14px] mb-12 sm:mb-6 xl:mb-12 lg:mb-[70px] md:mb-[92px] font-kufam tracking-[0px] leading-relaxed">
                     {getBannerDescription(3)}
                   </p>
-                  <button className="bg-[#7FD7DA] text-black text-[11px] sm:text-[12px] md:text-[14px] tracking-[0px] px-[12px] py-[6px] rounded-[4px] font-kufam">
+                  <button 
+                    onClick={() => handleShopNowClick(3)}
+                    className="bg-[#7FD7DA] text-black text-[11px] sm:text-[12px] md:text-[14px] tracking-[0px] px-[12px] py-[6px] rounded-[4px] font-kufam"
+                  >
                     Shop Now
                   </button>
                 </div>
@@ -248,9 +268,6 @@ const CuratedRadiance = () => {
               src={getBannerImage(4)}
               alt={getBannerTitle(4)}
               className="xl:w-[900px] lg:w-[550px] md:w-[700px] md:h-[300px] h-[250px] object-cover"
-              onError={(e) => {
-                e.target.src = defaultImages[4];
-              }}
             />
           </div>
 
@@ -261,7 +278,10 @@ const CuratedRadiance = () => {
             <p className={`text-[#CFCFCF] leading-snug text-[16px] font-kufam tracking-[0px] xl:mb-14 lg:mb-10 md:mb-14 mb-6 md:w-[450px] lg:w-full ${theme === "dark" ? "text-black" : "text-[#475569]"}`}>
               {getBannerDescription(4)}
             </p>
-            <button className="bg-[#B5904F] text-white px-[16px] py-[10px] font-kufam rounded-[8px] transition-colors text-sm sm:text-base self-start cursor-pointer">
+            <button 
+              onClick={() => handleShopNowClick(4)}
+              className="bg-[#B5904F] text-white px-[16px] py-[10px] font-kufam rounded-[8px] transition-colors text-sm sm:text-base self-start cursor-pointer"
+            >
               Find Your Sparkle
             </button>
           </div>

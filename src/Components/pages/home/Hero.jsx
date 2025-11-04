@@ -1,8 +1,11 @@
 import { useEffect, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
+import { useNavigate } from "react-router-dom";
 import { fetchSliders } from "../../redux/slice/sliderSlice";
+import { setProductFilter } from "../../redux/slice/ProductFilterSlice";
 const Hero = () => {
 	const dispatch = useDispatch();
+	const navigate = useNavigate();
 	const { data: images, loading, error } = useSelector((state) => state.slider);
 	const [currentSlide, setCurrentSlide] = useState(0);
 
@@ -23,6 +26,23 @@ const Hero = () => {
 		setCurrentSlide(index);
 	};
 
+	// Handle button click - navigate to products with collection ID
+	const handleButtonClick = (item, e) => {
+		e.preventDefault();
+		e.stopPropagation();
+		console.log('Button clicked, item:', item);
+		const collectionId = item?.collectionid?._id || item?.collectionid?.id || null;
+		console.log('Collection ID:', collectionId);
+		if (collectionId) {
+			dispatch(setProductFilter({ navigationID: null, collectionID: collectionId, collectionItemID: null }));
+			navigate('/products');
+		} else {
+			// If no collection ID, just navigate to products page
+			console.log('No collection ID, navigating to products');
+			navigate('/products');
+		}
+	};
+
 	if (loading) return <div className="h-[600px] flex items-center justify-center">Loading...</div>;
 	if (error) return <div className="h-[600px] flex items-center justify-center text-red-500">{String(error)}</div>;
 	if (!images.length) return null;
@@ -34,7 +54,7 @@ const Hero = () => {
 					<div
 						key={item._id || index}
 						className={`absolute inset-0 transition-opacity duration-1000 
-							${index === currentSlide ? "opacity-100" : "opacity-0"}
+							${index === currentSlide ? "opacity-100" : "opacity-0 pointer-events-none"}
 							`}
 					>
 						<img
@@ -61,7 +81,11 @@ const Hero = () => {
 								</div>
 								<div className="flex flex-col items-start w-auto gap-2">
 									<div className="inline-flex flex-col items-center gap-2 px-6 py-3 rounded-xl">
-										<button className="inline-flex items-center gap-3 px-6 py-3 rounded-xl btn-accent w-auto">
+										<button 
+											type="button"
+											onClick={(e) => handleButtonClick(item, e)}
+											className="inline-flex items-center gap-3 px-6 py-3 rounded-xl btn-accent w-auto cursor-pointer z-10 relative"
+										>
 											<span className="text-sm font-medium">
 												{item.buttontxt}
 											</span>

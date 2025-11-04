@@ -28,6 +28,8 @@ const Header = () => {
   const { theme, toggleTheme, colors } = useTheme();
   // use cart context for cart popup open/close
   const [openMobileMenu, setOpenMobileMenu] = useState(null);
+  const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false);
+  const profileRef = useRef(null);
 
   const { cartCount, isCartOpen, openCart, closeCart } = useCart();
   const navigate = useNavigate();
@@ -100,11 +102,24 @@ const Header = () => {
       if (shopRef.current && !shopRef.current.contains(event.target)) {
         setIsShopOpen(false);
       }
+      if (profileRef.current && !profileRef.current.contains(event.target)) {
+        setIsProfileDropdownOpen(false);
+      }
     };
 
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
+
+  // Handle logout
+  const handleLogout = () => {
+    localStorage.removeItem('uuid');
+    localStorage.removeItem('token');
+    localStorage.removeItem('jwt');
+    setIsProfileDropdownOpen(false);
+    navigate('/');
+    window.location.reload(); // Reload to update header state
+  };
 
   const handleShopClick = () => {
     // console.log("🖱️ Shop clicked", { 
@@ -240,13 +255,57 @@ const Header = () => {
                 const isLoggedIn = Boolean(localStorage.getItem('uuid') || localStorage.getItem('token') || localStorage.getItem('jwt'));
                 if (!isLoggedIn) return null;
                 return (
-                  <button className={`p-1 rounded-full`} onClick={() => navigate('/profile')}>
-                    <img
-                      src={person}
-                      alt="profile"
-                      className={`h-5 w-5 ${theme === "dark" ? "invert" : ""}`}
-                    />
-                  </button>
+                  <div className="relative" ref={profileRef}>
+                    <button 
+                      className={`p-1 rounded-full`} 
+                      onClick={() => setIsProfileDropdownOpen(!isProfileDropdownOpen)}
+                    >
+                      <img
+                        src={person}
+                        alt="profile"
+                        className={`h-5 w-5 ${theme === "dark" ? "invert" : ""}`}
+                      />
+                    </button>
+                    {/* Profile Dropdown */}
+                    {isProfileDropdownOpen && (
+                      <div className={`absolute right-0 mt-2 w-48 rounded-lg shadow-lg z-50 ${
+                        theme === "dark" ? "bg-white" : "bg-white"
+                      }`}>
+                        <div className="py-1">
+                          <button
+                            onClick={() => {
+                              setIsProfileDropdownOpen(false);
+                              navigate('/profile');
+                            }}
+                            className={`block w-full text-left px-4 py-2 text-sm hover:bg-gray-100 ${
+                              theme === "dark" ? "text-black" : "text-black"
+                            }`}
+                          >
+                            User Profile
+                          </button>
+                          <button
+                            onClick={() => {
+                              setIsProfileDropdownOpen(false);
+                              navigate('/order-history');
+                            }}
+                            className={`block w-full text-left px-4 py-2 text-sm hover:bg-gray-100 ${
+                              theme === "dark" ? "text-black" : "text-black"
+                            }`}
+                          >
+                            Order History
+                          </button>
+                          <button
+                            onClick={handleLogout}
+                            className={`block w-full text-left px-4 py-2 text-sm hover:bg-gray-100 ${
+                              theme === "dark" ? "text-black" : "text-black"
+                            }`}
+                          >
+                            Logout
+                          </button>
+                        </div>
+                      </div>
+                    )}
+                  </div>
                 );
               })()}
 
@@ -435,7 +494,13 @@ const Header = () => {
               const isLoggedIn = Boolean(localStorage.getItem('uuid') || localStorage.getItem('token') || localStorage.getItem('jwt'));
               if (!isLoggedIn) return null;
               return (
-                <button className={`p-1 rounded-full`} onClick={() => { setIsMobileMenuOpen(false); navigate('/profile'); }}>
+                <button 
+                  className={`p-1 rounded-full`} 
+                  onClick={() => { 
+                    setIsMobileMenuOpen(false); 
+                    navigate('/profile'); 
+                  }}
+                >
                   <img
                     src={person}
                     alt="profile"

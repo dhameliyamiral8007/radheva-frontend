@@ -78,10 +78,14 @@ const SolitairesRing = () => {
     // seed filters from Redux (navigationID / collectionID / collectionItemID)
     const { navigationID, collectionID, collectionItemID } = productFilter || {};
 
+    console.log('Product filter from Redux:', { navigationID, collectionID, collectionItemID });
+
     const next = {};
     if (navigationID) next.navigationID = [navigationID];
     if (collectionID) next.collectionID = [collectionID];
     if (collectionItemID) next.collectionItemID = [collectionItemID];
+
+    console.log('Setting selectedFilters:', next);
 
     // Replace entirely so stale IDs are removed when switching
     setSelectedFilters(next);
@@ -482,13 +486,21 @@ const SolitairesRing = () => {
 
   useEffect(() => {
     const fetchFilteredData = async () => {
-    const filteredProducts = await fetchFilteredProducts({
+    const filterPayload = {
       ...selectedFilters,
       ...(selectedSort ? { sort: [selectedSort] } : {}),
-    });
+    };
+    
+    console.log('Fetching filtered products with filters:', filterPayload);
+    console.log('Collection ID from filters:', filterPayload.collectionID);
+    
+    const filteredProducts = await fetchFilteredProducts(filterPayload);
 
     if (filteredProducts?.Data) {
+      console.log('Filtered products received:', filteredProducts.Data.length, 'products');
       setProducts(filteredProducts.Data);
+    } else {
+      console.warn('No products data in response:', filteredProducts);
     }
     };
 
