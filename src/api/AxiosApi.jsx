@@ -36,8 +36,27 @@ apiInstance.interceptors.response.use(
     (response) => response,
     (error) => {
         if (error.response?.status === 401) {
-            localStorage.removeItem('uuid');  // remove token on 401
-            window.location.href = '/login';   // redirect to login
+            const req = error.config || {};
+            const url = (req.url || '').toLowerCase();
+            const method = (req.method || 'get').toLowerCase();
+
+            // Define endpoints that truly require auth and should redirect on 401
+            const requiresAuthPaths = [
+                '/client/cart',
+                '/client/wishlist',
+                '/client/profile',
+                '/client/order',
+                '/client/payment',
+            ];
+
+            const shouldRedirect = requiresAuthPaths.some(p => url.includes(p));
+
+            if (shouldRedirect) {
+                localStorage.removeItem('uuid');
+                window.location.href = '/login';
+                return; // stop further processing
+            }
+            // For public endpoints (like product details, gold price, listings), do NOT redirect
         }
         return Promise.reject(error);
     }

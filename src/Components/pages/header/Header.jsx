@@ -14,6 +14,7 @@ import Cart from "../../../assets/cart.png";
 import wishList from "../../../assets/wishlist.png";
 import CartPopup from "../cart/CartPopup.jsx";
 import { useCart } from "../../context/CartProvider.jsx";
+import { useWishlist } from "../../context/WishListProvider.jsx";
 import ShopMenu from "../shop/Shop.jsx";
 import { useDispatch } from "react-redux";
 import { fetchNavigationMenu } from "../../redux/slice/NavigationMenuSlice.jsx";
@@ -32,6 +33,7 @@ const Header = () => {
   const profileRef = useRef(null);
 
   const { cartCount, isCartOpen, openCart, closeCart } = useCart();
+  const { wishlist } = useWishlist();
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -309,16 +311,23 @@ const Header = () => {
                 );
               })()}
 
-              <button
-                className={`p-1 rounded-full hover:bg-opacity-20`}
-                onClick={() => navigate("/wishlist")}
-              >
-                <img
-                  src={wishList}
-                  alt="wishlist"
-                  className={`h-5 w-5 ${theme === "dark" ? "invert" : ""}`}
-                />
-              </button>
+              <div className="relative">
+                <button
+                  className={`p-1 rounded-full hover:bg-opacity-20`}
+                  onClick={() => navigate("/wishlist")}
+                >
+                  <img
+                    src={wishList}
+                    alt="wishlist"
+                    className={`h-5 w-5 ${theme === "dark" ? "invert" : ""}`}
+                  />
+                </button>
+                {Array.isArray(wishlist) && wishlist.length > 0 && (
+                  <span className="absolute -top-2 -right-2 bg-[#C79954] text-white text-xs font-bold px-2 py-0.5 rounded-full">
+                    {wishlist.length}
+                  </span>
+                )}
+              </div>
 
               <div className="relative">
                 <button
@@ -509,13 +518,20 @@ const Header = () => {
                 </button>
               );
             })()}
-            <button className={`p-1 rounded-full hover:bg-opacity-20`}>
-              <img
-                src={wishList}
-                alt="wishlist"
-                className={`h-5 w-5 ${theme === "dark" ? "invert" : ""}`}
-              />
-            </button>
+            <div className="relative">
+              <button className={`p-1 rounded-full hover:bg-opacity-20`} onClick={() => { setIsMobileMenuOpen(false); navigate('/wishlist'); }}>
+                <img
+                  src={wishList}
+                  alt="wishlist"
+                  className={`h-5 w-5 ${theme === "dark" ? "invert" : ""}`}
+                />
+              </button>
+              {Array.isArray(wishlist) && wishlist.length > 0 && (
+                <span className="absolute -top-1 -right-1 bg-[#C79954] text-white text-xs font-bold px-1 rounded-full min-w-[16px] h-4 flex items-center justify-center">
+                  {wishlist.length}
+                </span>
+              )}
+            </div>
             <button
               className={`p-1 rounded-full hover:bg-opacity-20 relative`}
               onClick={() => {

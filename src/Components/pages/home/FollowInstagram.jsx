@@ -1,6 +1,9 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useTheme } from "../../config/hooks/useTheme.jsx";
 import underline from "../../../assets/about/underline.svg";
+import { useLocation } from "react-router-dom";
+import AOS from "aos";
+import "aos/dist/aos.css";
 
 // Import your images here
 import Ring from "../../../assets/about/ring.svg";
@@ -11,6 +14,7 @@ import leftArrow from "../../../assets/about/leftArrow.svg";
 import rightArrow from "../../../assets/about/rightArrow.svg";
 const FollowInstagram = () => {
     const { colors } = useTheme();
+    const location = useLocation();
     const [currentPage, setCurrentPage] = useState(1);
     const itemsPerPage = 4;
     const products = [
@@ -27,10 +31,26 @@ const FollowInstagram = () => {
             setCurrentPage(pageNumber);
         }
     };
+
+    // Initialize AOS on route change (match About/CuratedRadiance behavior)
+    useEffect(() => {
+        const t = setTimeout(() => {
+            AOS.init({
+                offset: 200,
+                delay: 0,
+                duration: 1000,
+                easing: "ease",
+                once: false,
+                mirror: true,
+            });
+            AOS.refresh();
+        }, 100);
+        return () => clearTimeout(t);
+    }, [location]);
     return (
         <div className={`${colors.secondPart.background} ${colors.secondPart.text} w-full`}>
             {/* Title */}
-            <div className="text-center py-4 sm:py-5 px-4 sm:px-6 lg:px-8">
+            <div className="text-center py-4 sm:py-5 px-4 sm:px-6 lg:px-8" data-aos="fade-down">
                 <h2 className="md:text-[38px] text-[22px] leading-[100%] tracking-[0px] font-belleza inline-flex flex-col items-center gap-[12px]">
                     FOLLOW US ON INSTAGRAM
                     <img
@@ -44,9 +64,11 @@ const FollowInstagram = () => {
             {/* Products Grid */}
             <div className="flex flex-col gap-[20px] justify-center py-5">
                 <div className="grid xl:gap-[20px] xl:mx-24 md:mx-10 lg:mx-5 mx-4 gap-[15px] grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 justify-items-center">
-                    {products.map((product) => (
+                    {products.map((product, idx) => (
                         <div
                             key={product.id}
+                            data-aos={idx % 2 === 0 ? "fade-up" : "fade-down"}
+                            data-aos-delay={(idx % 4) * 100}
                             className="relative gap-[4px] flex flex-col shadow-md hover:shadow-lg transition-transform duration-300 overflow-hidden"
                         >
                             <img
@@ -58,7 +80,7 @@ const FollowInstagram = () => {
                     ))}
                 </div>
                 {/* Pagination Controls - Moved outside and positioned to right */}
-                <div className="flex justify-end items-center xl:mx-24 md:mx-10 mx-4">
+                <div className="flex justify-end items-center xl:mx-24 md:mx-10 mx-4" data-aos="fade-up" data-aos-delay="150">
                     <button
                         onClick={() => paginate(currentPage - 1)}
                         disabled={currentPage === 1}

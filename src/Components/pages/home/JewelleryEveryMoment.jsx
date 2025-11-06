@@ -213,7 +213,7 @@ const JewelleryEveryMoment = () => {
                     key={product._id}
                     data-aos="fade-up"
                     data-aos-delay={idx * 100}
-                    className="relative w-full max-w-[368px] h-auto flex flex-col shadow-md hover:shadow-lg transition-all duration-300 overflow-hidden bg-white"
+                    className={`group relative w-full max-w-[368px] h-auto flex flex-col shadow-md hover:shadow-lg transition-all duration-300 overflow-hidden ${theme === "dark" ? "bg-white text-black" : "bg-[#1f1f1f] text-white"}`}
                   >
                     {/* Discount Badge */}
                     {product.discount > 0 && (
@@ -237,36 +237,37 @@ const JewelleryEveryMoment = () => {
                       </button>
                     </div>
 
-                    {/* Product Image */}
-                    <div
-                      className="cursor-pointer"
-                      onClick={(e) => handleProductClick(product, e)}
-                    >
-                      <img
-                        src={product.productimage}
-                        alt={product.productname}
-                        className="w-full h-[280px] object-cover hover:scale-105 transition-transform duration-300"
-                        onError={(e) => {
-                          e.target.src = 'https://via.placeholder.com/368x280?text=Image+Not+Found';
-                        }}
-                      />
-                    </div>
-
-                    {/* Add to Cart Button */}
-                    <div className="absolute bottom-20 w-full px-3 z-10">
-                      <button
-                        type="button"
-                        onClick={(e) => handleAddToCart(product, e)}
-                        className="w-full bg-white text-gray-800 font-kufam py-3 shadow-lg hover:bg-gray-100 transition-all rounded font-semibold z-20"
+                    {/* Product Image + Hover CTA */}
+                    <div className="relative">
+                      <div
+                        className="cursor-pointer"
+                        onClick={(e) => handleProductClick(product, e)}
                       >
-                        Add To Cart
-                      </button>
+                        <img
+                          src={product.productimage}
+                          alt={product.productname}
+                          className="w-full h-[280px] object-cover group-hover:scale-[1.02] transition-transform duration-300"
+                          onError={(e) => {
+                            e.target.src = 'https://via.placeholder.com/368x280?text=Image+Not+Found';
+                          }}
+                        />
+                      </div>
+                      {/* Hover-only Add to Cart overlay */}
+                      <div className="absolute left-0 right-0 bottom-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 px-3 pb-3">
+                        <button
+                          type="button"
+                          onClick={(e) => handleAddToCart(product, e)}
+                          className={`${theme === "dark" ? "bg-[#1f2937] text-white hover:bg-[#111827]" : "bg-white text-[#1f2937] hover:bg-gray-100"} w-full font-kufam py-3 shadow-lg rounded font-semibold`}
+                        >
+                          Add To Cart
+                        </button>
+                      </div>
                     </div>
 
                     {/* Product Details */}
-                    <div className={`${theme === "dark" ? "bg-white text-black " : "bg-[#262626] text-white"} p-4`}>
+                    <div className={`${theme === "dark" ? "bg-white text-black" : "bg-[#262626] text-white"} p-4 pt-4`}> 
                       <h3
-                        className="text-lg font-semibold cursor-pointer mt-3 hover:text-[#C79954] transition-colors"
+                        className={`text-lg font-semibold cursor-pointer mt-3 transition-colors ${theme === "dark" ? "hover:text-[#C79954]" : "hover:text-[#C79954]"}`}
                         onClick={(e) => handleProductClick(product, e)}
                       >
                         {product.productname}

@@ -5,6 +5,8 @@ import leftArrow from "../../../assets/about/leftArrow.svg";
 import rightArrow from "../../../assets/about/rightArrow.svg";
 import { useNavigate } from "react-router-dom";
 import { apiInstance } from "../../../api/AxiosApi";
+import AOS from "aos";
+import "aos/dist/aos.css";
 
 // Map API doc to UI shape
 const mapApiDoc = (doc) => ({
@@ -54,6 +56,14 @@ const TrustedReviews = () => {
     return () => { mounted = false };
   }, []);
 
+  // Initialize AOS for card-level animations only
+  useEffect(() => {
+    try {
+      AOS.init({ offset: 150, duration: 800, easing: "ease", once: false, mirror: true });
+      AOS.refresh();
+    } catch {}
+  }, []);
+
   // Calculate pagination
   const indexOfLast = currentPage * reviewsPerPage;
   const indexOfFirst = indexOfLast - reviewsPerPage;
@@ -77,9 +87,11 @@ const TrustedReviews = () => {
         {loading && (
           <div className="col-span-full text-center py-8 opacity-70">Loading reviews...</div>
         )}
-        {!loading && currentReviews.map((review) => (
+        {!loading && currentReviews.map((review, idx) => (
           <div
             key={review.id}
+            data-aos="fade-up"
+            data-aos-delay={(idx % 4) * 100}
             className="bg-[#FFFFFF] shadow p-[20px] flex flex-col gap-4"
           >
             {/* Header */}
@@ -111,7 +123,7 @@ const TrustedReviews = () => {
       {/* Pagination & footer */}
       <div className="flex flex-col-reverse md:flex-row justify-between md:justify-end items-end md:items-center gap-2 px-4 md:px-10 xl:px-24 mt-6">
         {/* Stars & Reviews */}
-        <div className="flex justify-end items-center gap-2">
+        <div className="flex justify-end items-center gap-2" data-aos="fade-up" data-aos-delay="100">
           <Stars rating={4} />
           <span className="text-sm font-kufam font-normal">{items.length} Reviews</span>
           {/* <a onClick={handleAllReviews} className="text-[#D9D9D9] font-semibold underline cursor-pointer">
@@ -120,7 +132,7 @@ const TrustedReviews = () => {
         </div>
 
         {/* Pagination Buttons */}
-        <div className="flex gap-2">
+        <div className="flex gap-2" data-aos="fade-up" data-aos-delay="150">
           <button
             onClick={() => paginate(currentPage - 1)}
             disabled={currentPage === 1}

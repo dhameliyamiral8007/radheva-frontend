@@ -13,6 +13,16 @@ const RouteChangeLoader = () => {
     return () => clearTimeout(t);
   }, [location]);
 
+  useEffect(() => {
+    // Scroll to top on route (pathname or search) change
+    try {
+      window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+    } catch {
+      // fallback for browsers without behavior option
+      window.scrollTo(0, 0);
+    }
+  }, [location.pathname, location.search]);
+
   return loading ? <Loader /> : null;
 };
 

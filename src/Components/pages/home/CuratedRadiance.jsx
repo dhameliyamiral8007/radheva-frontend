@@ -10,11 +10,15 @@ import jewelImg from "../../../assets/handRing.svg";
 import diomand from "../../../assets/diomand_ring.svg";
 import { fetchBanner } from "../../redux/slice/HomeBannerSlice.jsx";
 import { setProductFilter } from "../../redux/slice/ProductFilterSlice";
+import { useLocation } from "react-router-dom";
+import AOS from "aos";
+import "aos/dist/aos.css";
 
 const CuratedRadiance = () => {
   const { colors, theme } = useTheme();
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const location = useLocation();
 
   // Get the entire banner state
   const bannerState = useSelector((state) => state.banner);
@@ -28,6 +32,22 @@ const CuratedRadiance = () => {
   useEffect(() => {
     dispatch(fetchBanner());
   }, [dispatch]);
+
+  // AOS animation init similar to About.jsx
+  useEffect(() => {
+    const t = setTimeout(() => {
+      AOS.init({
+        offset: 200,
+        delay: 0,
+        duration: 1200,
+        easing: "ease",
+        once: false,
+        mirror: true,
+      });
+      AOS.refresh();
+    }, 100);
+    return () => clearTimeout(t);
+  }, [location]);
 
   // Debug: Check what's in the state
   // useEffect(() => {
@@ -127,7 +147,7 @@ const CuratedRadiance = () => {
 
   return (
     <div className={`${colors.firstPart.background} ${colors.firstPart.text} w-full`}>
-      <div className="text-center py-4 sm:py-5 px-4 sm:px-6 lg:px-8">
+      <div className="text-center py-4 sm:py-5 px-4 sm:px-6 lg:px-8" data-aos="fade-down">
         <h2 className="text-[20px] sm:text-[26px] md:text-[36px] lg:text-[44px] leading-[100%] tracking-[0px] font-belleza inline-flex flex-col items-center gap-[8px] sm:gap-[12px]">
           Curated Radiance
           <img
@@ -155,13 +175,13 @@ const CuratedRadiance = () => {
       {/* Grid Layout */}
       <div className="flex flex-col lg:flex-row xl:mx-24 lg:mx-5 md:mx-4 mx-4 justify-center items-stretch gap-4 sm:gap-5 md:gap-4">
         {/* Top Left - Large Banner */}
-        <div className="relative w-full lg:w-auto">
+        <div className="relative w-full lg:w-auto" data-aos="fade-right">
           <img
             src={getBannerImage(0)}
             alt={getBannerTitle(0)}
             className="w-full lg:w-[900px] md:w-[768px] h-auto xl:h-[780px] lg:h-[550px] md:h-[700px] sm:h-[500px] object-cover"
           />
-          <div className="absolute inset-0 flex justify-end md:justify-end items-start lg:items-start xl:top-[110px] lg:top-[80px] md:top-[100px] top-[70px] right-3 sm:right-6 md:right-5 lg:right-[0px] xl:right-[60px]">
+          <div className="absolute inset-0 flex justify-end md:justify-end items-start lg:items-start xl:top-[110px] lg:top-[80px] md:top-[100px] top-[70px] right-3 sm:right-6 md:right-5 lg:right-[0px] xl:right-[60px]" data-aos="zoom-in" data-aos-delay="150">
             <div className="max-w-[280px] sm:max-w-[320px] md:max-w-[350px] lg:max-w-[299px]">
               <p className="text-lg sm:text-xl md:text-3xl xl:text-[46px] lg:text-[30px] text-[#C79954] w-full font-Belleza text-center uppercase leading-tight">
                 {getBannerTitle(0)}
@@ -173,6 +193,7 @@ const CuratedRadiance = () => {
                 <button 
                   onClick={() => handleShopNowClick(0)}
                   className="bg-[#B5904F] text-white px-3 sm:px-4 md:px-[16px] py-2 sm:py-[10px] rounded-[8px] font-kufam hover:bg-[#B8A076] transition-colors text-sm sm:text-base"
+                  data-aos="fade-up" data-aos-delay="250"
                 >
                   Shop Now
                 </button>
@@ -184,13 +205,13 @@ const CuratedRadiance = () => {
         {/* Top Right - Split into two sections */}
         <div className="flex flex-col gap-4 sm:gap-5 md:gap-4 lg:mt-0 w-full lg:w-auto">
           {/* Top Right Top - Half */}
-          <div className="relative overflow-hidden">
+          <div className="relative overflow-hidden" data-aos="fade-left">
             <img
               src={getBannerImage(1)}
               alt={getBannerTitle(1)}
               className="w-full lg:w-[756px] xl:h-[374px] lg:h-[306px] md:h-[300px] h-[250px] object-cover"
             />
-            <div className="absolute inset-0 flex flex-col justify-start items-start top-4 sm:top-6 md:top-8 lg:top-[60px] w-[90%] xl:w-[448px] lg:w-[250px] left-3 sm:left-4 xl:left-[30px] lg:left-4 text-left sm:text-center">
+            <div className="absolute inset-0 flex flex-col justify-start items-start top-4 sm:top-6 md:top-8 lg:top-[60px] w-[90%] xl:w-[448px] lg:w-[250px] left-3 sm:left-4 xl:left-[30px] lg:left-4 text-left sm:text-center" data-aos="zoom-in" data-aos-delay="150">
               <div className="text-white">
                 <h3 className="text-lg sm:text-xl text-start max-sm:text-start md:text-2xl lg:text-xl font-Belleza mb-2 xl:mb-4 md:mb-2 text-[#FFFFFF] leading-tight">
                   {getBannerTitle(1)}
@@ -201,6 +222,7 @@ const CuratedRadiance = () => {
                 <button 
                   onClick={() => handleShopNowClick(1)}
                   className="bg-[#548AA6] text-white px-[16px] py-[10px] font-kufam rounded-[8px] transition-colors text-sm sm:text-base self-start sm:self-center"
+                  data-aos="fade-up" data-aos-delay="250"
                 >
                   Shop Now
                 </button>
@@ -210,13 +232,13 @@ const CuratedRadiance = () => {
 
           {/* Top Right Bottom - Half */}
           <div className="flex flex-col sm:flex-row gap-4 sm:gap-5 md:gap-4 justify-center">
-            <div className="relative overflow-hidden w-full sm:w-auto">
+            <div className="relative overflow-hidden w-full sm:w-auto" data-aos="fade-up" data-aos-delay="100">
               <img
                 src={getBannerImage(2)}
                 alt={getBannerTitle(2)}
                 className="w-full sm:w-[368px] h-auto sm:h-[390px] xl:h-[390px] md:h-[350px] lg:h-auto object-contain xl:object-cover lg:object-contain md:object-cover"
               />
-              <div className="absolute inset-0 flex justify-end items-start right-3 sm:right-4 mxl:right-6 md:right-4">
+              <div className="absolute inset-0 flex justify-end items-start right-3 sm:right-4 mxl:right-6 md:right-4" data-aos="zoom-in" data-aos-delay="200">
                 <div className="text-white text-right mt-5 sm:mt-4 xl:mt-6 md:mt-3">
                   <h3 className="text-[18px] sm:text-xl md:text-2xl lg:text-xl xl:text-[26px] font-Belleza mb-2 sm:mb-3 tracking-[0px] leading-tight">
                     {getBannerTitle(2)}
@@ -226,20 +248,20 @@ const CuratedRadiance = () => {
                   </p>
                   <button 
                     onClick={() => handleShopNowClick(2)}
-                    className="bg-[#BFAC40] text-[11px] sm:text-[12px] md:text-[14px] tracking-[0px] px-[12px] py-[6px] rounded-[4px] font-kufam"
+                    className="bg-[#BFAC40] text-[11px] sm:text-[12px] md:text-[14px] tracking-[0px] px-[12px] py-[6px] rounded-[4px] font-kufam" data-aos="fade-up" data-aos-delay="300"
                   >
                     Shop Now
                   </button>
                 </div>
               </div>
             </div>
-            <div className="relative overflow-hidden w-full sm:w-auto">
+            <div className="relative overflow-hidden w-full sm:w-auto" data-aos="fade-up" data-aos-delay="150">
               <img
                 src={getBannerImage(3)}
                 alt={getBannerTitle(3)}
                 className="w-full sm:w-[368px] h-auto sm:h-[390px] xl:h-[390px] md:h-[350px] lg:h-auto object-contain xl:object-cover lg:object-contain md:object-cover"
               />
-              <div className="absolute inset-0 left-3 sm:left-4 xl:left-6 lg:left-3">
+              <div className="absolute inset-0 left-3 sm:left-4 xl:left-6 lg:left-3" data-aos="zoom-in" data-aos-delay="250">
                 <div className="text-white mt-5 sm:mt-6 xl:mt-8 lg:mt-4">
                   <h3 className="text-[18px] sm:text-xl xl:mb-0 lg:mb-4 xl:text-[26px] lg:text-[18px] md:text-[24px] md:mb-3 mb-2 font-Belleza tracking-[0px] leading-tight">
                     {getBannerTitle(3)}
@@ -249,7 +271,7 @@ const CuratedRadiance = () => {
                   </p>
                   <button 
                     onClick={() => handleShopNowClick(3)}
-                    className="bg-[#7FD7DA] text-black text-[11px] sm:text-[12px] md:text-[14px] tracking-[0px] px-[12px] py-[6px] rounded-[4px] font-kufam"
+                    className="bg-[#7FD7DA] text-black text-[11px] sm:text-[12px] md:text-[14px] tracking-[0px] px-[12px] py-[6px] rounded-[4px] font-kufam" data-aos="fade-up" data-aos-delay="300"
                   >
                     Shop Now
                   </button>
@@ -263,7 +285,7 @@ const CuratedRadiance = () => {
       {/* Advertise Section */}
       <div className={`${colors.firstPart.background} ${colors.firstPart.text} w-full py-15`}>
         <div className={`flex flex-col md:flex-row items-start ${theme === "dark" ? "bg-white" : "bg-gradient-to-r to-[#000000] from-[#262626]"}`}>
-          <div className="relative">
+          <div className="relative" data-aos="fade-right">
             <img
               src={getBannerImage(4)}
               alt={getBannerTitle(4)}
@@ -271,7 +293,7 @@ const CuratedRadiance = () => {
             />
           </div>
 
-          <div className="flex flex-col justify-center xl:mx-14 lg:mx-5 mx-5 md:absolute lg:relative max-sm:my-5">
+          <div className="flex flex-col justify-center xl:mx-14 lg:mx-5 mx-5 md:absolute lg:relative max-sm:my-5" data-aos="fade-left" data-aos-delay="150">
             <h2 className="xl:text-[44px] lg:text-[30px] md:text-3xl text-[20px] mb-4 text-[#C79954] font-Belleza uppercase md:mt-[44px]">
               {getBannerTitle(4)}
             </h2>
@@ -280,7 +302,7 @@ const CuratedRadiance = () => {
             </p>
             <button 
               onClick={() => handleShopNowClick(4)}
-              className="bg-[#B5904F] text-white px-[16px] py-[10px] font-kufam rounded-[8px] transition-colors text-sm sm:text-base self-start cursor-pointer"
+              className="bg-[#B5904F] text-white px-[16px] py-[10px] font-kufam rounded-[8px] transition-colors text-sm sm:text-base self-start cursor-pointer" data-aos="zoom-in" data-aos-delay="250"
             >
               Find Your Sparkle
             </button>

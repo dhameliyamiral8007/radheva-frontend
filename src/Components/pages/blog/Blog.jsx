@@ -7,6 +7,8 @@ import underline from "../../../assets/about/underline.svg"
 import RingSizes from "../../../assets/ringSize.jpg"
 import { Link } from 'react-router-dom'
 import { getAllBlogs, setCurrentPage } from '../../redux/slice/BlogSlice'
+import AOS from 'aos'
+import 'aos/dist/aos.css'
 
 // Pagination Component
 const BlogPagination = ({ totalBlogs, blogsPerPage, currentPage, setCurrentPage }) => {
@@ -89,6 +91,14 @@ const Blog = () => {
     fetchBlogs()
   }, [dispatch]) // Remove blogs from dependencies to prevent infinite loops
 
+  // Init AOS animations for this page
+  useEffect(() => {
+    try {
+      AOS.init({ offset: 160, delay: 0, duration: 900, easing: 'ease', once: false, mirror: true })
+      AOS.refresh()
+    } catch {}
+  }, [])
+
   // Handle page change
   const handlePageChange = (page) => {
     dispatch(setCurrentPage(page))
@@ -153,10 +163,10 @@ const Blog = () => {
   return (
     <div className={`${colors.firstPart.background} ${colors.firstPart.text} w-full`}>
       {/* Hero */}
-      <div className="relative h-[500px]">
+      <div className="relative h-[500px]" data-aos="fade-in">
         <img src={RingDesign} alt="RingDesign" className="absolute inset-0 w-full h-full object-cover" />
         <div className="absolute inset-0 bg-black/30" />
-        <div className="absolute inset-0 flex flex-col xl:top-[300px] md:top-[250px] xl:mx-0 md:mx-8 mx-4 top-32 items-center text-center gap-[20px]">
+        <div className="absolute inset-0 flex flex-col xl:top-[300px] md:top-[250px] xl:mx-0 md:mx-8 mx-4 top-32 items-center text-center gap-[20px]" data-aos="zoom-in" data-aos-delay="150">
           <h2 className="text-[30px] text-[#FFFFFF] leading-[100%] tracking-[0px] md:text-[40px] font-kufam">Radheva's Blog</h2>
           <p className="max-w-[1532px] text-[#FFFFFF] font-semibold tracking-[0px] font-kufam leading-[25px] md:text-[20px] text-[15px]">
             Lorem Ipsum is simply dummy text of the printing and typesetting industry.
@@ -170,7 +180,7 @@ const Blog = () => {
 
       {/* The Shine Line */}
       <div>
-        <div className="text-center py-5">
+        <div className="text-center py-5" data-aos="fade-down">
           <h2 className="text-[35px] font-belleza inline-block relative">
             The Shine Line
             <img src={underline} alt="underline" className="p-2 mx-auto" />
@@ -185,9 +195,11 @@ const Blog = () => {
         ) : (
           <>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 justify-items-center xl:mx-24 md:mx-10 mx-4">
-              {currentBlogs.map((blog) => (
+              {currentBlogs.map((blog, idx) => (
                 <div
                   key={blog._id}
+                  data-aos="fade-up"
+                  data-aos-delay={(idx % 3) * 180}
                   className={`overflow-hidden grid gap-[30px] rounded-lg shadow-lg transition-all duration-300 ${theme === "dark" ? "bg-white text-black" : "bg-[#1d1d1d] text-white"}`}
                 >
                   <Link to={`/blog/${blog._id}`}>
@@ -223,22 +235,24 @@ const Blog = () => {
             </div>
 
             {/* Pagination */}
-            <BlogPagination
-              totalBlogs={blogs.length}
-              blogsPerPage={blogsPerPage}
-              currentPage={currentPage}
-              setCurrentPage={handlePageChange}
-            />
+            <div data-aos="fade-up" data-aos-delay="200">
+              <BlogPagination
+                totalBlogs={blogs.length}
+                blogsPerPage={blogsPerPage}
+                currentPage={currentPage}
+                setCurrentPage={handlePageChange}
+              />
+            </div>
           </>
         )}
       </div>
 
       {/* Banner */}
-      <div className="relative w-full max-w-[1440px] mx-auto py-[50px]">
+      <div className="relative w-full max-w-[1440px] mx-auto py-[50px]" data-aos="fade-up">
         <img src={RingSizes} alt="Expert" className="w-full h-[325.43px] object-cover" />
         <div className="absolute inset-0 bg-black/20" />
 
-        <div className="absolute inset-0 flex justify-center items-center">
+        <div className="absolute inset-0 flex justify-center items-center" data-aos="zoom-in" data-aos-delay="120">
           <div className="max-w-[458px] flex flex-col md:gap-[60px] gap-[40px] max-sm:px-[20px]">
             <div className="grid text-white gap-[12px]">
               <h2 className="text-[23px] md:text-[44px] leading-[52.08px] tracking-[0px] font-normal font-belleza">

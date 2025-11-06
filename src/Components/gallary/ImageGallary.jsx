@@ -1,10 +1,12 @@
-import React from "react";
+import React, { useEffect } from "react";
 // wishlist add handled via context's addToWishlist; avoid double-calling service here
 import { addToCartService } from "../redux/service/CartService";
 import { fetchProductByIdService } from "../redux/service/ProductService";
 import { useWishlist } from "../context/WishListProvider";
 import { FcLike } from "react-icons/fc";
 import { IoEyeSharp, IoHeartOutline } from "react-icons/io5";
+import AOS from "aos";
+import "aos/dist/aos.css";
 
 const products = Array.from({ length: 12 }).map((_, i) => ({
   id: i,
@@ -20,6 +22,29 @@ export default function ImageGallary({ gallery = products, isFilterd ,onProductC
   console.log("gallery",gallery)
   const { wishlist, addToWishlist, removeFromWishlist } = useWishlist?.() || { wishlist: [], addToWishlist: async () => {}, removeFromWishlist: async () => {} };
   const wishlistProductIdSet = new Set((wishlist || []).map((w) => (w?.productId?._id) || (w?._id) || (w?.id)));
+
+  // Initialize AOS once for product grid animations
+  useEffect(() => {
+    try {
+      AOS.init({ offset: 120, duration: 800, easing: "ease", once: false, mirror: true });
+      AOS.refresh();
+    } catch {}
+  }, []);
+
+  // Determine visible columns to stagger per-row nicely
+  const [columns, setColumns] = React.useState(4);
+  useEffect(() => {
+    const calcCols = () => {
+      const w = typeof window !== 'undefined' ? window.innerWidth : 1200;
+      if (w >= 1024) return 4; // lg:grid-cols-4
+      if (w >= 640) return 2;  // sm:grid-cols-2
+      return 1;                // grid-cols-1
+    };
+    const apply = () => setColumns(calcCols());
+    apply();
+    window.addEventListener('resize', apply);
+    return () => window.removeEventListener('resize', apply);
+  }, []);
 
   return (
     <div className=" w-full text-white min-h-screen curser-pointer" >
@@ -37,6 +62,8 @@ export default function ImageGallary({ gallery = products, isFilterd ,onProductC
           <div
             key={productId}
             onClick={() => onProductClick(p)}
+            data-aos="fade-up"
+            data-aos-delay={(index % columns) * 180}
             className={`${spanClass} group relative bg-neutral-900 border border-neutral-800 rounded-lg overflow-hidden`}
           >
             {/* Tag */}

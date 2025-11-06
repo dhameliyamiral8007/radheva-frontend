@@ -101,6 +101,8 @@ import { useDispatch, useSelector } from 'react-redux'
 import { getPopularBlogs } from '../../redux/slice/BlogSlice'
 import underline from "../../../assets/about/underline.svg"
 import { Link } from 'react-router-dom'
+import AOS from 'aos'
+import 'aos/dist/aos.css'
 
 const PopularBlog = () => {
     const { colors } = useTheme();
@@ -113,6 +115,14 @@ const PopularBlog = () => {
     useEffect(() => {
         dispatch(getPopularBlogs())
     }, [dispatch])
+
+    // AOS init for this section
+    useEffect(() => {
+        try {
+            AOS.init({ offset: 150, duration: 900, easing: 'ease', once: false, mirror: true })
+            AOS.refresh()
+        } catch {}
+    }, [])
 
     // Calculate total pages
     const totalPages = Math.ceil(popularBlogs.length / itemsPerPage);
@@ -191,7 +201,7 @@ const PopularBlog = () => {
 
     return (
         <div className={`${colors.firstPart.background} ${colors.firstPart.text} w-full`}>
-            <div className="text-center py-5">
+            <div className="text-center py-5" data-aos="fade-down">
                 <h2 className="text-[44px] font-belleza inline-block relative font-normal tracking-[0px] leading-100% uppercase">
                     POPULAR BLOG
                     <img src={underline} alt="underline" className="p-2 mx-auto" />
@@ -201,9 +211,11 @@ const PopularBlog = () => {
             {/* Popular Blogs Grid */}
             <div className="flex flex-col gap-[20px] justify-center">
                 <div className="grid py-10 xl:gap-[20px] xl:mx-24 md:mx-10 lg:mx-5 mx-4 gap-[15px] grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 justify-items-center">
-                    {currentBlogs.map((blog) => (
+                    {currentBlogs.map((blog, idx) => (
                         <div
                             key={blog._id}
+                            data-aos="fade-up"
+                            data-aos-delay={(idx % 4) * 150}
                             className="relative gap-[20px] flex flex-col transition-transform duration-300 overflow-hidden group"
                         >
                             {/* Blog Image */}
@@ -242,7 +254,7 @@ const PopularBlog = () => {
 
             {/* Pagination Controls - Only show if there are multiple pages */}
             {totalPages > 1 && (
-                <div className="flex justify-center items-center xl:mx-24 md:mx-10 mx-4 pb-10">
+                <div className="flex justify-center items-center xl:mx-24 md:mx-10 mx-4 pb-10" data-aos="fade-up" data-aos-delay="200">
                     <button
                         onClick={() => paginate(currentPage - 1)}
                         disabled={currentPage === 1}

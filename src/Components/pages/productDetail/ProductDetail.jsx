@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import {  useLocation } from 'react-router-dom';
+import { useLocation, useParams, useNavigate } from 'react-router-dom';
 import { useTheme } from '../../config/hooks/useTheme';
 import { fetchProductByIdService, fetchLatestGoldPriceService } from '../../redux/service/ProductService';
 import Round from "../../../assets/about/round.svg";
@@ -18,6 +18,8 @@ import { addToCartService } from '../../redux/service/CartService';
 
 const ProductDetail = () => {
     const location = useLocation();
+    const { id: routeId } = useParams();
+    const navigate = useNavigate();
     const { colors, theme } = useTheme();
     const { addToCart, fetchCart, cartItems, incrementQuantity, decrementQuantity } = useCart();
     const [selectedPurity, setSelectedPurity] = useState("");
@@ -42,8 +44,7 @@ const ProductDetail = () => {
         { id: 20, name: "Asscher", icon: Asscher, width: 80, height: 80 },
     ];
 
-
-    const id = location.state.productId
+    const id = (location?.state && location.state.productId) || routeId;
 
     // Karat percentage mapping
     const karatPercentages = {
@@ -490,7 +491,7 @@ const ProductDetail = () => {
                                     if (!token) {
                                         // remember current path to redirect after login
                                         try { localStorage.setItem('postLoginRedirect', window.location.pathname + window.location.search); } catch {}
-                                        window.location.href = '/login';
+                                        navigate('/login');
                                         return;
                                     }
                                     try {
