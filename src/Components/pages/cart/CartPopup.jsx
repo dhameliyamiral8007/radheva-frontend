@@ -262,15 +262,22 @@ const CartPopup = ({ isOpen, onClose }) => {
             <span>Subtotal</span>
             <span>Rs. {subtotal.toLocaleString()}</span>
           </div>
-          <button className="w-full bg-yellow-600 hover:bg-yellow-700 text-white py-3 rounded-lg font-bold">
+          <button
+               onClick={() => navigate("/payment-flow")}
+          className="w-full bg-yellow-600 hover:bg-yellow-700 text-white py-3 rounded-lg font-bold">
             CHECKOUT
           </button>
-          <button
-            onClick={handleViewCart}
-            className="mt-3 w-full text-center text-sm font-medium opacity-80 hover:underline"
-          >
-            VIEW SHOPPING CART
-          </button>
+        <button
+  onClick={() => {
+    handleViewCart();
+    setLocalOpen(false);
+    onClose && onClose();
+  }}
+  className="mt-3 w-full text-center text-sm font-medium opacity-80 hover:underline"
+>
+  VIEW SHOPPING CART
+</button>
+
         </div>
       </div>
     </div>

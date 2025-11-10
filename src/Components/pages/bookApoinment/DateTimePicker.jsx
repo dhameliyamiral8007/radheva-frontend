@@ -2,6 +2,9 @@ import React, { useState, useEffect } from "react";
 import ArrowLeft from "../../../assets/ArrowLeft.svg";
 import ArrowRight from "../../../assets/Arrowrigth.svg";
 import { useTheme } from "../../config/hooks/useTheme";
+import TimePickerCard from "./TimePicker";
+import { AnalogHourFace } from "./Analog";
+
 const DateTimePicker = ({ onApply }) => {
   const { theme } = useTheme();
   const [selectedDates, setSelectedDates] = useState([]);
@@ -78,10 +81,6 @@ const DateTimePicker = ({ onApply }) => {
   const month = viewMonth.getMonth();
   const totalDays = daysInMonth(month, year);
 
-  // Clock angles
-  const hourAngle = (selectedTime.hour % 12) * 30 + selectedTime.minute * 0.5;
-  const minuteAngle = selectedTime.minute * 6;
-
   // Apply selection
   const handleApply = () => {
     if (!onApply) return;
@@ -101,12 +100,10 @@ const DateTimePicker = ({ onApply }) => {
   };
 
   return (
-    <div
-      className={` ${theme === "dark" ? "text-white" : "bg-white text-black"}`}
-    >
+    <div className={` ${theme === "dark" ? "text-white" : " text-black"}`}>
       <div
-        className={` rounded-2xl shadow-[32px] p-6 w-[900px] ${
-          theme === "dark" ? "bg-[#FFFFFF]" : "bg-[#323232]"
+        className={` rounded-2xl shadow-[32px] border-[1px] border-amber-50  p-6 w-[900px] ${
+          theme === "dark" ? "bg-[#FFFFFF]" : "bg-[#323232] "
         }`}
       >
         <div className="flex">
@@ -210,125 +207,25 @@ const DateTimePicker = ({ onApply }) => {
           {/* Time Picker */}
           <div className="w-2/5 p-6 flex justify-center items-center flex-col">
             {/* Header with "Select Time" and selected time */}
-            <div className="flex justify-between items-center mb-2">
-              <h3
-                className={`text-lg ${
-                  theme === "dark" ? "text-gray-400" : "text-gray-500"
-                }`}
-              >
-                Select Time
-              </h3>
-              <div className="flex items-end gap-2">
-                {/* Hour */}
-                <select
-                  value={selectedTime.hour}
-                  onChange={(e) =>
-                    setSelectedTime({
-                      ...selectedTime,
-                      hour: parseInt(e.target.value),
-                    })
-                  }
-                  className={`${
-                    theme === "dark"
-                      ? "bg-gray-700 text-white"
-                      : "bg-gray-100 text-gray-800"
-                  } rounded-lg px-2 py-1`}
-                >
-                  {Array.from({ length: 12 }, (_, i) => i + 1).map((h) => (
-                    <option key={h} value={h}>
-                      {h}
-                    </option>
-                  ))}
-                </select>
-
-                {/* Minute */}
-                <select
-                  value={selectedTime.minute}
-                  onChange={(e) =>
-                    setSelectedTime({
-                      ...selectedTime,
-                      minute: parseInt(e.target.value),
-                    })
-                  }
-                  className={`${
-                    theme === "dark"
-                      ? "bg-gray-700 text-white"
-                      : "bg-gray-100 text-gray-800"
-                  } rounded-lg px-2 py-1`}
-                >
-                  {Array.from({ length: 60 }, (_, i) => i).map((m) => (
-                    <option key={m} value={m}>
-                      {m.toString().padStart(2, "0")}
-                    </option>
-                  ))}
-                </select>
-
-                {/* AM/PM */}
-                <div className="flex flex-col ml-2">
-                  <button
-                    onClick={() =>
-                      setSelectedTime({ ...selectedTime, ampm: "AM" })
-                    }
-                    className={`px-2 text-sm rounded-t ${
-                      selectedTime.ampm === "AM"
-                        ? "bg-yellow-600 text-white"
-                        : theme === "dark"
-                        ? "bg-gray-600"
-                        : "bg-gray-200"
-                    }
-                                            `}
-                  >
-                    AM
-                  </button>
-                  <button
-                    onClick={() =>
-                      setSelectedTime({ ...selectedTime, ampm: "PM" })
-                    }
-                    className={`px-2 text-sm rounded-b ${
-                      selectedTime.ampm === "PM"
-                        ? "bg-yellow-600 text-white"
-                        : theme === "dark"
-                        ? "bg-gray-600"
-                        : "bg-gray-200"
-                    }
-                                            `}
-                  >
-                    PM
-                  </button>
-                </div>
-                {/* </div> */}
-              </div>
-            </div>
+            <TimePickerCard
+              // map your state -> component's expected shape
+              value={{
+                hour: selectedTime.hour,
+                minute: selectedTime.minute,
+                period: selectedTime.ampm, // AM | PM
+              }}
+              onChange={(t) =>
+                setSelectedTime({
+                  hour: t.hour,
+                  minute: t.minute,
+                  ampm: t.period, // map back
+                })
+              }
+              label="Select Time"
+              className={theme === "dark" ? " " : ""}
+            />
             {/* Clock  #EEF1F3*/}
-            <div
-              className={`relative flex justify-center items-center mt-6 w-64 h-64 rounded-full ${
-                theme === "dark" ? "bg-[#EEF1F3]" : "bg-[#f3f4f6]"
-              } flex items-center justify-center`}
-            >
-              {/* Hour hand */}
-              <div
-                className="absolute top-0 left-1/2 w-1 h-28 bg-yellow-600 origin-bottom -translate-x-1/2"
-                style={{ transform: `rotate(${hourAngle}deg)` }}
-              ></div>
-              {Array.from({ length: 12 }).map((_, i) => {
-                const angle = (i + 1) * 30; // each number 30°
-                const radius = 120; // distance from center
-                const x = radius * Math.sin((angle * Math.PI) / 180);
-                const y = -radius * Math.cos((angle * Math.PI) / 180); 
-
-                return (
-                  <div
-                    key={i}
-                    className="absolute font-bold text-black p-1 rounded-full w-8 h-8 flex items-center justify-center"
-                    style={{
-                      transform: `translate(${x}px, ${y}px)`,
-                    }}
-                  >
-                    {i + 1}
-                  </div>
-                );
-              })}
-            </div>
+            <AnalogHourFace selectedTime={selectedTime} theme={theme} />
           </div>
         </div>
 
