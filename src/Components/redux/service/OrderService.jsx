@@ -18,11 +18,15 @@ export const applyDiscountCode = async (discountcode) => {
     }
 };
 
-export const placeOrder = async (shippingAddress) => {
+export const placeOrder = async (shippingAddress, amount = null) => {
     try {
-        const { data } = await apiInstance.post(`${baseUrl}/user/order/orderplace`, {
-            shippingaddress: shippingAddress,
-        });
+        const payload = { shippingaddress: shippingAddress };
+        if (typeof amount === 'number' && amount > 0) {
+            // amount in paise so backend can create Razorpay order for exact value
+            payload.amount = amount;
+        }
+        const { data } = await apiInstance.post(`${baseUrl}/user/order/orderplace`, payload);
+        console.log("data =",data);
         return data;
     } catch (error) {
         // If error has response data, return it
