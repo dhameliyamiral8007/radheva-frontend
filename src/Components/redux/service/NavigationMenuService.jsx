@@ -2,11 +2,13 @@
 import { apiInstance } from "../../../api/AxiosApi";
 import { baseUrl } from "../../../api/BaseUrl";
 
-export const fetchNavigationMenuService = async () => {
+export const fetchNavigationMenuService = async (position = null) => {
     try {
-        const response = await apiInstance.get(
-            `${baseUrl}/client/navigation`
-        );
+        let url = `${baseUrl}/client/navigation`;
+        if (position) {
+            url += `?positions=${position}`;
+        }
+        const response = await apiInstance.get(url);
         return response.data;
     } catch (error) {
         throw new Error(

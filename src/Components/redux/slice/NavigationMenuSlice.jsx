@@ -4,9 +4,9 @@ import { fetchNavigationMenuService } from "../service/navigationMenuService";
 
 export const fetchNavigationMenu = createAsyncThunk(
   "navigationMenu/fetchNavigationMenu",
-  async (_, { rejectWithValue }) => { // Remove payload parameter since your service doesn't use it
+  async (position = null, { rejectWithValue }) => {
     try {
-      const response = await fetchNavigationMenuService();
+      const response = await fetchNavigationMenuService(position);
       return response;
     } catch (error) {
       return rejectWithValue(error.message || "Something went wrong");

@@ -26,6 +26,9 @@ const Header = () => {
   const shopRef = useRef(null);
   const [shopMenu, setShopMenu] = useState([]);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  // Store menu data for all navigation items dynamically
+  const [navigationMenus, setNavigationMenus] = useState({}); // { navName: { menu: [...], navId: "..." } }
+  const [openDropdown, setOpenDropdown] = useState(null); // Track which nav item dropdown is open
   const { theme, toggleTheme, colors } = useTheme();
   // use cart context for cart popup open/close
   const [openMobileMenu, setOpenMobileMenu] = useState(null);
@@ -51,7 +54,7 @@ const Header = () => {
       setError(null);
       try {
         // console.log("Loading navigation data...");
-        const result = await dispatch(fetchNavigationMenu()).unwrap();
+        const result = await dispatch(fetchNavigationMenu('header')).unwrap();
         // console.log("✅ Navigation data loaded:", result);
         setNavigationData(result);
 
@@ -62,27 +65,35 @@ const Header = () => {
 
           // Build lookup map: navigation name -> id
           const map = {};
+          const menusMap = {};
+          
           result.Data.forEach((item) => {
             if (item?.navigationname && item?._id) {
-              map[item.navigationname.toLowerCase()] = item._id;
+              const navName = item.navigationname.toLowerCase();
+              map[navName] = item._id;
+              
+              // Build menu for any navigation item that has collections
+              if (item?.collections && item.collections.length > 0) {
+                const transformedMenu = item.collections.map(collection => ({
+                  id: collection._id,
+                  title: collection.collectionname.toUpperCase(),
+                  items: (collection.items || []).map(item => ({ id: item._id, label: item.itemname }))
+                }));
+                menusMap[navName] = {
+                  menu: transformedMenu,
+                  navId: item._id
+                };
+              }
             }
           });
+          
           setNavNameToId(map);
+          setNavigationMenus(menusMap);
 
-          // Extract shop data
-          const shopData = result.Data.find(item =>
-            item.navigationname && item.navigationname.toLowerCase() === "shop"
-          );
-
-          if (shopData?.collections?.length > 0) {
-            const transformedShopMenu = shopData.collections.map(collection => ({
-              id: collection._id,
-              title: collection.collectionname.toUpperCase(),
-              // keep item id so clicks can navigate with collectionItemID
-              items: collection.items.map(item => ({ id: item._id, label: item.itemname }))
-            }));
-            // console.log("🛍️ Shop menu created:", transformedShopMenu);
-            setShopMenu(transformedShopMenu);
+          // Keep shopMenu for backward compatibility
+          const shopData = menusMap['shop'];
+          if (shopData) {
+            setShopMenu(shopData.menu);
           }
         }
       } catch (err) {
@@ -102,6 +113,7 @@ const Header = () => {
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (shopRef.current && !shopRef.current.contains(event.target)) {
+        setOpenDropdown(null);
         setIsShopOpen(false);
       }
       if (profileRef.current && !profileRef.current.contains(event.target)) {
@@ -123,37 +135,19 @@ const Header = () => {
     window.location.reload(); // Reload to update header state
   };
 
-  const handleShopClick = () => {
-    // console.log("🖱️ Shop clicked", { 
-    //   isShopOpen, 
-    //   shopMenuLength: shopMenu.length,
-    //   shopMenuData: shopMenu 
-    // });
-
-    if (shopMenu.length > 0) {
-      setIsShopOpen(prev => !prev);
-    } else {
-      console.warn("⚠️ No shop data available");
-    }
-    setOpenMobileMenu(null);
-    setIsMobileMenuOpen(false);
-  };
-
   const handleNavigationClick = (item, idx) => {
     // Normalize the item name for comparison
     const normalizedItem = item.toLowerCase().trim();
-    const isShop = normalizedItem === "shop";
+    const hasMenu = navigationMenus[normalizedItem] && navigationMenus[normalizedItem].menu.length > 0;
 
-    // console.log(`📍 Navigation clicked: "${item}"`, { 
-    //   isShop, 
-    //   hasShopData: shopMenu.length > 0,
-    //   normalizedItem 
-    // });
-
-    if (isShop) {
+    // If navigation item has collections, toggle dropdown
+    if (hasMenu) {
       if (window.innerWidth >= 1024) {
-        handleShopClick();
+        // Desktop: toggle dropdown
+        setOpenDropdown(openDropdown === normalizedItem ? null : normalizedItem);
+        setIsShopOpen(openDropdown === normalizedItem ? false : normalizedItem === 'shop');
       } else {
+        // Mobile: toggle mobile menu
         setOpenMobileMenu(openMobileMenu === idx ? null : idx);
       }
       return;
@@ -173,6 +167,7 @@ const Header = () => {
 
     if (route) {
       // console.log(`🚀 Navigating to: ${route}`);
+      setOpenDropdown(null);
       setIsShopOpen(false);
       setOpenMobileMenu(null);
       setIsMobileMenuOpen(false);
@@ -232,17 +227,19 @@ const Header = () => {
             ) : (
               <nav className="hidden lg:flex gap-5 ml-2">
                 {menuItems.map((item, idx) => {
-                  const isShop = item.toLowerCase() === "shop";
+                  const normalizedItem = item.toLowerCase().trim();
+                  const hasMenu = navigationMenus[normalizedItem] && navigationMenus[normalizedItem].menu.length > 0;
+                  const isOpen = openDropdown === normalizedItem;
 
                   return (
                     <button
                       key={`nav-${idx}-${item}`}
                       onClick={() => handleNavigationClick(item, idx)}
-                      className={`${colors.header.text} hover:text-yellow-400 font-medium cursor-pointer relative ${isShop && isShopOpen ? 'text-yellow-400' : ''
+                      className={`${colors.header.text} hover:text-yellow-400 font-medium cursor-pointer relative ${isOpen ? 'text-yellow-400' : ''
                         }`}
                     >
                       {item}
-                      {isShop && isShopOpen && (
+                      {isOpen && (
                         <span className="absolute -bottom-2 left-1/2 transform -translate-x-1/2 w-1 h-1 bg-yellow-400 rounded-full"></span>
                       )}
                     </button>
@@ -332,14 +329,11 @@ const Header = () => {
               <div className="relative">
                 <button
                   onClick={() => {
+                    setOpenDropdown(null);
                     setIsMobileMenuOpen(false);
                     setIsShopOpen(false);
                     setOpenMobileMenu(null);
-                    // if (location.pathname === '/cart') {
-                      navigate('/cart');
-                    // } else {
-                      // openCart();
-                    // }
+                    navigate('/cart');
                   }}
                 >
                   <img
@@ -381,36 +375,32 @@ const Header = () => {
           </div>
         </div>
 
-        {/* Mega dropdown for Shop */}
-        {isShopOpen && shopMenu.length > 0 && (
+        {/* Mega dropdown for any navigation item with collections */}
+        {openDropdown && navigationMenus[openDropdown] && navigationMenus[openDropdown].menu.length > 0 && (
           <div className="absolute top-full left-0 right-0 z-40">
             <ShopMenu
               theme={theme}
-              data={shopMenu}
+              data={navigationMenus[openDropdown].menu}
               isMobile={false}
               onSelectCollection={(collectionId) => {
+                setOpenDropdown(null);
                 setIsShopOpen(false);
                 setOpenMobileMenu(null);
                 setIsMobileMenuOpen(false);
-                dispatch(setProductFilter({ navigationID: null, collectionID: collectionId, collectionItemID: null }));
+                const navId = navigationMenus[openDropdown].navId;
+                dispatch(setProductFilter({ navigationID: navId, collectionID: collectionId, collectionItemID: null }));
                 navigate('/products');
               }}
               onSelectItem={(collectionId, itemId) => {
+                setOpenDropdown(null);
                 setIsShopOpen(false);
                 setOpenMobileMenu(null);
                 setIsMobileMenuOpen(false);
-                dispatch(setProductFilter({ navigationID: null, collectionID: collectionId, collectionItemID: itemId }));
+                const navId = navigationMenus[openDropdown].navId;
+                dispatch(setProductFilter({ navigationID: navId, collectionID: collectionId, collectionItemID: itemId }));
                 navigate('/products');
               }}
             />
-          </div>
-        )}
-
-        {/* Debug info */}
-        {isShopOpen && shopMenu.length === 0 && (
-          <div className={`absolute top-full left-0 right-0 z-40 p-4 text-center ${theme === 'dark' ? 'bg-yellow-100 text-yellow-800' : 'bg-yellow-800 text-yellow-100'
-            }`}>
-            No shop categories available. Loaded {menuItems.length} menu items.
           </div>
         )}
       </div>
@@ -450,42 +440,47 @@ const Header = () => {
           ) : (
             <nav className="flex flex-col">
               {menuItems.map((item, idx) => {
-                const isShop = item.toLowerCase() === "shop";
+                const normalizedItem = item.toLowerCase().trim();
+                const hasMenu = navigationMenus[normalizedItem] && navigationMenus[normalizedItem].menu.length > 0;
                 const isOpen = openMobileMenu === idx;
 
                 return (
                   <div key={`m-${idx}`}>
                     <button
                       onClick={() => handleNavigationClick(item, idx)}
-                      className={`${colors.header.text} text-left py-2 w-full flex justify-between items-center ${isShop && isOpen ? 'text-yellow-400' : ''
+                      className={`${colors.header.text} text-left py-2 w-full flex justify-between items-center ${hasMenu && isOpen ? 'text-yellow-400' : ''
                         }`}
                     >
                       {item}
-                      {isShop && (
+                      {hasMenu && (
                         <span className={`transform transition-transform ${isOpen ? 'rotate-180' : ''
                           }`}>▼</span>
                       )}
                     </button>
 
-                    {/* Mobile Shop Menu */}
-                    {isShop && isOpen && shopMenu.length > 0 && (
+                    {/* Mobile Menu for any navigation item with collections */}
+                    {hasMenu && isOpen && navigationMenus[normalizedItem].menu.length > 0 && (
                       <div className="ml-4 border-l-2 border-gray-400 pl-4 my-2">
                         <ShopMenu
                           theme={theme}
-                          data={shopMenu}
+                          data={navigationMenus[normalizedItem].menu}
                           isMobile={true}
                           onSelectCollection={(collectionId) => {
+                            setOpenDropdown(null);
                             setIsShopOpen(false);
                             setOpenMobileMenu(null);
                             setIsMobileMenuOpen(false);
-                            dispatch(setProductFilter({ navigationID: null, collectionID: collectionId, collectionItemID: null }));
+                            const navId = navigationMenus[normalizedItem].navId;
+                            dispatch(setProductFilter({ navigationID: navId, collectionID: collectionId, collectionItemID: null }));
                             navigate('/products');
                           }}
                           onSelectItem={(collectionId, itemId) => {
+                            setOpenDropdown(null);
                             setIsShopOpen(false);
                             setOpenMobileMenu(null);
                             setIsMobileMenuOpen(false);
-                            dispatch(setProductFilter({ navigationID: null, collectionID: collectionId, collectionItemID: itemId }));
+                            const navId = navigationMenus[normalizedItem].navId;
+                            dispatch(setProductFilter({ navigationID: navId, collectionID: collectionId, collectionItemID: itemId }));
                             navigate('/products');
                           }}
                         />
@@ -535,14 +530,11 @@ const Header = () => {
             <button
               className={`p-1 rounded-full hover:bg-opacity-20 relative`}
               onClick={() => {
+                setOpenDropdown(null);
                 setIsMobileMenuOpen(false);
                 setIsShopOpen(false);
                 setOpenMobileMenu(null);
-                // if (location.pathname === '/cart') {
-                  navigate('/cart');
-                // } else {
-                  // openCart();
-                // }
+                navigate('/cart');
               }}
             >
               <img

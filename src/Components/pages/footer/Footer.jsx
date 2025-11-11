@@ -10,6 +10,7 @@ import { useTheme } from "../../config/hooks/useTheme";
 import { useDispatch, useSelector } from "react-redux";
 import { submitSubscription, clearSubscribeState } from "../../redux/slice/Subscribe";
 import { useEffect, useState } from "react";
+import { fetchNavigationMenu } from "../../redux/slice/NavigationMenuSlice";
 
 // Inline footer data so this component is fully self-contained
 const footerData = {
@@ -68,6 +69,23 @@ const Footer = () => {
   const dispatch = useDispatch();
   const { loading, success, error, message } = useSelector((state) => state.subscribe || {});
   const [email, setEmail] = useState("");
+  const [footerNavigation, setFooterNavigation] = useState(null);
+
+  // Fetch footer navigation data
+  useEffect(() => {
+    const loadFooterNavigation = async () => {
+      try {
+        const result = await dispatch(fetchNavigationMenu('footer')).unwrap();
+        if (result?.Data) {
+          setFooterNavigation(result.Data);
+        }
+      } catch (err) {
+        console.error("Failed to load footer navigation:", err);
+        // Keep using static footerData as fallback
+      }
+    };
+    loadFooterNavigation();
+  }, [dispatch]);
 
   useEffect(() => {
     if (success) {
@@ -88,7 +106,7 @@ const Footer = () => {
   return (
     <div className={`${colors.footer.background} ${colors.footer.text}`}>
       {/* top */}
-      <div className="mx-auto w-full max-w-7xl px-4 md:px-6 py-8 md:py-10 grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-4 xl:grid-cols-5  gap-6 md:gap-4">
+      <div className="mx-auto w-full max-w-7xl px-4 md:px-6 py-8 md:py-10 grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6 md:gap-4">
         <div className="space-y-2">
           <img src={radheva} alt="Radheva" className="h-16 md:h-20" />
         </div>
@@ -118,36 +136,78 @@ const Footer = () => {
             ))}
           </ul>
         </div>
-        {/* Company */}
-        <div>
-          <h3 className="text-base md:text-lg font-semibold">
-            {footerData.company.title}
-          </h3>
-          <ul className="mt-4 text-xs md:text-sm space-y-2 opacity-90">
-            {footerData.company.links.map((link) => (
-              <li key={link.label}>
-                <a href={link.href} className="hover:opacity-100">
-                  {link.label}
-                </a>
-              </li>
-            ))}
-          </ul>
-        </div>
-        {/* Supports */}
-        <div>
-          <h3 className="text-base md:text-lg font-semibold">
-            {footerData.supports.title}
-          </h3>
-          <ul className="mt-4 text-xs md:text-sm space-y-2 opacity-90">
-            {footerData.supports.links.map((link) => (
-              <li key={link.label}>
-                <a href={link.href} className="hover:opacity-100">
-                  {link.label}
-                </a>
-              </li>
-            ))}
-          </ul>
-        </div>
+        {/* Dynamic Navigation Sections from API */}
+        {footerNavigation && footerNavigation.length > 0 ? (
+          footerNavigation.map((navItem) => (
+            <div key={navItem._id} className="space-y-4">
+              <h3 className="text-base md:text-lg font-semibold">
+                {navItem.navigationname}
+              </h3>
+              {navItem.collections && navItem.collections.length > 0 ? (
+                <div className="space-y-3">
+                  {navItem.collections.map((collection) => (
+                    <div key={collection._id} className="space-y-2">
+                      {collection.collectionname && (
+                        <h4 className="text-sm font-medium opacity-80">
+                          {collection.collectionname}
+                        </h4>
+                      )}
+                      {collection.items && collection.items.length > 0 && (
+                        <ul className="text-xs md:text-sm space-y-1.5 opacity-90">
+                          {collection.items.map((item) => (
+                            <li key={item._id}>
+                              <a
+                                href={`/${item.itemslug || '#'}`}
+                                className="hover:opacity-100 transition-opacity"
+                              >
+                                {item.itemname}
+                              </a>
+                            </li>
+                          ))}
+                        </ul>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <p className="mt-4 text-xs md:text-sm opacity-70">No collections available</p>
+              )}
+            </div>
+          ))
+        ) : (
+          <>
+            {/* Fallback: Company */}
+            <div>
+              <h3 className="text-base md:text-lg font-semibold">
+                {footerData.company.title}
+              </h3>
+              <ul className="mt-4 text-xs md:text-sm space-y-2 opacity-90">
+                {footerData.company.links.map((link) => (
+                  <li key={link.label}>
+                    <a href={link.href} className="hover:opacity-100">
+                      {link.label}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </div>
+            {/* Fallback: Supports */}
+            <div>
+              <h3 className="text-base md:text-lg font-semibold">
+                {footerData.supports.title}
+              </h3>
+              <ul className="mt-4 text-xs md:text-sm space-y-2 opacity-90">
+                {footerData.supports.links.map((link) => (
+                  <li key={link.label}>
+                    <a href={link.href} className="hover:opacity-100">
+                      {link.label}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </>
+        )}
         <div className="md:w-[300px] w-[250px]">
           <h3 className="text-base md:text-lg font-semibold">
             {footerData.newsletter.title}
