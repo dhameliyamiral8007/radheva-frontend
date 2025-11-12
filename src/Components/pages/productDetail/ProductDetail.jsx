@@ -60,8 +60,8 @@ const ProductDetail = () => {
         '21kt': 87.5,
         '22kt': 91.6,
         '24kt': 99.9
-      };
-      
+    };
+
 
     // Function to calculate gold price based on karat
     const calculateGoldPrice = (karat) => {
@@ -90,7 +90,7 @@ const ProductDetail = () => {
         const gold = calculateGoldPrice(selectedPurity);
         const diamond = getSelectedDiamondPrice();
         const labour = getLabourCharge();
-        const subtotal = gold + diamond + labour;
+        const subtotal = product.price + gold + diamond + labour;
         return Math.round(subtotal * 0.18); // 18% GST
     };
 
@@ -125,7 +125,7 @@ const ProductDetail = () => {
                     } else {
                         setQuantity(1);
                     }
-                    
+
                     // Set default selections from API data (nested structure)
                     if (response.Data.metals && response.Data.metals.length > 0) {
                         const firstMetal = response.Data.metals[0];
@@ -258,7 +258,7 @@ const ProductDetail = () => {
 
                     {/* Price Row */}
                     <div className="flex items-center gap-3 mb-4">
-                        <span className="text-2xl font-bold text-[#B5904F]">₹{(calculateGoldPrice(selectedPurity) + getSelectedDiamondPrice() + getLabourCharge() + getGstAmount()).toLocaleString()}</span>
+                        <span className="text-2xl font-bold text-[#B5904F]">₹{(product.price+calculateGoldPrice(selectedPurity) + getSelectedDiamondPrice() + getLabourCharge() + getGstAmount()).toLocaleString()}</span>
                         {product.discount && (
                             <span className="bg-[#B5904F] text-white px-2 py-1 text-xs rounded">
                                 {product.discount}% Off
@@ -294,28 +294,28 @@ const ProductDetail = () => {
                         const metal = (product.metals || []).find(m => (m.metalname || '').toLowerCase() === selectedPurity.toLowerCase());
                         const metalColors = metal?.colors || [];
                         return metalColors.length > 0 ? (
-                        <div className="mb-4">
-                            <div className="text-sm font-semibold mb-1">
-                                Metal Color : <span className="text-[#B5904F]">{selectedColor}</span>
+                            <div className="mb-4">
+                                <div className="text-sm font-semibold mb-1">
+                                    Metal Color : <span className="text-[#B5904F]">{selectedColor}</span>
+                                </div>
+                                <div className="flex gap-4">
+                                    {metalColors.map((color) => (
+                                        <div
+                                            key={color._id}
+                                            onClick={() => setSelectedColor(color.colorname)}
+                                            className={`w-8 h-8 rounded-full border cursor-pointer ${selectedColor === color.colorname ? "border-[#B5904F] border-2" : "border-gray-400"
+                                                }`}
+                                            style={{
+                                                backgroundColor: color.colorname === 'yellow' ? '#EAB308' :
+                                                    color.colorname === 'rose' ? '#F43F5E' :
+                                                        color.colorname === 'white' ? '#E5E7EB' :
+                                                            color.colorname === 'silver' ? '#9CA3AF' : '#6B7280'
+
+                                            }}
+                                        ></div>
+                                    ))}
+                                </div>
                             </div>
-                            <div className="flex gap-4">
-                                {metalColors.map((color) => (
-                                    <div
-                                        key={color._id}
-                                        onClick={() => setSelectedColor(color.colorname)}
-                                        className={`w-8 h-8 rounded-full border cursor-pointer ${selectedColor === color.colorname ? "border-[#B5904F] border-2" : "border-gray-400"
-                                            }`}
-                                        style={{
-                                            backgroundColor: color.colorname === 'yellow' ? '#EAB308' : 
-                                                           color.colorname === 'rose' ? '#F43F5E' : 
-                                                           color.colorname === 'white' ? '#E5E7EB' :
-                                                           color.colorname === 'silver' ? '#9CA3AF' :'#6B7280'
-                                                          
-                                        }}
-                                    ></div>
-                                ))}
-                            </div>
-                        </div>
                         ) : null;
                     })()}
 
@@ -324,25 +324,25 @@ const ProductDetail = () => {
                         const diamond = (product.diamonds || []).find(d => (d.diamondname || '').toLowerCase() === selectedShape.toLowerCase());
                         const diamondSizes = diamond?.sizes || [];
                         return diamondSizes.length > 0 ? (
-                        <div className="mb-4">
-                            <div className="text-sm font-semibold mb-1">
-                                Diamond Size : <span className="text-[#B5904F]">{selectedSize}</span>
+                            <div className="mb-4">
+                                <div className="text-sm font-semibold mb-1">
+                                    Diamond Size : <span className="text-[#B5904F]">{selectedSize}</span>
+                                </div>
+                                <div className="flex gap-3">
+                                    {diamondSizes.map((size) => (
+                                        <button
+                                            key={size._id}
+                                            onClick={() => setSelectedSize(size.carat + "ct")}
+                                            className={`px-4 py-2 rounded border ${selectedSize === (size.carat + "ct")
+                                                ? "border-[#B5904F] bg-[#B5904F] text-white"
+                                                : "border-gray-400"
+                                                }`}
+                                        >
+                                            {size.carat}ct
+                                        </button>
+                                    ))}
+                                </div>
                             </div>
-                            <div className="flex gap-3">
-                                {diamondSizes.map((size) => (
-                                    <button
-                                        key={size._id}
-                                        onClick={() => setSelectedSize(size.carat + "ct")}
-                                        className={`px-4 py-2 rounded border ${selectedSize === (size.carat + "ct")
-                                            ? "border-[#B5904F] bg-[#B5904F] text-white"
-                                            : "border-gray-400"
-                                            }`}
-                                    >
-                                        {size.carat}ct
-                                    </button>
-                                ))}
-                            </div>
-                        </div>
                         ) : null;
                     })()}
 
@@ -364,11 +364,11 @@ const ProductDetail = () => {
                                                 }`}
                                         >
                                             {shapeIcon ? (
-                                                <img 
-                                                    src={shapeIcon.icon} 
-                                                    alt={diamond.diamondname} 
+                                                <img
+                                                    src={shapeIcon.icon}
+                                                    alt={diamond.diamondname}
                                                     className={`w-8 h-8 ${theme === "dark" ? "filter invert brightness-1800" : "filter brightness-1650"
-                                                        }`} 
+                                                        }`}
                                                 />
                                             ) : (
                                                 <span className="text-xs">{diamond.diamondname}</span>
@@ -382,16 +382,27 @@ const ProductDetail = () => {
                     {/* Description */}
                     <div className="mt-6">
                         <div className="text-sm font-semibold mb-2">Description</div>
-                        <p className="opacity-90 leading-relaxed">
-                            {product.description ||
-                                "No description available for this product."}
-                        </p>
+                        {product.description ? (
+                            <div
+                                className="opacity-90 leading-relaxed"
+                                dangerouslySetInnerHTML={{ __html: product.description }}
+                            />
+                        ) : (
+                            <p className="opacity-90 leading-relaxed">
+                                No description available for this product.
+                            </p>
+                        )}
                     </div>
+
 
                     {/* Price Breakup */}
                     <div className="mt-6">
                         <div className="text-sm font-semibold mb-2">Price Break Up</div>
                         <div className="rounded">
+                               <div className="flex justify-between px-4 py-2 text-sm text-[#94A3B8] border-b">
+                                <span>₹{product.price}</span>
+                                <span>Product Price</span>
+                            </div>
                             <div className="flex justify-between px-4 py-2 text-sm text-[#94A3B8] border-b">
                                 <span>₹{calculateGoldPrice(selectedPurity).toLocaleString()}</span>
                                 <span>Gold ({selectedPurity})</span>
@@ -409,7 +420,7 @@ const ProductDetail = () => {
                                 <span>GST (18%)</span>
                             </div>
                             <div className={`flex justify-between px-4 py-2 text-sm font-semibold ${theme === "dark" ? "text-black " : "text-white"}`}>
-                                <span>₹{(calculateGoldPrice(selectedPurity) + getSelectedDiamondPrice() + getLabourCharge() + getGstAmount()).toLocaleString()}</span>
+                                <span>₹{(product.price+calculateGoldPrice(selectedPurity) + getSelectedDiamondPrice() + getLabourCharge() + getGstAmount()).toLocaleString()}</span>
                                 <span>Total</span>
                             </div>
                         </div>
@@ -490,7 +501,7 @@ const ProductDetail = () => {
                                     const token = localStorage.getItem('uuid') || localStorage.getItem('token') || localStorage.getItem('jwt');
                                     if (!token) {
                                         // remember current path to redirect after login
-                                        try { localStorage.setItem('postLoginRedirect', window.location.pathname + window.location.search); } catch {}
+                                        try { localStorage.setItem('postLoginRedirect', window.location.pathname + window.location.search); } catch { }
                                         navigate('/login');
                                         return;
                                     }
@@ -516,7 +527,7 @@ const ProductDetail = () => {
                                         try {
                                             const evt = new CustomEvent('open-cart-popup');
                                             window.dispatchEvent(evt);
-                                        } catch {}
+                                        } catch { }
                                     } catch (err) {
                                         console.error('Add to cart failed', err);
                                         // alert('Failed to add to cart.');
@@ -530,7 +541,7 @@ const ProductDetail = () => {
                         <div className="mt-4">
                             <button className="flex-1 bg-[#5E6A74] text-white px-4 py-3 rounded w-full" onClick={() => {
                                 // open cart popup after adding
-                                try { window.scrollTo({ top: 0, behavior: 'smooth' }); } catch {}
+                                try { window.scrollTo({ top: 0, behavior: 'smooth' }); } catch { }
                             }}>
                                 Shop This Piece
                             </button>

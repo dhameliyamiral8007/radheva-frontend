@@ -164,7 +164,7 @@ const About = () => {
         </h2>
       </div> */}
 
-      <div className="flex flex-col gap-[20px] justify-center md:my-16 my-8">
+      <div className="flex flex-col gap-[20px] justify-center  py-8">
      
         {/* <div className="grid xl:gap-[20px] xl:mx-24 lg:mx-5 md:mx-10 mx-4 gap-[15px] grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 justify-items-center">
           {categories.map((cat, idx) => {

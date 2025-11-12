@@ -2,9 +2,6 @@ import { useTheme } from "../../config/hooks/useTheme";
 import necklace from "../../../assets/necklaceHome.png";
 import SolitairesRing from "./SolitairesRing";
 import GeneralQuestions, { TitleGeneralQuestions } from "./GeneralQuestions";
-import TrustedReviews from "../Reviews/TrustedReviews";
-import underline from "../../../assets/about/underline.svg";
-import ReviewsSection from "../Reviews/ReviewSection";
 
 const SolitairesPage = () => {
   const { theme, colors } = useTheme();

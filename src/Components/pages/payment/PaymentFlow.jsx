@@ -230,6 +230,10 @@ console.log("orderData =",orderData);
             }
 
             // Step 2: Open Razorpay checkout
+            console.log(
+                "amount =",amount
+            );
+            
             const options = {
                 key: "rzp_test_mGJqET54AHAF1d", // Razorpay Key ID
                 amount: amount, // Amount in paise
