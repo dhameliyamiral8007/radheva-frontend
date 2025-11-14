@@ -136,6 +136,12 @@ const BookApoinment = () => {
                         }
                     }}>
                         <div className='grid gap-[10px]'>
+                            <div>
+   {appointmentDate && (
+                                <span className="text-sm ">Selected: {appointmentDate.toLocaleString()}</span>
+                            )}
+                            </div>
+                           
                             <label className="block text-[20px] font-normal font-kufam">Name<span className='text-[#FF383C] text-[20px]'>*</span></label>
                             <input
                                 type="text"
