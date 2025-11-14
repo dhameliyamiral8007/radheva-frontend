@@ -28,6 +28,8 @@ const ProductDetail = () => {
     const [selectedShape, setSelectedShape] = useState("");
     const [product, setProduct] = useState(null);
     const [loading, setLoading] = useState(true);
+    const [showFullDescription, setShowFullDescription] = useState(false);
+
     const [error, setError] = useState(null);
     const [goldPrice, setGoldPrice] = useState(22000); // Default 24K gold price
 
@@ -258,7 +260,7 @@ const ProductDetail = () => {
 
                     {/* Price Row */}
                     <div className="flex items-center gap-3 mb-4">
-                        <span className="text-2xl font-bold text-[#B5904F]">₹{(product.price+calculateGoldPrice(selectedPurity) + getSelectedDiamondPrice() + getLabourCharge() + getGstAmount()).toLocaleString()}</span>
+                        <span className="text-2xl font-bold text-[#B5904F]">₹{(product.price + calculateGoldPrice(selectedPurity) + getSelectedDiamondPrice() + getLabourCharge() + getGstAmount()).toLocaleString()}</span>
                         {product.discount && (
                             <span className="bg-[#B5904F] text-white px-2 py-1 text-xs rounded">
                                 {product.discount}% Off
@@ -380,7 +382,7 @@ const ProductDetail = () => {
                         </div>
                     )}
                     {/* Description */}
-                    <div className="mt-6">
+                    {/* <div className="mt-6">
                         <div className="text-sm font-semibold mb-2">Description</div>
                         {product.description ? (
                             <div
@@ -392,14 +394,42 @@ const ProductDetail = () => {
                                 No description available for this product.
                             </p>
                         )}
-                    </div>
+                    </div> */}
 
+                    <div className="mt-6">
+                        <div className="text-sm font-semibold mb-2">Description</div>
+                        {product.description ? (
+                            <div className="opacity-90 leading-relaxed">
+                                <div
+                                    dangerouslySetInnerHTML={{
+                                        __html: showFullDescription
+                                            ? product.description
+                                            : product.description.length > 500
+                                                ? product.description.slice(0, 500) + "..."
+                                                : product.description
+                                    }}
+                                />
+                                {product.description.length > 500 && (
+                                    <button
+                                        className="text-[#B5904F] text-sm mt-1 underline"
+                                        onClick={() => setShowFullDescription(prev => !prev)}
+                                    >
+                                        {showFullDescription ? "Read Less" : "Read More"}
+                                    </button>
+                                )}
+                            </div>
+                        ) : (
+                            <p className="opacity-90 leading-relaxed">
+                                No description available for this product.
+                            </p>
+                        )}
+                    </div>
 
                     {/* Price Breakup */}
                     <div className="mt-6">
                         <div className="text-sm font-semibold mb-2">Price Break Up</div>
                         <div className="rounded">
-                               <div className="flex justify-between px-4 py-2 text-sm text-[#94A3B8] border-b">
+                            <div className="flex justify-between px-4 py-2 text-sm text-[#94A3B8] border-b">
                                 <span>₹{product.price}</span>
                                 <span>Product Price</span>
                             </div>
@@ -420,7 +450,7 @@ const ProductDetail = () => {
                                 <span>GST (18%)</span>
                             </div>
                             <div className={`flex justify-between px-4 py-2 text-sm font-semibold ${theme === "dark" ? "text-black " : "text-white"}`}>
-                                <span>₹{(product.price+calculateGoldPrice(selectedPurity) + getSelectedDiamondPrice() + getLabourCharge() + getGstAmount()).toLocaleString()}</span>
+                                <span>₹{(product.price + calculateGoldPrice(selectedPurity) + getSelectedDiamondPrice() + getLabourCharge() + getGstAmount()).toLocaleString()}</span>
                                 <span>Total</span>
                             </div>
                         </div>

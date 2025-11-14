@@ -10,7 +10,7 @@ import quality from "../../../assets/quality.svg"
 const CartPopup = ({ isOpen, onClose }) => {
   const [localOpen, setLocalOpen] = useState(false);
   const { cartItems, removeFromCart, updateQuantity, incrementQuantity, decrementQuantity, fetchCart } = useCart();
-  const { theme } = useTheme();
+  const { theme, colors } = useTheme();
   const navigate = useNavigate();
   const resolveProduct = (item) => {
     return item?.productId && typeof item.productId === 'object' ? item.productId : (item?.product || null);
@@ -47,6 +47,8 @@ const CartPopup = ({ isOpen, onClose }) => {
   const open = isOpen || localOpen;
 
   const handleViewCart = () => {
+    setLocalOpen(false);
+    onClose && onClose();
     navigate("/cart");
   };
 
@@ -57,15 +59,23 @@ const CartPopup = ({ isOpen, onClose }) => {
   );
 
   const handleService = () => {
+    setLocalOpen(false);
+    onClose && onClose();
     navigate("/terms-condition")
   }
   const handlePrivacy = () => {
+    setLocalOpen(false);
+    onClose && onClose();
     navigate("/privacy-policy")
   }
   const handleShipping = () => {
+    setLocalOpen(false);
+    onClose && onClose();
     navigate("/shipping-policy")
   }
   const handleReturnPolicy = () => {
+    setLocalOpen(false);
+    onClose && onClose();
     navigate("/return-policy")
   }
   return (
@@ -125,7 +135,7 @@ const CartPopup = ({ isOpen, onClose }) => {
                   crossOrigin="anonymous"
                   referrerPolicy="no-referrer"
                   onError={(e) => {
-                    try { e.currentTarget.src = "data:image/gif;base64,R0lGODlhAQABAAAAACw="; } catch {}
+                    try { e.currentTarget.src = "data:image/gif;base64,R0lGODlhAQABAAAAACw="; } catch { }
                   }}
                 />
 
@@ -263,20 +273,20 @@ const CartPopup = ({ isOpen, onClose }) => {
             <span>Rs. {subtotal.toLocaleString()}</span>
           </div>
           <button
-               onClick={() => navigate("/payment-flow")}
-          className="w-full bg-yellow-600 hover:bg-yellow-700 text-white py-3 rounded-lg font-bold">
+            onClick={() => navigate("/payment-flow")}
+            className="w-full bg-yellow-600 hover:bg-yellow-700 text-white py-3 rounded-lg font-bold">
             CHECKOUT
           </button>
-        <button
-  onClick={() => {
-    handleViewCart();
-    setLocalOpen(false);
-    onClose && onClose();
-  }}
-  className="mt-3 w-full text-center text-sm font-medium opacity-80 hover:underline"
->
-  VIEW SHOPPING CART
-</button>
+          <button
+            onClick={() => {
+              handleViewCart();
+              setLocalOpen(false);
+              onClose && onClose();
+            }}
+            className="mt-3 w-full text-center text-sm font-medium opacity-80 hover:underline"
+          >
+            VIEW SHOPPING CART
+          </button>
 
         </div>
       </div>

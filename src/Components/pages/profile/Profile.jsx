@@ -89,41 +89,41 @@ const Profile = () => {
   return (
     <div className={`${colors.firstPart.background} ${colors.firstPart.text} w-full`}> 
       <div className="max-w-3xl mx-auto p-6">
-        <h1 className="text-2xl font-bold mb-4">Your Profile</h1>
+        <h1 className={`text-2xl font-bold mb-4 ${colors.firstPart.text}`}>Your Profile</h1>
         {error && <div className="text-red-500 mb-3">{error}</div>}
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-sm mb-1">Name</label>
-            <input className="w-full border p-2 rounded text-black" value={user.name} onChange={(e)=>handleChange('name', e.target.value)} />
+            <label className={`block text-sm mb-1 ${colors.firstPart.text}`}>Name</label>
+            <input className={`w-full border p-2 rounded ${colors.firstPart.text}`} value={user.name} onChange={(e)=>handleChange('name', e.target.value)} />
           </div>
           <div>
-            <label className="block text-sm mb-1">Email</label>
-            <input type="email" className="w-full border p-2 rounded text-black" value={user.email} onChange={(e)=>handleChange('email', e.target.value)} />
+            <label className={`block text-sm mb-1 ${colors.firstPart.text}`}>Email</label>
+            <input type="email" className={`w-full border p-2 rounded ${colors.firstPart.text}`} value={user.email} onChange={(e)=>handleChange('email', e.target.value)} />
           </div>
           <div>
-            <label className="block text-sm mb-1">Mobile</label>
-            <input className="w-full border p-2 rounded text-black" value={user.mobile} onChange={(e)=>handleChange('mobile', e.target.value)} />
+            <label className={`block text-sm mb-1 ${colors.firstPart.text}`}>Mobile</label>
+            <input className={`w-full border p-2 rounded ${colors.firstPart.text}`} value={user.mobile} onChange={(e)=>handleChange('mobile', e.target.value)} />
           </div>
           <div>
-            <label className="block text-sm mb-1">Password</label>
-            <input type="password" className="w-full border p-2 rounded text-black" value={user.password} onChange={(e)=>handleChange('password', e.target.value)} placeholder="Enter to update" />
+            <label className={`block text-sm mb-1 ${colors.firstPart.text}`}>Password</label>
+            <input type="password" className={`w-full border p-2 rounded ${colors.firstPart.text}`} value={user.password} onChange={(e)=>handleChange('password', e.target.value)} placeholder="Enter to update" />
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm mb-1">Street</label>
-              <input className="w-full border p-2 rounded text-black" value={user.addresses?.home?.street || ''} onChange={(e)=>handleAddressChange('street', e.target.value)} />
+              <label className={`block text-sm mb-1 ${colors.firstPart.text}`}>Street</label>
+              <input className={`w-full border p-2 rounded ${colors.firstPart.text}`} value={user.addresses?.home?.street || ''} onChange={(e)=>handleAddressChange('street', e.target.value)} />
             </div>
             <div>
-              <label className="block text-sm mb-1">City</label>
-              <input className="w-full border p-2 rounded text-black" value={user.addresses?.home?.city || ''} onChange={(e)=>handleAddressChange('city', e.target.value)} />
+              <label className={`block text-sm mb-1 ${colors.firstPart.text}`}>City</label>
+              <input className={`w-full border p-2 rounded ${colors.firstPart.text}`} value={user.addresses?.home?.city || ''} onChange={(e)=>handleAddressChange('city', e.target.value)} />
             </div>
             <div>
-              <label className="block text-sm mb-1">State</label>
-              <input className="w-full border p-2 rounded text-black" value={user.addresses?.home?.state || ''} onChange={(e)=>handleAddressChange('state', e.target.value)} />
+              <label className={`block text-sm mb-1 ${colors.firstPart.text}`}>State</label>
+              <input className={`w-full border p-2 rounded ${colors.firstPart.text}`} value={user.addresses?.home?.state || ''} onChange={(e)=>handleAddressChange('state', e.target.value)} />
             </div>
             <div>
-              <label className="block text-sm mb-1">Pincode</label>
-              <input className="w-full border p-2 rounded text-black" value={user.addresses?.home?.pincode || ''} onChange={(e)=>handleAddressChange('pincode', e.target.value)} />
+              <label className={`block text-sm mb-1 ${colors.firstPart.text}`}>Pincode</label>
+              <input className={`w-full border p-2 rounded ${colors.firstPart.text}`} value={user.addresses?.home?.pincode || ''} onChange={(e)=>handleAddressChange('pincode', e.target.value)} />
             </div>
           </div>
           <div className="pt-2">

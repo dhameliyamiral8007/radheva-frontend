@@ -36,8 +36,10 @@ const bannerSlice = createSlice({
             })
             .addCase(fetchBanner.fulfilled, (state, action) => {
                 state.loading = false;
-                // FIX: Extract the Data array from the response
-                state.banners = action.payload.Data || action.payload.data || [];
+                const raw = action.payload?.Data || action.payload?.data || [];
+                state.banners = Array.isArray(raw)
+                    ? raw.filter((item) => item?.status !== false && item?.isDeleted !== true)
+                    : [];
                 state.sliderData = action.payload;
             })
             .addCase(fetchBanner.rejected, (state, action) => {

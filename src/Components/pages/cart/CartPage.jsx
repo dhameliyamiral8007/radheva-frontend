@@ -39,7 +39,7 @@ const CartPage = () => {
   }, [fetchCart]);
 
   const subtotal = cartItems.reduce(
-    (acc, item) => acc + Number(item.finalAmount || item.totalPrice || 0),
+    (acc, item) => acc + Number(item.finalAmount || item.totalPrice || 0) * (item.quantity || 1),
     0
   );
   const handleService = () => {
@@ -78,20 +78,15 @@ const CartPage = () => {
             />
           </div>
           <div className="flex flex-col  gap-[10px]">
-            <span className="text-[44px] font-medium text-[#475569] tracking-[0px] leading-[52.8px] font-belleza">Your cart is empty</span>
-            <span className="">You have no items in your shopping cart.</span>
+            <span className={`text-[44px] font-medium tracking-[0px] leading-[52.8px] font-belleza ${colors.firstPart.text}`}>Your cart is empty</span>
+            <span className={colors.firstPart.text}>You have no items in your shopping cart.</span>
           </div>
 
-          <button
-            onClick={() => navigate("/payment-flow")}
-            className="bg-[#C79954] text-white px-6 py-3 rounded font-kufam mt-10"
-          >
-            CHECKOUT
-          </button>
+  
         </div>
 
         {/* Bottom Icons */}
-        <div className="flex flex-row justify-between px-5 py-6">
+        <div className={`flex flex-row justify-between px-5 py-6 ${colors.firstPart.text}`}>
           <div className="flex items-center gap-2">
             <img src={returnPolicy} alt="return policy" className="w-9 h-9" />
             <p>30 Days return policy</p>
@@ -124,21 +119,20 @@ const CartPage = () => {
       {/* Cart Items */}
       <div className="max-w-[1550px] py-10 xl:mx-24 md:mx-10 mx-4">
         <div className=" grid gap-[10px]">
-          <p className="font-kufam text-[#0F172A] text-[20px] font-medium tracking-[0px] leading-[100%]">
+          <p className={`font-kufam text-[20px] font-medium tracking-[0px] leading-[100%] ${colors.firstPart.text}`}>
             Congratulations! You get free gift!
           </p>
-          <div class="border-double rounded-lg border-6 border-[#5E6A74]"></div>
+          <div className="border-double rounded-lg border-6 border-[#5E6A74]"></div>
         </div>
         {/* <div className="border-b-4 border-gray-600/40 p-2"> <span className="border-b-4 border-gray-600/40"></span></div> */}
 
         {/* Table Header */}
         <div className="mx-10">
-          <div className="grid grid-cols-12 pt-10 pb-3 mb-4 mx-16 text-sm font-semibold">
-            <div className="col-span-6 text-[#0F172A]">PRODUCT</div>
+          <div className={`grid grid-cols-12 pt-10 pb-3 mb-4 mx-16 text-sm font-semibold ${colors.firstPart.text}`}>
+            <div className="col-span-5">PRODUCT</div>
             <div className="col-span-2 text-center">PRICE</div>
             <div className="col-span-2 text-center">QUANTITY</div>
-            <div className="col-span-2 text-right">SUBTOTAL</div>
-
+            <div className="col-span-3 text-right">SUBTOTAL</div>
           </div>
           <div className="border-b-[1px] opacity-[20%] border-[#A9B2B9]"></div>
 
@@ -146,14 +140,15 @@ const CartPage = () => {
           {cartItems.map((item) => (
             <div
               key={item._id}
-              className="grid grid-cols-12 items-center border-b-2 border-[#A9B2B9]/40 py-8"
+              className="grid grid-cols-12 items-start border-b-2 border-[#A9B2B9]/40 py-8"
             >
               {/* Product */}
-              <div className="col-span-6 flex gap-10">
-                <div className="flex items-center">
+              <div className="col-span-5 flex gap-4">
+                <div className="flex items-start pt-2">
                   <button
                     onClick={() => removeFromCart(item._id)}
-                    className="text-[#333333] bg-white rounded-full text-[18px] font-semibold w-[33.25px] h-[33.25px]"
+                    className={`${colors.firstPart.text} bg-white rounded-full text-[18px] font-semibold w-[33.25px] h-[33.25px] flex items-center justify-center hover:opacity-70 transition-opacity`}
+                    aria-label="Remove item"
                   >
                     ✕
                   </button>
@@ -161,86 +156,91 @@ const CartPage = () => {
                 <img
                   src={resolveImageSrc(item)}
                   alt={(resolveProduct(item)?.productname) || "Product"}
-                  className="w-[184.45px] h-[180px] object-cover"
+                  className="w-[184.45px] h-[180px] object-cover rounded"
                   crossOrigin="anonymous"
                   referrerPolicy="no-referrer"
                   onError={(e) => {
                     try { e.currentTarget.src = "data:image/gif;base64,R0lGODlhAQABAAAAACw="; } catch {}
                   }}
                 />
-                <div className="flex flex-col gap-[20px]">
+                <div className="flex flex-col gap-3 flex-1">
                   <div>
-                    <h3 className="font-medium font-kufam text-[#0F172A] text-[20px] tracking-[0px] leading-[100%]">{item.productId?.productname || "Product"}</h3>
+                    <h3 className={`font-medium font-kufam text-[20px] tracking-[0px] leading-[100%] ${colors.firstPart.text} opacity-80`}>
+                      {item.productId?.productname || "Product"}
+                    </h3>
                   </div>
-                  <div className="flex flex-col gap-[12px]">
-                    <p className="text-[20px] tracking-[0px] leading-[100%] font-medium font-kufam">
-                      <span className="text-[#334155] ">Metal Type:</span> <span className="pl-10  text-[#64748B]">{item.metalId?.metalname}</span>
-                    </p>
-                    <p className="text-[20px] tracking-[0px] leading-[100%] font-medium font-kufam">
-                      <span className="text-[#334155]">Metal Tone:</span> <span className="pl-10 text-[#64748B]">{item.colorId?.colorname}</span>
-                    </p>
+                  <div className="flex flex-col gap-2">
+                    {item.metalId?.metalname && (
+                      <p className={`text-base tracking-[0px] leading-[100%] font-medium font-kufam ${colors.firstPart.text}`}>
+                        <span>Metal Type:</span> <span className="ml-2 opacity-80">{item.metalId.metalname}</span>
+                      </p>
+                    )}
+                    {item.colorId?.colorname && (
+                      <p className={`text-base tracking-[0px] leading-[100%] font-medium font-kufam ${colors.firstPart.text}`}>
+                        <span>Metal Tone:</span> <span className="ml-2 opacity-80">{item.colorId.colorname}</span>
+                      </p>
+                    )}
                     {item.diamondId && (
-                      <p className="text-[20px] tracking-[0px] leading-[100%] font-medium font-kufam">
-                        <span className="text-[#334155]">Diamond:</span>{" "}
-                        <span className="pl-10 text-[#64748B]">{item.diamondId.diamondname}</span>
+                      <p className={`text-base tracking-[0px] leading-[100%] font-medium font-kufam ${colors.firstPart.text}`}>
+                        <span>Diamond:</span> <span className="ml-2 opacity-80">{item.diamondId.diamondname}</span>
                       </p>
                     )}
                     {item.sizeId && (
-                      <p className="text-[20px] tracking-[0px] leading-[100%] font-medium font-kufam">
-                        <span className="text-[#334155]">Size:</span>{" "}
-                        <span className="pl-10 text-[#64748B]">{item.sizeId.carat}ct</span>
+                      <p className={`text-base tracking-[0px] leading-[100%] font-medium font-kufam ${colors.firstPart.text}`}>
+                        <span>Size:</span> <span className="ml-2 opacity-80">{item.sizeId.carat}ct</span>
                       </p>
                     )}
                   </div>
                 </div>
               </div>
 
-
               {/* Price */}
-              <div className="col-span-2 text-center">
-                <span className="font-medium font-kufam text-[#334155] text-[20px] tracking-[0px] leading-[100%]">
-                  Price: Rs. {item.finalAmount?.toLocaleString() || item.totalPrice?.toLocaleString()}
+              <div className="col-span-2 text-center pt-2">
+                <span className={`font-medium font-kufam text-[20px] tracking-[0px] leading-[100%] ${colors.firstPart.text}`}>
+                  Rs. {item.finalAmount?.toLocaleString() || item.totalPrice?.toLocaleString()}
                 </span>
               </div>
 
               {/* Quantity */}
-              <div className="col-span-2 flex justify-center items-center">
-                <button
-                  onClick={() => decrementQuantity(item._id)}
-                  className="w-[30px] h-[30px] bg-[#D9D9D9]/40 text-[#292D32] rounded-[6px] flex items-center justify-center"
-                  aria-label="Decrease quantity"
-                >
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="22"
-                    height="22"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
+              <div className="col-span-2 flex justify-center items-center pt-2">
+                <div className="flex items-center gap-1">
+                  <button
+                    onClick={() => decrementQuantity(item._id)}
+                    className={`w-[30px] h-[30px] bg-[#D9D9D9]/40 rounded-[6px] flex items-center justify-center ${colors.firstPart.text} hover:bg-[#D9D9D9]/60 transition-colors`}
+                    aria-label="Decrease quantity"
                   >
-                    <path d="M5 12h14" />
-                  </svg>
-                </button>
-                <div className="w-[40px] h-[30px] text-[#292D32] font-medium font-kufam text-[20px] flex items-center justify-center text-center">
-                  {item.quantity}
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="22"
+                      height="22"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    >
+                      <path d="M5 12h14" />
+                    </svg>
+                  </button>
+                  <div className={`w-[40px] h-[30px] font-medium font-kufam text-[20px] flex items-center justify-center text-center ${colors.firstPart.text}`}>
+                    {item.quantity}
+                  </div>
+                  <button
+                    onClick={() => incrementQuantity(item._id)}
+                    className={`w-[30px] h-[30px] bg-[#D9D9D9]/40 rounded-[6px] flex items-center justify-center ${colors.firstPart.text} hover:bg-[#D9D9D9]/60 transition-colors`}
+                    aria-label="Increase quantity"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="inline-block">
+                      <path d="M12 5v14M5 12h14" />
+                    </svg>
+                  </button>
                 </div>
-                <button
-                  onClick={() => incrementQuantity(item._id)}
-                  className="w-[30px] h-[30px] bg-[#D9D9D9]/40 text-[#292D32] rounded-[6px] flex items-center justify-center"
-                  aria-label="Increase quantity"
-                >
-                  <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="inline-block">
-                    <path d="M12 5v14M5 12h14" />
-                  </svg>
-                </button>
               </div>
 
               {/* Subtotal */}
-              <div className="col-span-2 font-medium font-kufam text-[#0F172A] text-[20px] tracking-[0px] leading-[100%]">
-                Price: Rs. {(item.finalAmount || item.totalPrice || 0).toLocaleString()}
+              <div className={`col-span-3 text-right pt-2 font-medium font-kufam text-[20px] tracking-[0px] leading-[100%] ${colors.firstPart.text}`}>
+                Rs. {((item.finalAmount || item.totalPrice || 0) * (item.quantity || 1)).toLocaleString()}
               </div>
             </div>
           ))}
@@ -248,11 +248,11 @@ const CartPage = () => {
         
         {/* Summary Section */}
         <div className="mt-10 max-w-[583px] mx-auto w-full">
-          <div className="flex justify-between items-center mb-4">
+          <div className={`flex justify-between items-center mb-4 ${colors.firstPart.text}`}>
             <span className="text-lg font-kufam opacity-80">Total</span>
             <span className="text-2xl font-semibold">₹{subtotal.toLocaleString()}</span>
           </div>
-          <p className="text-sm opacity-70 mb-4">Shipping, taxes, & discounts calculated during checkout.</p>
+          <p className={`text-sm opacity-70 mb-4 ${colors.firstPart.text}`}>Shipping, taxes, & discounts calculated during checkout.</p>
           <button
             onClick={handleCheckout}
             className="bg-[#C79954] text-[#FFFFFF] text-[20px] w-full font-semibold px-[17px] py-[15px] rounded-[10px] font-kufam"
@@ -285,7 +285,7 @@ const CartPage = () => {
         </div>
       </div>
 
-      <div className="flex flex-row px-5 py-3 border-b  border-gray-600/40  ">
+      <div className={`flex flex-row px-5 py-3 border-b  border-gray-600/40 ${colors.firstPart.text}`}>
         <button
           onClick={handleReturnPolicy}
           className="mt-3 w-full text-center text-sm font-kufam opacity-80 hover:underline"
@@ -311,7 +311,7 @@ const CartPage = () => {
           TERMS OF SERVICE
         </button>
       </div>
-      <div className="flex flex-row justify-between px-5 py-6">
+      <div className={`flex flex-row justify-between px-5 py-6 ${colors.firstPart.text}`}>
         <div className="flex items-center gap-2">
           <img
             src={returnPolicy}

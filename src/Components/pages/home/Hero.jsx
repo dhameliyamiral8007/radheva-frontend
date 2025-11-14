@@ -26,6 +26,30 @@ const Hero = () => {
 		setCurrentSlide(index);
 	};
 
+	const getPositionConfig = (position = "center") => {
+		const pos = position.toLowerCase();
+		switch (pos) {
+			case "left":
+				return {
+					container: "justify-start",
+					textAlign: "items-start text-left",
+					padding: "md:pl-12 pl-4 pr-4",
+				};
+			case "right":
+				return {
+					container: "justify-end",
+					textAlign: "items-end text-right",
+					padding: "md:pr-12 pr-4 pl-4",
+				};
+			default:
+				return {
+					container: "justify-center",
+					textAlign: "items-center text-center",
+					padding: "md:px-12 px-4",
+				};
+		}
+	};
+
 	// Handle button click - navigate to products with collection ID
 	const handleButtonClick = (item, e) => {
 		e.preventDefault();
@@ -62,58 +86,66 @@ const Hero = () => {
 							alt="hero"
 							className="w-full h-full object-cover"
 						/>
-						<div className="absolute md:left-10 left-4 top-12 w-auto xl:mx-24 lg:mx-5 md:mx-10 mx-4 ">
-							<div className="flex flex-col lg:gap-[260px] md:top-[150px] gap-24">
-								<div>
-									<div className="flex items-center justify-center font-kufam text-[24px] text-white">
-										<span>{item.shortdesc}</span>
-										<hr className="ml-2 bg-[#C79954] w-5 border-0 h-[2px]" />
-									</div>
-									<h1 className="mt-3 font-Ginger text-4xl sm:text-5xl leading-tight text-[var(--accent-2)]">
-								
-										{item.title}
-									</h1> 
-	
-									<p className="mt-4 sm:mt-6 text-white text-base sm:text-lg font-kufam">
-										{item.description}
-									
-									</p>
-								</div>
-								<div className="flex flex-col items-start w-auto gap-2">
-									<div className="inline-flex flex-col items-center gap-2 px-6 py-3 rounded-xl">
-										<button 
-											type="button"
-											onClick={(e) => handleButtonClick(item, e)}
-											className="inline-flex items-center gap-3 px-6 py-3 rounded-xl btn-accent w-auto cursor-pointer z-10 relative"
-										>
-											<span className="text-sm font-medium">
-												{item.buttontxt}
-											</span>
-											<span className="h-[28px] w-[28px] flex items-center justify-center rounded-xl bg-white">
-												<svg
-													width="16"
-													height="11"
-													viewBox="0 0 24 24"
-													fill="none"
-													xmlns="http://www.w3.org/2000/svg"
+						{(() => {
+							const { container, textAlign, padding } = getPositionConfig(item.position);
+							const textColor = item.color || "#FFFFFF";
+							return (
+								<div className={`absolute inset-0 flex ${container} pt-12 ${padding}`}>
+									<div className={`flex flex-col lg:gap-40 gap-20 max-w-3xl ${textAlign}`}>
+										<div className="space-y-4">
+											<div
+												className={`flex ${textAlign.includes("items-end") ? "justify-end" : textAlign.includes("items-start") ? "justify-start" : "justify-center"} font-kufam text-2xl`}
+												style={{ color: textColor }}
+											>
+												<span className="break-words">{item.shortdesc}</span>
+												<hr className="ml-2 bg-[#C79954] w-5 border-0 h-[2px]" />
+											</div>
+											<h1
+												className="mt-2 font-Ginger text-4xl sm:text-5xl leading-tight break-words"
+												style={{ color: textColor, overflowWrap: "anywhere" }}
+											>
+												{item.title}
+											</h1>
+											<p
+												className="mt-4 sm:mt-6 text-base sm:text-lg font-kufam break-words"
+												style={{ color: textColor, overflowWrap: "anywhere" }}
+											>
+												{item.description}
+											</p>
+										</div>
+										<div className={`flex ${textAlign.includes("items-end") ? "justify-end" : textAlign.includes("items-start") ? "justify-start" : "justify-center"} w-full`}>
+											<div className="inline-flex flex-col items-center gap-2 px-6 py-3 rounded-xl">
+												<button
+													type="button"
+													onClick={(e) => handleButtonClick(item, e)}
+													className="inline-flex items-center gap-3 px-6 py-3 rounded-xl btn-accent w-auto cursor-pointer z-10 relative"
 												>
-													<path
-														d="M5 12h14M13 5l7 7-7 7"
-														stroke="currentColor"
-														strokeWidth="2"
-														strokeLinecap="round"
-														strokeLinejoin="round"
-													/>
-												</svg>
-											</span>
-										</button>
-										<div
-											className={` ${index === currentSlide ? "opacity-100" : "opacity-0"} h-[2px] bg-[#D1AE6B] w-full`}
-										/>
+													<span className="text-sm font-medium">{item.buttontxt}</span>
+													<span className="h-[28px] w-[28px] flex items-center justify-center rounded-xl bg-white text-black">
+														<svg
+															width="16"
+															height="11"
+															viewBox="0 0 24 24"
+															fill="none"
+															xmlns="http://www.w3.org/2000/svg"
+														>
+															<path
+																d="M5 12h14M13 5l7 7-7 7"
+																stroke="currentColor"
+																strokeWidth="2"
+																strokeLinecap="round"
+																strokeLinejoin="round"
+															/>
+														</svg>
+													</span>
+												</button>
+												<div className={` ${index === currentSlide ? "opacity-100" : "opacity-0"} h-[2px] bg-[#D1AE6B] w-full`} />
+											</div>
+										</div>
 									</div>
 								</div>
-							</div>
-						</div>
+							);
+						})()}
 						<div className="absolute md:bottom-8 bottom-4 left-1/2 -translate-x-1/2 flex items-center md:gap-6 gap-3 text-white/80">
 							{images.map((_, idx) => (
 								<div key={idx} className="flex items-center md:gap-6 gap-3">

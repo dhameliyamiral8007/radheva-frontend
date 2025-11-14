@@ -22,9 +22,7 @@ const CuratedRadiance = () => {
 
   // Get the entire banner state
   const bannerState = useSelector((state) => state.banner);
-
-  // Extract banners from the nested structure - FIXED
-  const banners = bannerState?.banners?.Data || bannerState?.banners?.data || bannerState?.banners || [];
+  const banners = bannerState?.banners || [];
   const loading = bannerState?.loading || false;
   const error = bannerState?.error || null;
 
@@ -183,10 +181,12 @@ const CuratedRadiance = () => {
           />
           <div className="absolute inset-0 flex justify-end md:justify-end items-start lg:items-start xl:top-[110px] lg:top-[80px] md:top-[100px] top-[70px] right-3 sm:right-6 md:right-5 lg:right-[0px] xl:right-[60px]" data-aos="zoom-in" data-aos-delay="150">
             <div className="max-w-[280px] sm:max-w-[320px] md:max-w-[350px] lg:max-w-[299px]">
-              <p className="text-lg sm:text-xl md:text-3xl xl:text-[46px] lg:text-[30px] text-[#C79954] w-full font-Belleza text-center uppercase leading-tight">
+              <p className="text-lg sm:text-xl md:text-3xl xl:text-[46px] lg:text-[30px] text-[#C79954] w-full font-Belleza text-center uppercase leading-tight break-words hyphens-auto"
+                 style={{ overflowWrap: "anywhere" }}>
                 {getBannerTitle(0)}
               </p>
-              <p className="text-sm sm:text-base md:text-lg mb-10 sm:mb-6 md:mb-14 lg:mb-12 font-light text-center text-[#CFCFCF] mt-2 sm:mt-3">
+              <p className="text-sm sm:text-base md:text-lg mb-10 sm:mb-6 md:mb-14 lg:mb-12 font-light text-center text-[#CFCFCF] mt-2 sm:mt-3 break-words hyphens-auto"
+                 style={{ overflowWrap: "anywhere" }}>
                 {getBannerDescription(0)}
               </p>
               <div className="w-full flex justify-center">
@@ -213,10 +213,12 @@ const CuratedRadiance = () => {
             />
             <div className="absolute inset-0 flex flex-col justify-start items-start top-4 sm:top-6 md:top-8 lg:top-[60px] w-[90%] xl:w-[448px] lg:w-[250px] left-3 sm:left-4 xl:left-[30px] lg:left-4 text-left sm:text-center" data-aos="zoom-in" data-aos-delay="150">
               <div className="text-white">
-                <h3 className="text-lg sm:text-xl text-start max-sm:text-start md:text-2xl lg:text-xl font-Belleza mb-2 xl:mb-4 md:mb-2 text-[#FFFFFF] leading-tight">
+                <h3 className="text-lg sm:text-xl text-start max-sm:text-start md:text-2xl lg:text-xl font-Belleza mb-2 xl:mb-4 md:mb-2 text-[#FFFFFF] leading-tight break-words hyphens-auto"
+                    style={{ overflowWrap: "anywhere" }}>
                   {getBannerTitle(1)}
                 </h3>
-                <p className="text-xs sm:text-sm md:text-base text-start mb-12 sm:mb-6 md:mb-8 lg:mb-20 xl:mx-10 lg:mx-0 font-medium text-[#CFCFCF] leading-relaxed max-sm:w-[270px]">
+                <p className="text-xs sm:text-sm md:text-base text-start mb-12 sm:mb-6 md:mb-8 lg:mb-20 xl:mx-10 lg:mx-0 font-medium text-[#CFCFCF] leading-relaxed max-sm:w-[270px] break-words hyphens-auto"
+                   style={{ overflowWrap: "anywhere" }}>
                   {getBannerDescription(1)}
                 </p>
                 <button 
@@ -240,10 +242,12 @@ const CuratedRadiance = () => {
               />
               <div className="absolute inset-0 flex justify-end items-start right-3 sm:right-4 mxl:right-6 md:right-4" data-aos="zoom-in" data-aos-delay="200">
                 <div className="text-white text-right mt-5 sm:mt-4 xl:mt-6 md:mt-3">
-                  <h3 className="text-[18px] sm:text-xl md:text-2xl lg:text-xl xl:text-[26px] font-Belleza mb-2 sm:mb-3 tracking-[0px] leading-tight">
+                  <h3 className="text-[18px] sm:text-xl md:text-2xl lg:text-xl xl:text-[26px] font-Belleza mb-2 sm:mb-3 tracking-[0px] leading-tight break-words hyphens-auto"
+                      style={{ overflowWrap: "anywhere" }}>
                     {getBannerTitle(2)}
                   </h3>
-                  <p className="text-[12px] sm:text-[12px] md:text-[14px] tracking-[0px] mb-12 sm:mb-6 xl:mb-10 md:mb-24 font-medium leading-relaxed">
+                  <p className="text-[12px] sm:text-[12px] md:text-[14px] tracking-[0px] mb-12 sm:mb-6 xl:mb-10 md:mb-24 font-medium leading-relaxed break-words hyphens-auto"
+                     style={{ overflowWrap: "anywhere" }}>
                     {getBannerDescription(2)}
                   </p>
                   <button 
@@ -263,10 +267,12 @@ const CuratedRadiance = () => {
               />
               <div className="absolute inset-0 left-3 sm:left-4 xl:left-6 lg:left-3" data-aos="zoom-in" data-aos-delay="250">
                 <div className="text-white mt-5 sm:mt-6 xl:mt-8 lg:mt-4">
-                  <h3 className="text-[18px] sm:text-xl xl:mb-0 lg:mb-4 xl:text-[26px] lg:text-[18px] md:text-[24px] md:mb-3 mb-2 font-Belleza tracking-[0px] leading-tight">
+                  <h3 className="text-[18px] sm:text-xl xl:mb-0 lg:mb-4 xl:text-[26px] lg:text-[18px] md:text-[24px] md:mb-3 mb-2 font-Belleza tracking-[0px] leading-tight break-words hyphens-auto"
+                      style={{ overflowWrap: "anywhere" }}>
                     {getBannerTitle(3)}
                   </h3>
-                  <p className="text-[12px] sm:text-[12px] xl:text-[14px] lg:text-[14px] mb-12 sm:mb-6 xl:mb-12 lg:mb-[70px] md:mb-[92px] font-kufam tracking-[0px] leading-relaxed">
+                  <p className="text-[12px] sm:text-[12px] xl:text-[14px] lg:text-[14px] mb-12 sm:mb-6 xl:mb-12 lg:mb-[70px] md:mb-[92px] font-kufam tracking-[0px] leading-relaxed break-words hyphens-auto"
+                     style={{ overflowWrap: "anywhere" }}>
                     {getBannerDescription(3)}
                   </p>
                   <button 
@@ -294,10 +300,12 @@ const CuratedRadiance = () => {
           </div>
 
           <div className="flex flex-col justify-center xl:mx-14 lg:mx-5 mx-5 md:absolute lg:relative max-sm:my-5" data-aos="fade-left" data-aos-delay="150">
-            <h2 className="xl:text-[44px] lg:text-[30px] md:text-3xl text-[20px] mb-4 text-[#C79954] font-Belleza uppercase md:mt-[44px]">
+            <h2 className="xl:text-[44px] lg:text-[30px] md:text-3xl text-[20px] mb-4 text-[#C79954] font-Belleza uppercase md:mt-[44px] break-words hyphens-auto"
+                style={{ overflowWrap: "anywhere" }}>
               {getBannerTitle(4)}
             </h2>
-            <p className={`text-[#CFCFCF] leading-snug text-[16px] font-kufam tracking-[0px] xl:mb-14 lg:mb-10 md:mb-14 mb-6 md:w-[450px] lg:w-full ${theme === "dark" ? "text-black" : "text-[#475569]"}`}>
+            <p className={`text-[#CFCFCF] leading-snug text-[16px] font-kufam tracking-[0px] xl:mb-14 lg:mb-10 md:mb-14 mb-6 md:w-[450px] lg:w-full break-words hyphens-auto ${theme === "dark" ? "text-black" : "text-[#475569]"}`}
+               style={{ overflowWrap: "anywhere" }}>
               {getBannerDescription(4)}
             </p>
             <button 

@@ -140,30 +140,36 @@ const DateTimePicker = ({ onApply }) => {
           {/* Calendar */}
           <div className="w-2/5 p-6  ">
             <div
-              className={`flex justify-between font-kufam rounded-sm px-2 bg-white text-black items-center mb-4`}
+              className={`flex justify-between font-kufam rounded-sm px-2 items-center mb-4 ${
+                theme === "dark" 
+                  ? "bg-white text-black" 
+                  : "bg-white text-black"
+              }`}
             >
               <button
                 onClick={() => setViewMonth(new Date(year, month - 1, 1))}
-                className="text-gray-400"
+                className={theme === "dark" ? "text-gray-400" : "text-gray-600"}
               >
                 <img src={ArrowLeft} alt="Arrow Left" />
               </button>
-              <h2 className="text-lg font-semibold">
+              <h2 className={`text-lg font-semibold ${
+                theme === "dark" ? "text-black" : "text-black"
+              }`}>
                 {viewMonth.toLocaleString("default", { month: "long" })} {year}
               </h2>
               <button
                 onClick={() => setViewMonth(new Date(year, month + 1, 1))}
-                className="text-gray-400"
+                className={theme === "dark" ? "text-gray-400" : "text-gray-600"}
               >
-                <img src={ArrowRight} alt="Arrow Left" />
+                <img src={ArrowRight} alt="Arrow Right" />
               </button>
             </div>
 
             {/* Weekdays */}
             <div
-              className={`grid grid-cols-7 text-sm ${
-                theme === "dark" ? "text-gray-400" : "text-gray-500"
-              } mb-2`}
+              className={`grid grid-cols-7 text-sm mb-2 ${
+                theme === "dark" ? "text-black" : "text-white"
+              }`}
             >
               {["Mo", "Tu", "We", "Th", "Fr", "Sa", "Su"].map((d) => (
                 <div key={d} className="text-center">
@@ -192,8 +198,8 @@ const DateTimePicker = ({ onApply }) => {
                         isSelected
                           ? "bg-yellow-600 text-white"
                           : theme === "dark"
-                          ? "hover:bg-gray-700"
-                          : "hover:bg-gray-200"
+                          ? `text-black hover:bg-gray-200`
+                          : `text-white hover:bg-gray-600`
                       }`}
                     >
                       {date}
@@ -234,15 +240,15 @@ const DateTimePicker = ({ onApply }) => {
           <button
             className={`px-4 py-2 rounded-lg ${
               theme === "dark"
-                ? "bg-gray-600 hover:bg-gray-700"
-                : "bg-gray-200 hover:bg-gray-300"
+                ? "bg-gray-200 hover:bg-gray-300 text-black"
+                : "bg-gray-200 hover:bg-gray-300 text-black"
             }`}
           >
             Cancel
           </button>
           <button
             onClick={handleApply}
-            className="px-4 py-2 rounded-lg bg-yellow-600 hover:bg-yellow-700"
+            className="px-4 py-2 rounded-lg bg-yellow-600 hover:bg-yellow-700 text-white"
           >
             Apply
           </button>
