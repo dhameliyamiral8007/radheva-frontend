@@ -1,14 +1,12 @@
 import React, { useState } from 'react'
 import { useTheme } from '../../config/hooks/useTheme'
 import RingDesign from "../../../assets/radheva.png"
-import { DateRange } from 'react-date-range';
-import TimePicker from 'react-time-picker';
+
 import 'react-date-range/dist/styles.css';
 import 'react-date-range/dist/theme/default.css';
 import 'react-time-picker/dist/TimePicker.css';
 import 'react-clock/dist/Clock.css';
-import format from 'date-fns/format';
-import Clock from 'react-clock';
+
 import DateTimePicker from './DateTimePicker';
 import { apiInstance } from '../../../api/AxiosApi';
 

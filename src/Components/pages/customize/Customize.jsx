@@ -43,7 +43,7 @@ const Customize = () => {
         let isMounted = true;
         (async () => {
             try {
-                const { data } = await apiInstance.post('/client/product/getMetalsForUsers');
+                const { data } = await apiInstance.get('/client/inquiry');
                 if (isMounted && Array.isArray(data?.data || data)) {
                     setMetals(data.data || data);
                 }
@@ -103,7 +103,7 @@ const Customize = () => {
             if (form.comments) fd.append('comments', form.comments);
             files.forEach((file) => fd.append('referenceImages', file));
 
-            await apiInstance.post('/client/inquiry', fd, { headers: { 'Content-Type': 'multipart/form-data' } });
+            await apiInstance.post('/client/inquiry/createInquiry', fd, { headers: { 'Content-Type': 'multipart/form-data' } });
             setForm({ firstName: '', email: '', phone: '', stoneType: '', jewelryTypes: [], metalType: '', budget: '', comments: '' });
             setFiles([]);
         } finally {
@@ -229,7 +229,7 @@ const Customize = () => {
                             <option value="">Select metal type</option>
                             {metals.map((m) => (
                                 <option key={m?._id || m?.id} value={m?._id || m?.id}>
-                                    {(m?.name || m?.metalName || m?.title || 'Unknown') + (m?.purity ? ` (${m.purity})` : '')}
+                                    {m?.metalname || m?.name || m?.metalName || m?.title || 'Unknown'}
                                 </option>
                             ))}
                         </select>
