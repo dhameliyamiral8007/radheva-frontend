@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useTheme } from "../../config/hooks/useTheme";
 import AOS from "aos";
@@ -34,11 +34,32 @@ const JewelleryEveryMoment = () => {
 
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 4;
+  const productsRef = useRef(products);
 
   useEffect(() => {
     // Fetch latest products when component mounts
     dispatch(fetchJwelaryProducts()); // Use the correct thunk name
   }, [dispatch]);
+
+  // Only reset to page 1 if products array is empty or current page is truly out of bounds
+  // This prevents unnecessary resets when scrolling or other sections load
+  useEffect(() => {
+    if (products.length === 0) {
+      if (currentPage !== 1) {
+        setCurrentPage(1);
+      }
+      return;
+    }
+    
+    const totalPages = Math.ceil(products.length / itemsPerPage);
+    // Only reset if current page is actually out of bounds (greater than total pages)
+    // Don't reset if we're on a valid page
+    if (totalPages > 0 && currentPage > totalPages) {
+      setCurrentPage(1);
+    }
+    // Only depend on products array reference, not length, to prevent unnecessary resets
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [products, itemsPerPage]);
 
   useEffect(() => {
     setTimeout(() => {
@@ -52,7 +73,7 @@ const JewelleryEveryMoment = () => {
       });
       AOS.refresh();
     }, 100);
-  }, [products]);
+  }, [products, currentPage]);
 
   const handleAddToWishlist = async (product, e) => {
     e?.stopPropagation();
@@ -130,13 +151,33 @@ const JewelleryEveryMoment = () => {
   };
 
   // Calculate pagination
-  const totalPages = Math.ceil(products.length / itemsPerPage);
-  const startIndex = (currentPage - 1) * itemsPerPage;
-  const currentProducts = products.slice(startIndex, startIndex + itemsPerPage);
+  const totalPages = useMemo(() => {
+    return Math.ceil(products.length / itemsPerPage);
+  }, [products.length, itemsPerPage]);
+
+  const currentProducts = useMemo(() => {
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    return products.slice(startIndex, startIndex + itemsPerPage);
+  }, [products, currentPage, itemsPerPage]);
 
   const paginate = (pageNumber) => {
-    if (pageNumber > 0 && pageNumber <= totalPages) {
+    const calculatedTotalPages = Math.ceil(products.length / itemsPerPage);
+    if (pageNumber > 0 && pageNumber <= calculatedTotalPages && pageNumber !== currentPage) {
       setCurrentPage(pageNumber);
+      // Scroll to products section smoothly, but only if it's in viewport
+      setTimeout(() => {
+        const element = document.querySelector('[data-products-section]');
+        if (element) {
+          // Check if element is in viewport before scrolling
+          const rect = element.getBoundingClientRect();
+          const isVisible = rect.top < window.innerHeight && rect.bottom > 0;
+          
+          if (!isVisible) {
+            // Only scroll if section is not visible
+            element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          }
+        }
+      }, 100);
     }
   };
 
@@ -200,7 +241,7 @@ const JewelleryEveryMoment = () => {
       </div>
 
       {/* Product Grid */}
-      <div className="flex flex-col gap-[20px] justify-center">
+      <div className="flex flex-col gap-[20px] justify-center" data-products-section>
         {products && products.length > 0 ? (
           <>
             <div className="grid xl:gap-[20px] xl:mx-24 md:mx-10 lg:mx-5 mx-4 gap-[15px] grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 justify-items-center">
@@ -300,11 +341,24 @@ const JewelleryEveryMoment = () => {
 
             {/* Pagination Controls */}
             {totalPages > 1 && (
-              <div className="flex justify-end items-center xl:mx-24 md:mx-10 mx-4 mt-4">
+              <div className="flex justify-end items-center xl:mx-24 md:mx-10 mx-4 mt-4 mb-4">
                 <button
-                  onClick={() => paginate(currentPage - 1)}
+                  type="button"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    if (currentPage > 1) {
+                      paginate(currentPage - 1);
+                    }
+                  }}
                   disabled={currentPage === 1}
-                  className={`p-2 rounded-full ${currentPage === 1 ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-200'}`}
+                  className={`p-2 rounded-full transition-all duration-200 ${
+                    currentPage === 1 
+                      ? 'opacity-50 cursor-not-allowed' 
+                      : 'hover:bg-gray-200 active:scale-95 cursor-pointer'
+                  }`}
+                  aria-label="Previous page"
+                  style={{ pointerEvents: currentPage === 1 ? 'none' : 'auto' }}
                 >
                   <img
                     src={leftArrow}
@@ -312,13 +366,26 @@ const JewelleryEveryMoment = () => {
                     className="w-[72px] h-[12px]"
                   />
                 </button>
-                <span className="mx-4 text-sm">
+                <span className="mx-4 text-sm font-medium">
                   Page {currentPage} of {totalPages}
                 </span>
                 <button
-                  onClick={() => paginate(currentPage + 1)}
+                  type="button"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    if (currentPage < totalPages) {
+                      paginate(currentPage + 1);
+                    }
+                  }}
                   disabled={currentPage === totalPages}
-                  className={`p-2 rounded-full ${currentPage === totalPages ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-200'}`}
+                  className={`p-2 rounded-full transition-all duration-200 ${
+                    currentPage === totalPages 
+                      ? 'opacity-50 cursor-not-allowed' 
+                      : 'hover:bg-gray-200 active:scale-95 cursor-pointer'
+                  }`}
+                  aria-label="Next page"
+                  style={{ pointerEvents: currentPage === totalPages ? 'none' : 'auto' }}
                 >
                   <img
                     src={rightArrow}

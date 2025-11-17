@@ -85,31 +85,98 @@ const Customize = () => {
         const selected = Array.from(e.target.files || []);
         setFiles(selected);
     };
-
     const handleSubmit = async (e) => {
         e.preventDefault();
-        setTouched({ firstName: true, email: true, phone: true, stoneType: true, jewelryTypes: true, metalType: true, budget: true });
-        if (Object.keys(errors).length > 0) return;
+    
+        // Touch validation first
+        setTouched({
+            firstName: true,
+            email: true,
+            phone: true,
+            stoneType: true,
+            jewelryTypes: true,
+            metalType: true,
+            budget: true
+        });
+    
+        // Validate form directly with current form state (not relying on errors memo)
+        const validationErrors = {};
+        if (!form.firstName.trim()) validationErrors.firstName = 'Required';
+        if (!form.email.trim()) validationErrors.email = 'Required';
+        else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) validationErrors.email = 'Invalid email';
+        if (!form.phone.trim()) validationErrors.phone = 'Required';
+        if (!form.stoneType) validationErrors.stoneType = 'Select an option';
+        if (form.jewelryTypes.length === 0) validationErrors.jewelryTypes = 'Choose at least one';
+        if (!form.metalType) validationErrors.metalType = 'Select metal';
+        if (!form.budget) validationErrors.budget = 'Select budget';
+    
+        // If errors exist, don't submit and re-enable button
+        if (Object.keys(validationErrors).length > 0) {
+            return;
+        }
+    
+        // INSTANT DISABLE BUTTON - Button will stay disabled until API completes
         setSubmitting(true);
+    
         try {
             const fd = new FormData();
-            fd.append('name', form.firstName);
-            fd.append('email', form.email);
-            fd.append('phoneNumber', form.phone);
-            fd.append('stoneType', form.stoneType);
-            form.jewelryTypes.forEach((jt) => fd.append('jewelryType', jt));
-            fd.append('metalType', form.metalType);
-            fd.append('budget', form.budget);
-            if (form.comments) fd.append('comments', form.comments);
-            files.forEach((file) => fd.append('referenceImages', file));
-
-            await apiInstance.post('/client/inquiry/createInquiry', fd, { headers: { 'Content-Type': 'multipart/form-data' } });
-            setForm({ firstName: '', email: '', phone: '', stoneType: '', jewelryTypes: [], metalType: '', budget: '', comments: '' });
+            fd.append("name", form.firstName);
+            fd.append("email", form.email);
+            fd.append("phoneNumber", form.phone);
+            fd.append("stoneType", form.stoneType);
+            form.jewelryTypes.forEach((jt) => fd.append("jewelryType", jt));
+            fd.append("metalType", form.metalType);
+            fd.append("budget", form.budget);
+            if (form.comments) fd.append("comments", form.comments);
+            files.forEach((file) => fd.append("referenceImages", file));
+    
+            // API call - button stays disabled until this completes
+            await apiInstance.post("/client/inquiry/createInquiry", fd);
+            setForm({
+                firstName: "",
+                email: "",
+                phone: "",
+                stoneType: "",
+                jewelryTypes: [],
+                metalType: "",
+                budget: "",
+                comments: ""
+            });
             setFiles([]);
+            setTouched({});
+        } catch (error) {
+            // Handle error if needed
+            console.error("Submission error:", error);
         } finally {
+            // Re-enable button only after API call completes (success or error)
             setSubmitting(false);
         }
     };
+    
+    // const handleSubmit = async (e) => {
+    //     e.preventDefault();
+    //     setTouched({ firstName: true, email: true, phone: true, stoneType: true, jewelryTypes: true, metalType: true, budget: true });
+    //     if (Object.keys(errors).length > 0) return;
+    //     setSubmitting(true);
+    //     try {
+    //         const fd = new FormData();
+    //         fd.append('name', form.firstName);
+    //         fd.append('email', form.email);
+    //         fd.append('phoneNumber', form.phone);
+    //         fd.append('stoneType', form.stoneType);
+    //         form.jewelryTypes.forEach((jt) => fd.append('jewelryType', jt));
+    //         fd.append('metalType', form.metalType);
+    //         fd.append('budget', form.budget);
+    //         if (form.comments) fd.append('comments', form.comments);
+    //         files.forEach((file) => fd.append('referenceImages', file));
+
+    //         await apiInstance.post('/client/inquiry/createInquiry', fd, { headers: { 'Content-Type': 'multipart/form-data' } });
+    //         setForm({ firstName: '', email: '', phone: '', stoneType: '', jewelryTypes: [], metalType: '', budget: '', comments: '' });
+    //         setFiles([]);
+    //     } finally {
+    //         setSubmitting(false);
+    //     }
+    // };
 
     return (
         <div className={`${colors.firstPart.background} ${colors.firstPart.text} relative`}>
@@ -275,8 +342,18 @@ const Customize = () => {
                     {/* Submit */}
                     <div className="flex justify-center">
                         <button type="submit" disabled={submitting}
-                            className={`${colors.button.background} ${colors.button.text} font-normal font-belleza text-[22px] tracking-[0px] leading-[100%] py-[10px] px-[16px] w-[160px] h-[45px] rounded-[8px] cursor-pointer border-none`}>
-                            {submitting ? 'Submitting...' : 'Submit'}
+                            className={`${colors.button.background} ${colors.button.text} font-normal font-belleza text-[22px] tracking-[0px] leading-[100%] py-[10px] px-[16px] w-[160px] h-[45px] rounded-[8px] border-none flex items-center justify-center gap-2 ${submitting ? 'cursor-not-allowed opacity-70' : 'cursor-pointer'}`}>
+                            {submitting ? (
+                                <>
+                                    <svg className="animate-spin h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                    </svg>
+                                    <span>Submitting...</span>
+                                </>
+                            ) : (
+                                'Submit'
+                            )}
                         </button>
                     </div>
                 </form>
