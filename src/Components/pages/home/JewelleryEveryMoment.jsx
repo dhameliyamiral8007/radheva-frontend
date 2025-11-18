@@ -164,18 +164,15 @@ const JewelleryEveryMoment = () => {
     const calculatedTotalPages = Math.ceil(products.length / itemsPerPage);
     if (pageNumber > 0 && pageNumber <= calculatedTotalPages && pageNumber !== currentPage) {
       setCurrentPage(pageNumber);
-      // Scroll to products section smoothly, but only if it's in viewport
+      // Always scroll to products section when pagination changes
+      // This ensures user can see the new page content, especially when scrolled down
       setTimeout(() => {
-        const element = document.querySelector('[data-products-section]');
+        const element = document.getElementById('jewellery-products-section') || 
+                       document.querySelector('[data-products-section]');
         if (element) {
-          // Check if element is in viewport before scrolling
-          const rect = element.getBoundingClientRect();
-          const isVisible = rect.top < window.innerHeight && rect.bottom > 0;
-          
-          if (!isVisible) {
-            // Only scroll if section is not visible
-            element.scrollIntoView({ behavior: 'smooth', block: 'start' });
-          }
+          // Always scroll to section, ensuring it's visible
+          // Use 'start' to show products from the top
+          element.scrollIntoView({ behavior: 'smooth', block: 'start', inline: 'nearest' });
         }
       }, 100);
     }
@@ -241,7 +238,11 @@ const JewelleryEveryMoment = () => {
       </div>
 
       {/* Product Grid */}
-      <div className="flex flex-col gap-[20px] justify-center" data-products-section>
+      <div 
+        className="flex flex-col gap-[20px] justify-center" 
+        data-products-section
+        id="jewellery-products-section"
+      >
         {products && products.length > 0 ? (
           <>
             <div className="grid xl:gap-[20px] xl:mx-24 md:mx-10 lg:mx-5 mx-4 gap-[15px] grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 justify-items-center">
@@ -339,9 +340,12 @@ const JewelleryEveryMoment = () => {
               })}
             </div>
 
-            {/* Pagination Controls */}
+            {/* Pagination Controls - Always visible and clickable */}
             {totalPages > 1 && (
-              <div className="flex justify-end items-center xl:mx-24 md:mx-10 mx-4 mt-4 mb-4">
+              <div 
+                className="flex justify-end items-center xl:mx-24 md:mx-10 mx-4 mt-4 mb-4 relative z-50"
+                data-pagination-section
+              >
                 <button
                   type="button"
                   onClick={(e) => {
@@ -352,18 +356,17 @@ const JewelleryEveryMoment = () => {
                     }
                   }}
                   disabled={currentPage === 1}
-                  className={`p-2 rounded-full transition-all duration-200 ${
+                  className={`p-2 rounded-full transition-all duration-200 relative z-50 ${
                     currentPage === 1 
                       ? 'opacity-50 cursor-not-allowed' 
                       : 'hover:bg-gray-200 active:scale-95 cursor-pointer'
                   }`}
                   aria-label="Previous page"
-                  style={{ pointerEvents: currentPage === 1 ? 'none' : 'auto' }}
                 >
                   <img
                     src={leftArrow}
                     alt="leftArrow"
-                    className="w-[72px] h-[12px]"
+                    className="w-[72px] h-[12px] pointer-events-none"
                   />
                 </button>
                 <span className="mx-4 text-sm font-medium">
@@ -379,18 +382,17 @@ const JewelleryEveryMoment = () => {
                     }
                   }}
                   disabled={currentPage === totalPages}
-                  className={`p-2 rounded-full transition-all duration-200 ${
+                  className={`p-2 rounded-full transition-all duration-200 relative z-50 ${
                     currentPage === totalPages 
                       ? 'opacity-50 cursor-not-allowed' 
                       : 'hover:bg-gray-200 active:scale-95 cursor-pointer'
                   }`}
                   aria-label="Next page"
-                  style={{ pointerEvents: currentPage === totalPages ? 'none' : 'auto' }}
                 >
                   <img
                     src={rightArrow}
                     alt="rightArrow"
-                    className="w-[72px] h-[12px]"
+                    className="w-[72px] h-[12px] pointer-events-none"
                   />
                 </button>
               </div>
