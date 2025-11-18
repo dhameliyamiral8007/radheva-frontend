@@ -4,11 +4,11 @@ import Footer from "../pages/footer/Footer"
 
 const RootLayout = () => {
 	return (
-		<>
+		<div className="w-full overflow-x-hidden">
 			<Header />
 			<Outlet />
 			<Footer />
-		</>
+		</div>
 	);
 };
 
