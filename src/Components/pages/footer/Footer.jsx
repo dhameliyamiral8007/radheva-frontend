@@ -11,6 +11,8 @@ import { useDispatch, useSelector } from "react-redux";
 import { submitSubscription, clearSubscribeState } from "../../redux/slice/Subscribe";
 import { useEffect, useState } from "react";
 import { fetchNavigationMenu } from "../../redux/slice/NavigationMenuSlice";
+import { useNavigate } from "react-router-dom";
+import { setProductFilter } from "../../redux/slice/ProductFilterSlice";
 
 // Inline footer data so this component is fully self-contained
 const footerData = {
@@ -67,9 +69,20 @@ const footerData = {
 const Footer = () => {
   const { colors } = useTheme();
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const { loading, success, error, message } = useSelector((state) => state.subscribe || {});
   const [email, setEmail] = useState("");
   const [footerNavigation, setFooterNavigation] = useState(null);
+  const staticPageRoutes = {
+    "privacy policy": "/privacy-policy",
+    "terms and condition": "/terms-condition",
+    "terms and conditions": "/terms-condition",
+    "our policy": "/our-policy",
+    "shipping policy": "/shipping-policy",
+    "return policy": "/return-policy",
+    "contact us": "/contactUs",
+    "our story": "/our-story",
+  };
 
   // Fetch footer navigation data
   useEffect(() => {
@@ -97,6 +110,40 @@ const Footer = () => {
       return () => clearTimeout(t);
     }
   }, [success, error, dispatch]);
+
+  const getRouteForLabel = (label) => {
+    if (!label) return null;
+    const key = label.toLowerCase().trim();
+    return staticPageRoutes[key] || null;
+  };
+
+  const goToProductListing = (navigationID = null, collectionID = null, collectionItemID = null) => {
+    dispatch(
+      setProductFilter({
+        navigationID: navigationID || null,
+        collectionID: collectionID || null,
+        collectionItemID: collectionItemID || null,
+      })
+    );
+    navigate("/products");
+  };
+
+  const handleCollectionClick = (navId, collection) => {
+    if (!collection) return;
+    const staticRoute = getRouteForLabel(collection.collectionname);
+    if (staticRoute) {
+      navigate(staticRoute);
+      return;
+    }
+    if (navId && collection._id) {
+      goToProductListing(navId, collection._id, null);
+    }
+  };
+
+  const handleCollectionItemClick = (navId, collectionId, item) => {
+    if (!item?._id) return;
+    goToProductListing(navId, collectionId || null, item._id);
+  };
 
   const onSubmit = (e) => {
     e.preventDefault();
@@ -148,20 +195,25 @@ const Footer = () => {
                   {navItem.collections.map((collection) => (
                     <div key={collection._id} className="space-y-2">
                       {collection.collectionname && (
-                        <h4 className="text-sm font-medium opacity-80">
+                        <button
+                          type="button"
+                          onClick={() => handleCollectionClick(navItem._id, collection)}
+                          className="text-sm font-medium opacity-80 hover:opacity-100 text-left"
+                        >
                           {collection.collectionname}
-                        </h4>
+                        </button>
                       )}
                       {collection.items && collection.items.length > 0 && (
                         <ul className="text-xs md:text-sm space-y-1.5 opacity-90">
                           {collection.items.map((item) => (
                             <li key={item._id}>
-                              <a
-                                href={`/${item.itemslug || '#'}`}
-                                className="hover:opacity-100 transition-opacity"
+                              <button
+                                type="button"
+                                onClick={() => handleCollectionItemClick(navItem._id, collection._id, item)}
+                                className="hover:opacity-100 transition-opacity text-left w-full"
                               >
                                 {item.itemname}
-                              </a>
+                              </button>
                             </li>
                           ))}
                         </ul>
