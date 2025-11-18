@@ -14,7 +14,8 @@ import { fetchNavigationMenu } from "../../redux/slice/NavigationMenuSlice";
 import { useNavigate } from "react-router-dom";
 import { setProductFilter } from "../../redux/slice/ProductFilterSlice";
 
-// Inline footer data so this component is fully self-contained
+// Inline footer data - only static content (contact, newsletter, social, copyright)
+// Navigation sections are now fully dynamic from API (like header)
 const footerData = {
   contact: {
     title: "Contact",
@@ -31,24 +32,6 @@ const footerData = {
           "GF-12, Royal Crown Plaza, Laxmi Road, Surat, Gujarat 395003, India",
         href: "https://maps.google.com/?q=Royal+Crown+Plaza,Surat",
       },
-    ],
-  },
-  company: {
-    title: "Company",
-    links: [
-      { label: "Our Story", href: "/our-story" },
-      { label: "Contact Us", href: "/contactUs" },
-      { label: "Ring Size Guide", href: "/ring-size-guide" },
-    ],
-  },
-  supports: {
-    title: "Supports",
-    links: [
-      { label: "Privacy Policy", href: "privacy-policy" },
-      { label: "Terms and Conditions", href: "/terms-condition" },
-      { label: "Returns Policy", href: "/return-policy" },
-      { label: "Shipping Policy", href: "/shipping-policy" },
-      { label: "Our Policy", href: "/our-policy" },
     ],
   },
   newsletter: {
@@ -73,6 +56,7 @@ const Footer = () => {
   const { loading, success, error, message } = useSelector((state) => state.subscribe || {});
   const [email, setEmail] = useState("");
   const [footerNavigation, setFooterNavigation] = useState(null);
+  const [loadingNavigation, setLoadingNavigation] = useState(false);
   const staticPageRoutes = {
     "privacy policy": "/privacy-policy",
     "terms and condition": "/terms-condition",
@@ -84,17 +68,22 @@ const Footer = () => {
     "our story": "/our-story",
   };
 
-  // Fetch footer navigation data
+  // Fetch footer navigation data - fully dynamic like header
   useEffect(() => {
     const loadFooterNavigation = async () => {
+      setLoadingNavigation(true);
       try {
         const result = await dispatch(fetchNavigationMenu('footer')).unwrap();
         if (result?.Data) {
           setFooterNavigation(result.Data);
+        } else {
+          setFooterNavigation([]);
         }
       } catch (err) {
         console.error("Failed to load footer navigation:", err);
-        // Keep using static footerData as fallback
+        setFooterNavigation([]);
+      } finally {
+        setLoadingNavigation(false);
       }
     };
     loadFooterNavigation();
@@ -183,8 +172,12 @@ const Footer = () => {
             ))}
           </ul>
         </div>
-        {/* Dynamic Navigation Sections from API */}
-        {footerNavigation && footerNavigation.length > 0 ? (
+        {/* Dynamic Navigation Sections from API - Fully Dynamic like Header */}
+        {loadingNavigation ? (
+          <div className="col-span-2 md:col-span-3 lg:col-span-2">
+            <p className="text-xs md:text-sm opacity-70">Loading navigation...</p>
+          </div>
+        ) : footerNavigation && footerNavigation.length > 0 ? (
           footerNavigation.map((navItem) => (
             <div key={navItem._id} className="space-y-4">
               <h3 className="text-base md:text-lg font-semibold">
@@ -226,40 +219,7 @@ const Footer = () => {
               )}
             </div>
           ))
-        ) : (
-          <>
-            {/* Fallback: Company */}
-            <div>
-              <h3 className="text-base md:text-lg font-semibold">
-                {footerData.company.title}
-              </h3>
-              <ul className="mt-4 text-xs md:text-sm space-y-2 opacity-90">
-                {footerData.company.links.map((link) => (
-                  <li key={link.label}>
-                    <a href={link.href} className="hover:opacity-100">
-                      {link.label}
-                    </a>
-                  </li>
-                ))}
-              </ul>
-            </div>
-            {/* Fallback: Supports */}
-            <div>
-              <h3 className="text-base md:text-lg font-semibold">
-                {footerData.supports.title}
-              </h3>
-              <ul className="mt-4 text-xs md:text-sm space-y-2 opacity-90">
-                {footerData.supports.links.map((link) => (
-                  <li key={link.label}>
-                    <a href={link.href} className="hover:opacity-100">
-                      {link.label}
-                    </a>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          </>
-        )}
+        ) : null}
         <div className="md:w-[300px] w-[250px]">
           <h3 className="text-base md:text-lg font-semibold">
             {footerData.newsletter.title}
