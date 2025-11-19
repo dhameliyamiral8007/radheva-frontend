@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { loginService } from "../../redux/service/AuthService";
+import parseError from "../../../utils/parseError";
 
 const Login = () => {
   const navigate = useNavigate();
@@ -23,8 +24,7 @@ const Login = () => {
         navigate("/", { replace: true });
       }
     } catch (err) {
-      const msg = err?.response?.data?.message || err?.message || "Login failed";
-      setError(msg);
+      setError(parseError(err));
     } finally {
       setLoading(false);
     }

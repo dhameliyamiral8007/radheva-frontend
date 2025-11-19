@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { registerService, loginService } from "../../redux/service/AuthService";
+import parseError from "../../../utils/parseError";
 
 const Register = () => {
   const navigate = useNavigate();
@@ -47,8 +48,7 @@ const Register = () => {
         navigate("/", { replace: true });
       }
     } catch (err) {
-      const msg = err?.response?.data?.message || err?.message || "Registration failed";
-      setError(msg);
+      setError(parseError(err));
     } finally {
       setLoading(false);
     }

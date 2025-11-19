@@ -10,6 +10,7 @@ import GeneralQuestions from '../solitaires/GeneralQuestions';
 import Expert from "../../../assets/Expertjweles.png"
 import underline from "../../../assets/about/underline.svg"
 import { apiInstance } from "../../../api/AxiosApi";
+import parseError from '../../../utils/parseError';
 const Customize = () => {
     const { theme, colors } = useTheme();
     const [form, setForm] = useState({
@@ -26,6 +27,7 @@ const Customize = () => {
     const [submitting, setSubmitting] = useState(false);
     const [metals, setMetals] = useState([]);
     const [files, setFiles] = useState([]);
+    const [error, setError] = useState(null);
 
     const stoneTypes = ["Natural", "Lab grown", "Moissanite"];
     const jewelryOptions = ["Ring/Band", "Earrings", "Pendant", "Bracelets", "Necklace"];
@@ -47,7 +49,9 @@ const Customize = () => {
                 if (isMounted && Array.isArray(data?.data || data)) {
                     setMetals(data.data || data);
                 }
-            } catch (_) {
+            } catch (err) {
+                console.error('Failed to load metals:', err);
+                setError(parseError(err));
             }
         })();
         return () => { isMounted = false }
@@ -131,6 +135,7 @@ const Customize = () => {
             files.forEach((file) => fd.append("referenceImages", file));
     
             // API call - button stays disabled until this completes
+            setError(null);
             await apiInstance.post("/client/inquiry/createInquiry", fd);
             setForm({
                 firstName: "",
@@ -145,8 +150,9 @@ const Customize = () => {
             setFiles([]);
             setTouched({});
         } catch (error) {
-            // Handle error if needed
+            // Capture server error and show to user
             console.error("Submission error:", error);
+            setError(parseError(error));
         } finally {
             // Re-enable button only after API call completes (success or error)
             setSubmitting(false);

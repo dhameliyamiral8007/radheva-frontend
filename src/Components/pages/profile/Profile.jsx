@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { getUserProfileService, updateUserProfileService } from "../../redux/service/AuthService";
+import parseError from '../../../utils/parseError';
 import { useTheme } from "../../config/hooks/useTheme";
 
 const Profile = () => {
@@ -37,7 +38,7 @@ const Profile = () => {
           addresses: data.addresses || { home: { street: "", city: "", state: "", pincode: "" } },
         });
       } catch (e) {
-        setError(e?.message || "Failed to load profile");
+        setError(parseError(e));
       } finally {
         setLoading(false);
       }
@@ -74,7 +75,7 @@ const Profile = () => {
       await updateUserProfileService(user._id, payload);
     //   navigate("/Profile");
     } catch (e) {
-      setError(e?.message || "Failed to update profile");
+      setError(parseError(e));
     } finally {
       setLoading(false);
     }

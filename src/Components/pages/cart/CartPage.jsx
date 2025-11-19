@@ -197,7 +197,7 @@ const CartPage = () => {
               {/* Price */}
               <div className="col-span-2 text-center pt-2">
                 <span className={`font-medium font-kufam text-[20px] tracking-[0px] leading-[100%] ${colors.firstPart.text}`}>
-                  Rs. {item.finalAmount?.toLocaleString() || item.totalPrice?.toLocaleString()}
+                  Rs. {item.totalPrice?.toLocaleString()}
                 </span>
               </div>
 
@@ -240,7 +240,7 @@ const CartPage = () => {
 
               {/* Subtotal */}
               <div className={`col-span-3 text-right pt-2 font-medium font-kufam text-[20px] tracking-[0px] leading-[100%] ${colors.firstPart.text}`}>
-                Rs. {((item.finalAmount || item.totalPrice || 0) * (item.quantity || 1)).toLocaleString()}
+                Rs. {(( item.finalAmount || 0))}
               </div>
             </div>
           ))}

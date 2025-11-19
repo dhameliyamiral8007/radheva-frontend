@@ -9,6 +9,7 @@ import 'react-clock/dist/Clock.css';
 
 import DateTimePicker from './DateTimePicker';
 import { apiInstance } from '../../../api/AxiosApi';
+import parseError from '../../../utils/parseError';
 
 const quickRanges = [
     {
@@ -67,6 +68,7 @@ const BookApoinment = () => {
     const [files, setFiles] = useState([]);
     const [submitting, setSubmitting] = useState(false);
     const [success, setSuccess] = useState(null);
+    const [errorMsg, setErrorMsg] = useState(null);
     // extract current hour (1–12)
     const currentHour = time.getHours() % 12 || 12;
 
@@ -103,6 +105,7 @@ const BookApoinment = () => {
             <div className="w-full flex justify-center items-center pb-10">
                 <div className="w-full max-w-4xl md:p-8 p-4">
                     <h3 className="text-xl font-bold mb-6 text-center font-kufam">Fill the Details</h3>
+                    {errorMsg && <div className="text-red-500 mb-3 text-center">{errorMsg}</div>}
                     <form className="space-y-4" onSubmit={async (e) => {
                         e.preventDefault();
                         if (!appointmentDate) {
@@ -118,6 +121,7 @@ const BookApoinment = () => {
                         files.forEach((f) => fd.append('referenceImages', f));
                         try {
                             setSubmitting(true);
+                            setErrorMsg(null);
                             const res = await apiInstance.post('/client/appointment', fd, { headers: { 'Content-Type': 'multipart/form-data' } });
                             const msg = res?.data?.message || res?.data?.Message || 'Appointment booked successfully';
                             setSuccess({
@@ -127,8 +131,10 @@ const BookApoinment = () => {
                             });
                             setForm({ name: '', email: '', phoneNumber: '', subject: '' });
                             setFiles([]);
+                            setErrorMsg(null);
                         } catch (err) {
-                            alert(err?.response?.data?.message || 'Failed to book appointment');
+                            console.error('Appointment error:', err);
+                            setErrorMsg(parseError(err));
                         } finally {
                             setSubmitting(false);
                         }
