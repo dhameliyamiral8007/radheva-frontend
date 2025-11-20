@@ -39,7 +39,7 @@ const CartPage = () => {
   }, [fetchCart]);
 
   const subtotal = cartItems.reduce(
-    (acc, item) => acc + Number(item.finalAmount || item.totalPrice || 0) * (item.quantity || 1),
+    (acc, item) => acc + Number(item.finalAmount) || 0,
     0
   );
   const handleService = () => {
@@ -240,7 +240,7 @@ const CartPage = () => {
 
               {/* Subtotal */}
               <div className={`col-span-3 text-right pt-2 font-medium font-kufam text-[20px] tracking-[0px] leading-[100%] ${colors.firstPart.text}`}>
-                Rs. {(( item.finalAmount || 0))}
+                Rs. {(Number(item.finalAmount))}
               </div>
             </div>
           ))}
