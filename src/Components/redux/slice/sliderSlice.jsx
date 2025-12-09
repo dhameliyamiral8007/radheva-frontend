@@ -1,12 +1,13 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
+import { baseUrl } from "../../../api/BaseUrl";
 
 export const fetchSliders = createAsyncThunk(
   "slider/fetchSliders",
   async (_, { rejectWithValue }) => {
     try {
       const response = await axios.get(
-        "http://localhost:8000/client/slider?slidertype=slider"
+        `${baseUrl}/client/slider?slidertype=slider`
       );
       return response.data.Data;
     } catch (error) {
