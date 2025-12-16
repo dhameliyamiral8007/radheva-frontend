@@ -1,5 +1,5 @@
 import { useTheme } from "../../config/hooks/useTheme";
-import necklace from "../../../assets/necklaceHome.png";
+import necklace from "../../../assets/f204ec9cf59964e64a524df5c31cfb1f160cfb16.png";
 import SolitairesRing from "./SolitairesRing";
 import GeneralQuestions, { TitleGeneralQuestions } from "./GeneralQuestions";
 

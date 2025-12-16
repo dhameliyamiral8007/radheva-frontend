@@ -6,10 +6,10 @@ import AOS from "aos";
 import "aos/dist/aos.css";
 
 // Import your images here
-import Ring from "../../../assets/about/ring.svg";
-import Bangle from "../../../assets/about/bangle.svg";
-import Rings from "../../../assets/about/rings.svg";
-import Chain from "../../../assets/about/chain.svg";
+import Ring from "../../../assets/about/890d0e2fb4f1a8697dba1f9c577153d73a7d9730.png";
+import Bangle from "../../../assets/about/d17078fc3b21bd4614e3e845acbbdb51ff53b6be.png";
+import Rings from "../../../assets/about/e40222b67df32798f0501df2f5337b8a1b6646cd.png";
+import Chain from "../../../assets/about/ed4256d59d91f41b92ea91e460db8b82f2aba67c.png";
 import leftArrow from "../../../assets/about/leftArrow.svg";
 import rightArrow from "../../../assets/about/rightArrow.svg";
 const FollowInstagram = () => {

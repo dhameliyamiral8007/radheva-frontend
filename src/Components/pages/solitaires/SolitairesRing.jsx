@@ -194,7 +194,7 @@ const SolitairesRing = () => {
         id: _id,
         label: i % 2 === 0 ? "BEST SELLER" : "MORE COLOR",
         name: productname,
-        price: price,
+        price: `₹${price}`,
         oldPrice: `${discount}% Off`,
         image: productimage,
       };
@@ -283,7 +283,7 @@ const SolitairesRing = () => {
           <p className="text-gray-600 text-start text-xs">
             {product.productname}
           </p>
-          <p className="text-md font-bold">{product.price}</p>
+          <p className="text-md font-bold">₹{product.price}</p>
         </div>
       </div>
     </Link>

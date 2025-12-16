@@ -114,6 +114,12 @@ const CuratedRadiance = () => {
     }
     // return defaultTitles[index];
   };
+  const getBannerButtonText = (index) => {
+
+    if (banners[index]?.buttontxt) {
+      return banners[index].buttontxt;
+    }
+  };
 
   const getBannerDescription = (index) => {
     // Use shortdesc from API if available, otherwise description, otherwise fallback
@@ -123,6 +129,7 @@ const CuratedRadiance = () => {
     if (banners[index]?.description) {
       return banners[index].description;
     }
+
     // return defaultDescriptions[index];
   };
 
@@ -179,24 +186,38 @@ const CuratedRadiance = () => {
             alt={getBannerTitle(0)}
             className="w-full lg:w-[900px] md:w-[768px] h-auto xl:h-[780px] lg:h-[550px] md:h-[700px] sm:h-[500px] object-cover"
           />
-          <div className="absolute inset-0 flex justify-end md:justify-end items-start lg:items-start xl:top-[110px] lg:top-[80px] md:top-[100px] top-[70px] right-3 sm:right-6 md:right-5 lg:right-[0px] xl:right-[60px] max-w-full overflow-hidden" data-aos="zoom-in" data-aos-delay="150">
-            <div className="max-w-[280px] sm:max-w-[320px] md:max-w-[350px] lg:max-w-[299px] px-2 overflow-hidden w-full">
-              <p className="text-lg sm:text-xl md:text-3xl xl:text-[46px] lg:text-[30px] text-[#C79954] w-full font-Belleza text-center uppercase leading-tight break-all overflow-hidden"
-                 style={{ wordWrap: "break-word", overflowWrap: "break-word", wordBreak: "break-word", maxWidth: "100%" }}>
+          <div className="absolute top-4 right-4 sm:top-6 sm:right-6 md:top-10 md:right-10 flex justify-end items-start" data-aos="zoom-in" data-aos-delay="150">
+            <div className="max-w-[280px] text-align-right sm:max-w-[320px] md:max-w-[350px] lg:max-w-[299px] px-2 overflow-hidden w-full">
+              <p className="text-lg sm:text-xl md:text-3xl xl:text-[40px] lg:text-[30px] text-[#C79954] w-full font-cagier text-right uppercase leading-tight break-all overflow-hidden"
+                style={{ wordWrap: "break-word", overflowWrap: "break-word", wordBreak: "break-word", maxWidth: "100%" }}>
                 {getBannerTitle(0)}
               </p>
-              <p className="text-sm sm:text-base md:text-lg mb-10 sm:mb-6 md:mb-14 lg:mb-12 font-light text-center text-[#CFCFCF] mt-2 sm:mt-3 break-words overflow-hidden line-clamp-3"
-                 style={{ wordWrap: "break-word", overflowWrap: "break-word", wordBreak: "break-word", maxWidth: "100%" }}>
+              <p className="text-sm sm:text-base md:text-lg mb-10 sm:mb-6 md:mb-14 lg:mb-12 font-light text-right text-[#CFCFCF] mt-2 sm:mt-3 break-words overflow-hidden line-clamp-3"
+                style={{ wordWrap: "break-word", overflowWrap: "break-word", wordBreak: "break-word", maxWidth: "100%" }}>
                 {getBannerDescription(0)}
               </p>
-              <div className="w-full flex justify-center">
-                <button 
+              <div className="w-full flex justify-end">
+                <button
                   onClick={() => handleShopNowClick(0)}
-                  className="bg-[#B5904F] text-white px-3 sm:px-4 md:px-[16px] py-2 sm:py-[10px] rounded-[8px] font-kufam hover:bg-[#B8A076] transition-colors text-sm sm:text-base"
-                  data-aos="fade-up" data-aos-delay="250"
+                  className="
+    text-white
+    px-3 sm:px-4 md:px-[16px]
+    py-2 sm:py-[10px]
+    rounded-[8px]
+    font-kufam
+    transition
+    hover:opacity-90
+    text-sm sm:text-base
+  "
+                  style={{
+                    background: "linear-gradient(180deg, #E3924B 0%, #8F531E 100%)",
+                  }}
+                  data-aos="fade-up"
+                  data-aos-delay="250"
                 >
-                  Shop Now
+                  {getBannerButtonText(0)}
                 </button>
+
               </div>
             </div>
           </div>
@@ -214,48 +235,77 @@ const CuratedRadiance = () => {
             <div className="absolute inset-0 flex flex-col justify-start items-start top-4 sm:top-6 md:top-8 lg:top-[60px] w-[90%] xl:w-[448px] lg:w-[250px] left-3 sm:left-4 xl:left-[30px] lg:left-4 text-left sm:text-center overflow-hidden max-w-full" data-aos="zoom-in" data-aos-delay="150">
               <div className="text-white w-full overflow-hidden px-2 max-w-full">
                 <h3 className="text-lg sm:text-xl text-start max-sm:text-start md:text-2xl lg:text-xl font-Belleza mb-2 xl:mb-4 md:mb-2 text-[#FFFFFF] leading-tight break-all overflow-hidden"
-                    style={{ wordWrap: "break-word", overflowWrap: "break-word", wordBreak: "break-word", maxWidth: "100%" }}>
+                  style={{ wordWrap: "break-word", overflowWrap: "break-word", wordBreak: "break-word", maxWidth: "100%" }}>
                   {getBannerTitle(1)}
                 </h3>
                 <p className="text-xs sm:text-sm md:text-base text-start mb-12 sm:mb-6 md:mb-8 lg:mb-20 xl:mx-10 lg:mx-0 font-medium text-[#CFCFCF] leading-relaxed max-sm:w-[270px] break-words overflow-hidden line-clamp-4"
-                   style={{ wordWrap: "break-word", overflowWrap: "break-word", wordBreak: "break-word", maxWidth: "100%" }}>
+                  style={{ wordWrap: "break-word", overflowWrap: "break-word", wordBreak: "break-word", maxWidth: "100%" }}>
                   {getBannerDescription(1)}
                 </p>
-                <button 
+                <button
                   onClick={() => handleShopNowClick(1)}
-                  className="bg-[#548AA6] text-white px-[16px] py-[10px] font-kufam rounded-[8px] transition-colors text-sm sm:text-base self-start sm:self-center"
-                  data-aos="fade-up" data-aos-delay="250"
+                  className="
+    text-white
+    px-[16px] py-[10px]
+    font-kufam
+    rounded-[8px]
+    transition
+    hover:opacity-90
+    text-sm sm:text-base
+    self-start
+  "
+                  style={{
+                    background: "linear-gradient(138.1deg, #679BB5 11.69%, #255A74 96.19%)",
+                  }}
+                  data-aos="fade-up"
+                  data-aos-delay="250"
                 >
-                  Shop Now
+                  {getBannerButtonText(1)}
                 </button>
+
               </div>
             </div>
           </div>
 
           {/* Top Right Bottom - Half */}
-          <div className="flex flex-col sm:flex-row gap-4 sm:gap-5 md:gap-4 justify-center">
+          <div className="flex flex-col sm:flex-row gap-4 sm:gap-5 md:gap-4">
             <div className="relative overflow-hidden w-full sm:w-auto" data-aos="fade-up" data-aos-delay="100">
               <img
                 src={getBannerImage(2)}
                 alt={getBannerTitle(2)}
                 className="w-full sm:w-[368px] h-auto sm:h-[390px] xl:h-[390px] md:h-[350px] lg:h-auto object-contain xl:object-cover lg:object-contain md:object-cover"
               />
-              <div className="absolute inset-0 flex justify-end items-start right-3 sm:right-4 mxl:right-6 md:right-4 overflow-hidden max-w-full" data-aos="zoom-in" data-aos-delay="200">
-                <div className="text-white text-right mt-5 sm:mt-4 xl:mt-6 md:mt-3 max-w-[90%] sm:max-w-[85%] px-2 overflow-hidden w-full">
-                  <h3 className="text-[18px] sm:text-xl md:text-2xl lg:text-xl xl:text-[26px] font-Belleza mb-2 sm:mb-3 tracking-[0px] leading-tight break-all overflow-hidden"
-                      style={{ wordWrap: "break-word", overflowWrap: "break-word", wordBreak: "break-word", maxWidth: "100%" }}>
+              <div className="absolute inset-0 flex justify-start items-start left-2 sm:left-2 xl:left-2 lg:left-2 overflow-hidden max-w-full" data-aos="zoom-in" data-aos-delay="200">
+                <div className="text-white text-left mt-2 sm:mt-2 xl:mt-2 md:mt-2 max-w-[90%] sm:max-w-[85%] px-2 overflow-hidden w-full">
+                  <h3 className="text-[18px] sm:text-xl md:text-2xl lg:text-xl xl:text-[26px] font-Belleza mb-2 sm:mb-3 tracking-[0px] leading-tight break-all overflow-hidden text-white"
+                    style={{ wordWrap: "break-word", overflowWrap: "break-word", wordBreak: "break-word", maxWidth: "100%" }}>
                     {getBannerTitle(2)}
                   </h3>
-                  <p className="text-[12px] sm:text-[12px] md:text-[14px] tracking-[0px] mb-12 sm:mb-6 xl:mb-10 md:mb-24 font-medium leading-relaxed break-words overflow-hidden line-clamp-3"
-                     style={{ wordWrap: "break-word", overflowWrap: "break-word", wordBreak: "break-word", maxWidth: "100%" }}>
+                  <p className="text-[12px] sm:text-[12px] md:text-[14px] tracking-[0px] mb-12 sm:mb-6 xl:mb-10 md:mb-24 font-medium text-[#CFCFCF] leading-relaxed break-words overflow-hidden line-clamp-3"
+                    style={{ wordWrap: "break-word", overflowWrap: "break-word", wordBreak: "break-word", maxWidth: "100%" }}>
                     {getBannerDescription(2)}
                   </p>
-                  <button 
+                  <button
                     onClick={() => handleShopNowClick(2)}
-                    className="bg-[#BFAC40] text-[11px] sm:text-[12px] md:text-[14px] tracking-[0px] px-[12px] py-[6px] rounded-[4px] font-kufam" data-aos="fade-up" data-aos-delay="300"
+                    className="
+    text-white
+    text-[11px] sm:text-[12px] md:text-[14px]
+    tracking-[0px]
+    px-[12px] py-[6px]
+    rounded-[4px]
+    font-kufam
+    transition
+    hover:opacity-90
+  "
+                    style={{
+                      background: "linear-gradient(141.92deg, #CFBD57 12.37%, #776919 102.84%)",
+                    }}
+                    data-aos="fade-up"
+                    data-aos-delay="300"
                   >
-                    Shop Now
+                    {getBannerButtonText(2)}
                   </button>
+
                 </div>
               </div>
             </div>
@@ -265,22 +315,37 @@ const CuratedRadiance = () => {
                 alt={getBannerTitle(3)}
                 className="w-full sm:w-[368px] h-auto sm:h-[390px] xl:h-[390px] md:h-[350px] lg:h-auto object-contain xl:object-cover lg:object-contain md:object-cover"
               />
-              <div className="absolute inset-0 left-3 sm:left-4 xl:left-6 lg:left-3 overflow-hidden max-w-full" data-aos="zoom-in" data-aos-delay="250">
+              <div className="absolute inset-0 left-0 sm:left-2 xl:left-2 lg:left-2 overflow-hidden max-w-full flex justify-end text-right" data-aos="zoom-in" data-aos-delay="250">
                 <div className="text-white mt-5 sm:mt-6 xl:mt-8 lg:mt-4 max-w-[90%] sm:max-w-[85%] px-2 overflow-hidden w-full">
-                  <h3 className="text-[18px] sm:text-xl xl:mb-0 lg:mb-4 xl:text-[26px] lg:text-[18px] md:text-[24px] md:mb-3 mb-2 font-Belleza tracking-[0px] leading-tight break-all overflow-hidden"
-                      style={{ wordWrap: "break-word", overflowWrap: "break-word", wordBreak: "break-word", maxWidth: "100%" }}>
+                  <h3 className="text-[18px] sm:text-xl xl:mb-0 lg:mb-4 xl:text-[26px] lg:text-[18px] md:text-[24px] md:mb-3 mb-2 font-Belleza tracking-[0px] leading-tight break-all overflow-hidden text-white"
+                    style={{ wordWrap: "break-word", overflowWrap: "break-word", wordBreak: "break-word", maxWidth: "100%" }}>
                     {getBannerTitle(3)}
                   </h3>
-                  <p className="text-[12px] sm:text-[12px] xl:text-[14px] lg:text-[14px] mb-12 sm:mb-6 xl:mb-12 lg:mb-[70px] md:mb-[92px] font-kufam tracking-[0px] leading-relaxed break-words overflow-hidden line-clamp-3"
-                     style={{ wordWrap: "break-word", overflowWrap: "break-word", wordBreak: "break-word", maxWidth: "100%" }}>
+                  <p className="text-[12px] sm:text-[12px] xl:text-[14px] lg:text-[14px] mb-12 sm:mb-6 xl:mb-12 lg:mb-[70px] md:mb-[92px] font-kufam tracking-[0px] text-[#CFCFCF] leading-relaxed break-words overflow-hidden line-clamp-3"
+                    style={{ wordWrap: "break-word", overflowWrap: "break-word", wordBreak: "break-word", maxWidth: "100%" }}>
                     {getBannerDescription(3)}
                   </p>
-                  <button 
+                  <button
                     onClick={() => handleShopNowClick(3)}
-                    className="bg-[#7FD7DA] text-black text-[11px] sm:text-[12px] md:text-[14px] tracking-[0px] px-[12px] py-[6px] rounded-[4px] font-kufam" data-aos="fade-up" data-aos-delay="300"
+                    className="
+    text-white
+    text-[11px] sm:text-[12px] md:text-[14px]
+    tracking-[0px]
+    px-[12px] py-[6px]
+    rounded-[4px]
+    font-kufam
+    transition
+    hover:opacity-90
+  "
+                    style={{
+                      background: "linear-gradient(180deg, #E67275 0%, #D74B4F 100%)",
+                    }}
+                    data-aos="fade-up"
+                    data-aos-delay="300"
                   >
-                    Shop Now
+                    {getBannerButtonText(3)}
                   </button>
+
                 </div>
               </div>
             </div>
@@ -290,32 +355,89 @@ const CuratedRadiance = () => {
 
       {/* Advertise Section */}
       <div className={`${colors.firstPart.background} ${colors.firstPart.text} w-full py-15`}>
-        <div className={`flex flex-col md:flex-row items-start ${theme === "dark" ? "bg-white" : "bg-gradient-to-r to-[#000000] from-[#262626]"}`}>
-          <div className="relative" data-aos="fade-right">
+        {/* Advertise Section */}
+        <div className="w-full">
+          <div className="relative w-full h-[260px] md:h-[300px] xl:h-[350px] overflow-hidden">
+
+            {/* Background Image */}
             <img
               src={getBannerImage(4)}
               alt={getBannerTitle(4)}
-              className="xl:w-[900px] lg:w-[550px] md:w-[700px] md:h-[300px] h-[250px] object-cover"
+              className="w-full h-full object-cover"
             />
-          </div>
 
-          <div className="flex flex-col justify-center xl:mx-14 lg:mx-5 mx-5 md:absolute lg:relative max-sm:my-5 overflow-hidden max-w-full" data-aos="fade-left" data-aos-delay="150">
-            <h2 className="xl:text-[44px] lg:text-[30px] md:text-3xl text-[20px] mb-4 text-[#C79954] font-Belleza uppercase md:mt-[44px] break-all overflow-hidden"
-                style={{ wordWrap: "break-word", overflowWrap: "break-word", wordBreak: "break-word", maxWidth: "100%" }}>
-              {getBannerTitle(4)}
-            </h2>
-            <p className={`text-[#CFCFCF] leading-snug text-[16px] font-kufam tracking-[0px] xl:mb-14 lg:mb-10 md:mb-14 mb-6 md:w-[450px] lg:w-full break-words overflow-hidden line-clamp-4 ${theme === "dark" ? "text-black" : "text-[#475569]"}`}
-               style={{ wordWrap: "break-word", overflowWrap: "break-word", wordBreak: "break-word", maxWidth: "100%" }}>
-              {getBannerDescription(4)}
-            </p>
-            <button 
-              onClick={() => handleShopNowClick(4)}
-              className="bg-[#B5904F] text-white px-[16px] py-[10px] font-kufam rounded-[8px] transition-colors text-sm sm:text-base self-start cursor-pointer" data-aos="zoom-in" data-aos-delay="250"
-            >
-              Find Your Sparkle
-            </button>
+            {/* Dark overlay (luxury feel) */}
+            <div className="absolute inset-0 bg-black/55"></div>
+
+            {/* Text Overlay */}
+            <div className="absolute inset-0 flex justify-center items-center px-6 sm:px-10 xl:px-20">
+              <div
+                className="max-w-[600px] text-center"
+                data-aos="fade-left"
+                data-aos-delay="150"
+              >
+
+<h2
+  className="
+    font-Belleza
+    text-[#C79954]
+    uppercase
+    leading-tight
+    text-[20px]
+    md:text-[30px]
+    xl:text-[44px]
+    mb-3
+    whitespace-nowrap
+    overflow-hidden
+    text-ellipsis
+  "
+>
+  {getBannerTitle(4)}
+</h2>
+
+
+                <p
+                  className="
+            text-[#CFCFCF]
+            font-kufam
+            text-[14px]
+            md:text-[16px]
+            leading-snug
+            mb-6
+            line-clamp-3
+          "
+                >
+                  {getBannerDescription(4)}
+                </p>
+
+                <button
+  onClick={() => handleShopNowClick(4)}
+  className="
+    px-[16px] py-[10px]
+    rounded-[8px]
+    font-kufam
+    text-sm sm:text-base
+    text-white
+    transition
+    hover:opacity-90
+  "
+  style={{
+    background:
+      "linear-gradient(136.87deg, #CDA867 -10.8%, #765B2B 89.61%)",
+  }}
+  data-aos="zoom-in"
+  data-aos-delay="250"
+>
+  {getBannerButtonText(4)}
+</button>
+
+
+              </div>
+            </div>
+
           </div>
         </div>
+
       </div>
     </div>
   );

@@ -3,6 +3,7 @@ import React, { useEffect } from "react";
 import { addToCartService } from "../redux/service/CartService";
 import { fetchProductByIdService } from "../redux/service/ProductService";
 import { useWishlist } from "../context/WishListProvider";
+import { useTheme } from "../config/hooks/useTheme";
 import { FcLike } from "react-icons/fc";
 import { IoEyeSharp, IoHeartOutline } from "react-icons/io5";
 import AOS from "aos";
@@ -31,7 +32,7 @@ export default function ImageGallary({ gallery = products, isFilterd ,onProductC
       AOS.refresh();
     } catch {}
   }, []);
-
+  const { theme } = useTheme()
   // Determine visible columns to stagger per-row nicely
   const [columns, setColumns] = React.useState(4);
   useEffect(() => {
@@ -65,7 +66,7 @@ export default function ImageGallary({ gallery = products, isFilterd ,onProductC
             onClick={() => onProductClick(p)}
             data-aos="fade-up"
             data-aos-delay={(index % columns) * 180}
-            className={`${spanClass} group relative bg-neutral-900 border border-neutral-800 rounded-lg overflow-hidden`}
+            className={`${spanClass} group relative rounded-lg overflow-hidden`}
           >
             {/* Tag */}
             {(index !== 2 || isFilterd) && !isCollection && (
@@ -75,7 +76,7 @@ export default function ImageGallary({ gallery = products, isFilterd ,onProductC
             )}
 
             <div
-              className={`bg-neutral-700 rounded-lg ${mediaHeight} flex items-center justify-center`}
+              className={`rounded-lg ${mediaHeight} flex items-center justify-center`}
             >
               <img className="h-full w-full object-cover" src={p.image} />
 
@@ -212,12 +213,13 @@ export default function ImageGallary({ gallery = products, isFilterd ,onProductC
             {/* Info */}
             {(index !== 2 || isFilterd) && !isCollection && (
               <div className="p-4">
-                <p className="text-sm text-gray-300">{p.name}</p>
-                <div className="flex gap-2 mt-1 text-sm">
-                  <span className="line-through text-gray-500">
+                <p className={`text-sm text-bold ${theme === "dark" ? "text-black" : "text-white"}`}>{p.name}</p>
+                <div className="flex gap-2 mt-1 text-sm text-bold">
+                  <span className="line-through text-[#94A3B8] text-bold">
                     {p.oldPrice}
                   </span>
-                  <span className="text-yellow-400">{p.price}</span>
+
+                  <span className={`text-bold text-[#A9B2B9]`}>{p.price}</span>
                 </div>
               </div>
             )}

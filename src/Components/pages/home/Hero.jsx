@@ -28,6 +28,7 @@ const Hero = () => {
 
 	const getPositionConfig = (position = "center") => {
 		const pos = position.toLowerCase();
+		console.log("pos =", pos);
 		switch (pos) {
 			case "left":
 				return {
@@ -44,7 +45,7 @@ const Hero = () => {
 			default:
 				return {
 					container: "justify-center",
-					textAlign: "items-center text-center",
+					textAlign: "items-start text-center",
 					padding: "md:px-12 px-4",
 				};
 		}
@@ -87,44 +88,95 @@ const Hero = () => {
 							className="w-full h-full object-cover"
 						/>
 						{(() => {
+							console.log("item =", item);
+
 							const { container, textAlign, padding } = getPositionConfig(item.position);
 							const textColor = item.color || "#FFFFFF";
 							return (
-								<div className={`absolute inset-0 flex ${container} pt-12 ${padding}`}>
-									<div className={`flex flex-col lg:gap-40 gap-20 max-w-3xl ${textAlign}`}>
+								<div className={`absolute inset-0 flex ${container} items-center pt-12 ${padding}`}>
+									<div className={`flex flex-col lg:gap-10 gap-6 max-w-2xl ${textAlign}`}>
 										<div className="space-y-4">
-											<div
-												className={`flex ${textAlign.includes("items-end") ? "justify-end" : textAlign.includes("items-start") ? "justify-start" : "justify-center"} font-kufam text-2xl`}
-												style={{ color: textColor }}
-											>
-												<span className="break-words">{item.shortdesc}</span>
-												<hr className="ml-2 bg-[#C79954] w-5 border-0 h-[2px]" />
-											</div>
-											<h1
-												className="mt-2 font-Ginger text-4xl sm:text-5xl leading-tight break-words"
-												style={{ color: textColor, overflowWrap: "anywhere" }}
-											>
-												{item.title}
-											</h1>
-											<p
-												className="mt-4 sm:mt-6 text-base sm:text-lg font-kufam break-words"
-												style={{ color: textColor, overflowWrap: "anywhere" }}
-											>
-												{item.description}
-											</p>
+											{/* Short Description */}
+											{item.shortdesc && (
+												<div
+													className={`flex items-center ${textAlign.includes("items-end") ? "justify-end" : textAlign.includes("items-start") ? "justify-center" : "justify-start"} font-kufam sm:text-xl md:text-2xl`}
+													style={{ color: "#FFFFFF" }}
+												>
+													<span
+														className="break-words font-[100]"
+														style={{
+															WebkitFontSmoothing: "antialiased",
+															MozOsxFontSmoothing: "grayscale",
+														}}
+													>
+														{item.shortdesc}
+													</span>
+
+													<div className="ml-2 mt-3 h-[1px] bg-[#C79954] w-5 flex-shrink-0" />
+												</div>
+											)}
+											{/* Title - Will wrap into 2 lines naturally */}
+											{item.title && (
+												<h6
+													className="mt-2 font-ginger text-4xl sm:text-5xl md:text-6xl lg:text-6xl leading-[1.15]  break-words font-[300]"
+													style={{
+														color: textColor,
+
+														maxWidth: "600px",
+														wordBreak: "break-word",
+														hyphens: "auto",
+														letterSpacing: "-0.02em"
+													}}
+												>
+													{item.title}
+												</h6>
+											)}
+											{/* Description */}
+											{item.description && (
+												<p
+													className="mt-4 sm:mt-6 text-sm sm:text-base md:text-lg font-kufam break-words leading-relaxed max-w-2xl"
+													style={{ color: "#FFFFFF" }}
+												>
+													{item.description}
+												</p>
+											)}
 										</div>
-										<div className={`flex ${textAlign.includes("items-end") ? "justify-end" : textAlign.includes("items-start") ? "justify-start" : "justify-center"} w-full`}>
-											<div className="inline-flex flex-col items-center gap-2 px-6 py-3 rounded-xl">
+										<div
+											className={`flex ${textAlign.includes("items-end")
+												? "justify-end"
+												: textAlign.includes("items-start")
+													? "justify-center"
+													: "justify-center"
+												} w-full`}
+										>
+											<div className="inline-flex flex-col items-center gap-2">
+
 												<button
 													type="button"
 													onClick={(e) => handleButtonClick(item, e)}
-													className="inline-flex items-center gap-3 px-6 py-3 rounded-xl btn-accent w-auto cursor-pointer z-10 relative"
+													className="
+        inline-flex items-center gap-4
+        px-8 py-4
+        rounded-2xl
+        text-white
+        font-medium
+        shadow-lg
+        relative
+      "
+													style={{
+														background:
+															"linear-gradient(73.99deg, #6D2F3A -18.94%, #A18151 26.82%, #C79954 62.02%, #E8DA9D 107.78%, #C79954 157.06%)",
+													}}
 												>
-													<span className="text-sm font-medium">{item.buttontxt}</span>
-													<span className="h-[28px] w-[28px] flex items-center justify-center rounded-xl bg-white text-black">
+													<span className="text-base">
+														{item.buttontxt}
+													</span>
+
+													{/* Arrow Circle */}
+													<span className="h-[32px] w-[32px] flex items-center justify-center rounded-full bg-white text-black">
 														<svg
 															width="16"
-															height="11"
+															height="16"
 															viewBox="0 0 24 24"
 															fill="none"
 															xmlns="http://www.w3.org/2000/svg"
@@ -139,9 +191,15 @@ const Hero = () => {
 														</svg>
 													</span>
 												</button>
-												<div className={` ${index === currentSlide ? "opacity-100" : "opacity-0"} h-[2px] bg-[#D1AE6B] w-full`} />
+
+												{/* Bottom active line */}
+												<div
+													className={`${index === currentSlide ? "opacity-100" : "opacity-0"
+														} h-[2px] w-full bg-[#D1AE6B] transition-opacity`}
+												/>
 											</div>
 										</div>
+
 									</div>
 								</div>
 							);
