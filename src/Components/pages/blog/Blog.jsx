@@ -2,9 +2,9 @@
 import React, { useState, useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { useTheme } from '../../config/hooks/useTheme'
-import RingDesign from "../../../assets/radheva.png"
+import RingDesign from "../../../assets/67b15cdd5e4c55a3b281739acfab605847270d33.png"
 import underline from "../../../assets/about/underline.svg"
-import RingSizes from "../../../assets/ringSize.jpg"
+import RingSizes from "../../../assets/blog_banner.png"
 import { Link } from 'react-router-dom'
 import { getAllBlogs, setCurrentPage } from '../../redux/slice/BlogSlice'
 import AOS from 'aos'
@@ -248,9 +248,10 @@ const Blog = () => {
       </div>
 
       {/* Banner */}
-      <div className="relative w-full max-w-[1440px] mx-auto py-[50px]" data-aos="fade-up">
-        <img src={RingSizes} alt="Expert" className="w-full h-[325.43px] object-cover" />
-        <div className="absolute inset-0 bg-black/20" />
+      <div className="relative w-full max-w-[1440px] mx-auto pt-[50px] pb-0 overflow-hidden" data-aos="fade-up">
+        <div className="relative w-full h-[325.43px]">
+          <img src={RingSizes} alt="Expert" className="w-full h-full object-cover" />
+          <div className="absolute inset-0 bg-black/20" />
 
         <div className="absolute inset-0 flex justify-center items-center" data-aos="zoom-in" data-aos-delay="120">
           <div className="max-w-[458px] flex flex-col md:gap-[60px] gap-[40px] max-sm:px-[20px]">
@@ -269,6 +270,7 @@ const Blog = () => {
               </button>
             </div>
           </div>
+        </div>
         </div>
       </div>
     </div>

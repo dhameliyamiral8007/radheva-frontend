@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { useTheme } from '../../config/hooks/useTheme'
-import RingDesign from "../../../assets/radheva.png"
+import RingDesign from "../../../assets/book_apoinment.png"
 
 import 'react-date-range/dist/styles.css';
 import 'react-date-range/dist/theme/default.css';
@@ -87,7 +87,7 @@ const BookApoinment = () => {
             <div className="relative h-[300px] md:h-[400px]">
                 <img src={RingDesign} alt="RingDesign" className="absolute inset-0 w-full h-full object-cover" />
                 <div className="absolute inset-0 bg-black/30" />
-                <div className="absolute inset-0 flex flex-col justify-center items-center text-center px-6">
+                <div className="absolute inset-0 flex flex-col justify-center items-center text-center px-6 pt-50">
                     <h2 className="text-[40px] text-white font-sm md:text-[40px] font-kufam mb-4">Book Appointment</h2>
                     <p className="max-w-5xl text-white font-kufam leading-relaxed">
                         Be the first to explore our latest designs. And Get exclusive access to our showroom with a personalized appointment tailored to your needs.

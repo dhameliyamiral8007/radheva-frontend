@@ -1,9 +1,9 @@
 import React, { useState } from 'react'
 import { useTheme } from '../../config/hooks/useTheme';
-import Ring from "../../../assets/about/ring.svg";
-import Bangle from "../../../assets/about/bangle.svg";
-import Rings from "../../../assets/about/rings.svg";
-import Chain from "../../../assets/about/chain.svg";
+import Ring from "../../../assets/about/91a0c711c10b977e845c699f7590a1fe12ed202f.jpg";
+import Bangle from "../../../assets/about/130db8ec5d59b46aef01c1becbe56a89c8ee109a.png";
+import Rings from "../../../assets/about/25496524af92e1d70233c138441be6f383235f41.png";
+import Chain from "../../../assets/about/d847139ca0bf3f32dd8830cbda249b2209d826dd.png";
 import underline from "../../../assets/about/underline.svg";
 import leftArrow from "../../../assets/about/leftArrow.svg";
 import rightArrow from "../../../assets/about/rightArrow.svg";
