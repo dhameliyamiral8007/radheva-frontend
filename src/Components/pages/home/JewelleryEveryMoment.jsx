@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect, useMemo, useRef } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useTheme } from "../../config/hooks/useTheme";
 import AOS from "aos";
@@ -34,7 +34,6 @@ const JewelleryEveryMoment = () => {
 
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 4;
-  const productsRef = useRef(products);
   const [addingToCart, setAddingToCart] = useState(null); // Track which product is being added
 
   useEffect(() => {
@@ -286,7 +285,7 @@ const JewelleryEveryMoment = () => {
                       </button>
                     </div>
 
-                    {/* Product Image + Hover CTA */}
+                    {/* Product Image */}
                     <div className="relative">
                       <div
                         className="cursor-pointer"
@@ -301,31 +300,12 @@ const JewelleryEveryMoment = () => {
                           }}
                         />
                       </div>
-                      {/* Hover-only Add to Cart overlay */}
-                      <div className="absolute left-0 right-0 bottom-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 px-3 pb-3">
-                        <button
-                          type="button"
-                          onClick={(e) => handleAddToCart(product, e)}
-                          disabled={addingToCart === product._id}
-                          className={`${theme === "dark" ? "bg-[#1f2937] text-white hover:bg-[#111827]" : "bg-white text-[#1f2937] hover:bg-gray-100"} w-full font-kufam py-3 shadow-lg rounded font-semibold flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed`}
-                        >
-                          {addingToCart === product._id ? (
-                            <>
-                              <svg className="animate-spin h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                              </svg>
-                              <span>Adding...</span>
-                            </>
-                          ) : (
-                            "Add To Cart"
-                          )}
-                        </button>
-                      </div>
                     </div>
 
                     {/* Product Details */}
                     <div className={`${theme === "dark" ? "bg-white text-black" : "bg-[#262626] text-white"} p-4 pt-4`}> 
+                      <div className="flex flex-col flex-1">
+
                       <h3
                         className={`text-lg font-semibold cursor-pointer mt-3 transition-colors ${theme === "dark" ? "hover:text-[#C79954]" : "hover:text-[#C79954]"}`}
                         onClick={(e) => handleProductClick(product, e)}
@@ -351,6 +331,32 @@ const JewelleryEveryMoment = () => {
                             {formatCurrency(product.price)}
                           </span>
                         )}
+                      </div>
+                      </div>
+<div className="absolute bottom-0 left-0 right-0">
+                      {/* Add To Cart Button - Visible on hover */}
+                      <button
+                        type="button"
+                        onClick={(e) => handleAddToCart(product, e)}
+                        disabled={addingToCart === product._id}
+                        className={`w-full font-kufam py-3 mt-3 shadow-lg rounded font-semibold flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed opacity-0 group-hover:opacity-100 transition-opacity duration-300 ${
+                          theme === "dark" 
+                            ? "bg-white text-black hover:bg-white-800" 
+                            : "bg-white text-black hover:bg-white-800"
+                        }`}
+                      >
+                        {addingToCart === product._id ? (
+                          <>
+                            <svg className="animate-spin h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            </svg>
+                            <span>Adding...</span>
+                          </>
+                        ) : (
+                          "Add To Cart"
+                        )}
+                      </button>
                       </div>
                     </div>
                   </div>
