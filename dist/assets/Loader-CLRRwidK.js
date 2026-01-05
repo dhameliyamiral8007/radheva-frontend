@@ -1,0 +1,1 @@
+import{j as e}from"./index-CZsH6DVK.js";const s=()=>e.jsx("div",{className:"fixed inset-0 z-50 flex items-center justify-center bg-black/10 backdrop-blur-[1px]",children:e.jsx("div",{className:"w-10 h-10 border-4 border-[#B5904F] border-t-transparent rounded-full animate-spin"})});export{s as default};
